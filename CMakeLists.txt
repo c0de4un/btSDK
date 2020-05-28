@@ -36,6 +36,9 @@ include ( "cmake/platform.cmake" )
 # Options
 include ( "cmake/bt_options.cmake" )
 
+# Dependencies
+include ("cmake/dependencies.cmake")
+
 # =================================================================================
 # HEADERS
 # =================================================================================
@@ -56,6 +59,11 @@ set ( BT_SOURCES "${BT_PRIVATE_DIR}bt/bt.cpp" )
 add_subdirectory ( "${BT_PUBLIC_DIR}bt/core" )
 
 # ECS
+
+# OpenGL
+if ( BT_OPEN_GL )
+    add_subdirectory ( "${BT_PUBLIC_DIR}bt/gl" )
+endif ( BT_OPEN_GL )
 
 # Android
 if ( ANDROID OR BT_ANDROID )

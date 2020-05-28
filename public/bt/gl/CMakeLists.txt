@@ -1,6 +1,6 @@
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 #
-# btEngine.Core
+# btEngine.OpenGL (& ES)
 #
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -15,50 +15,30 @@ cmake_minimum_required(VERSION 3.5)
 # =================================================================================
 
 # Project Name
-set ( PROJECT_NAME "btEngine.Core" )
+set ( PROJECT_NAME "btEngine.GL" )
 
 # Project Version
 set ( PROJECT_VERSION 0.0.1 )
 
 # Project Description
-set ( PROJECT_DESCRIPTION "btEngine Core Module" )
+set ( PROJECT_DESCRIPTION "btEngine OpenGL (& ES) Module" )
 
 # Configure Project
 project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTION LANGUAGES C CXX )
 
 # =================================================================================
-# OPTIONS & CONFIGS
-# =================================================================================
-
-# =================================================================================
-# IMPORT
-# =================================================================================
-
-
-
-# =================================================================================
 # HEADERS
 # =================================================================================
 
-set ( BT_CORE_HEADERS
-        # CONFIG
-        "../cfg/bt_api.hpp"
-        "../cfg/bt_numeric.hpp"
-        # METRICS
-        "metrics/ILogger.hxx"
-        "metrics/Log.hpp"
-        # ENGINE
-        "engine/Engine.hpp" )
+set ( BT_GL_HEADERS
+        "" )
 
 # =================================================================================
 # SOURCES
 # =================================================================================
 
-set ( BT_CORE_SOURCES
-        # METRICS
-        "../../../private/bt/core/metrics/Log.cpp"
-        # ENGINE
-        "../../../private/bt/core/engine/Engine.cpp" )
+set ( BT_GL_SOURCES
+        "" )
 
 # =================================================================================
 # BUILD
@@ -68,7 +48,7 @@ set ( BT_CORE_SOURCES
 if ( BT_BUILD_STATIC )
 
     # Create STATIC Library Object
-    add_library ( btEngine_Core ${BT_CORE_HEADERS} ${BT_CORE_SOURCES} )
+    add_library ( btEngine_GL ${BT_GL_HEADERS} ${BT_GL_SOURCES} )
 
     # INFO
     if ( BT_CMAKE_DEBUG )
@@ -86,11 +66,11 @@ if ( BT_BUILD_SHARED )
     endif ( WIN32 OR WIN64 OR MINGW32 OR MINGW64 )
 
     # Create SHARED Library Object
-    add_library ( btEngine_Core SHARED ${BT_CORE_SOURCES} )
+    add_library ( btEngine_GL SHARED ${BT_GL_SOURCES} )
 
     # Configure SHARED Library Object
-    set_target_properties ( btEngine_Core PROPERTIES
-            PUBLIC_HEADER ${BT_CORE_HEADERS}
+    set_target_properties ( btEngine_GL PROPERTIES
+            PUBLIC_HEADER ${BT_GL_HEADERS}
             RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
             VERSION ${PROJECT_VERSION} )
 
@@ -107,8 +87,8 @@ endif ( BT_BUILD_SHARED )
 
 # Export Headers & Sources
 if ( BT_EXPORT_SOURCES )
-    set ( BT_HEADERS_EXPORT ${BT_HEADERS_EXPORT} ${BT_CORE_HEADERS} )
-    set ( BT_SOURCES_EXPORT ${BT_SOURCES_EXPORT} ${BT_CORE_SOURCES} )
+    set ( BT_HEADERS_EXPORT ${BT_HEADERS_EXPORT} ${BT_GL_HEADERS} )
+    set ( BT_SOURCES_EXPORT ${BT_SOURCES_EXPORT} ${BT_GL_SOURCES} )
 
     # INFO
     if ( BT_CMAKE_DEBUG )
