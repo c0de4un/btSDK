@@ -59,6 +59,7 @@ set ( BT_SOURCES "${BT_PRIVATE_DIR}bt/bt.cpp" )
 add_subdirectory ( "${BT_PUBLIC_DIR}bt/core" )
 
 # ECS
+add_subdirectory ( "${BT_PUBLIC_DIR}/bt/ecs" )
 
 # OpenGL
 if ( BT_OPEN_GL )
@@ -83,14 +84,14 @@ endif ( BT_CMAKE_DEBUG )
 if ( BT_BUILD_STATIC )
 
     # Create STATIC Library Object
-    add_library ( btEngine ${BT_HEADERS} ${BT_SOURCES} )
+    add_library ( btEngine STATIC ${BT_HEADERS} ${BT_SOURCES} )
 
 endif ( BT_BUILD_STATIC )
 
 # Build SHARED Library
 if ( BT_BUILD_SHARED )
     # Create SHARED Library Object
-    add_library ( btEngine ${BT_SOURCES} )
+    add_library ( btEngine SHARED ${BT_SOURCES} )
 
     # Configure Executable-Object
     set_target_properties ( btEngine PROPERTIES
@@ -100,16 +101,20 @@ endif ( BT_BUILD_SHARED )
 
 # Include & Link
 if ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
-    # Connecting the library, specify where to get the header files
-    #include_directories("core")
+    # ECS
+    include_directories ( "ecs" )
 
+    # CORE
+    include_directories("core")
+
+    # ANDROID
     if ( ANDROID OR BT_ANDROID )
         include_directories("android")
     endif ( ANDROID OR BT_ANDROID )
 
-    # Link
-    target_link_libraries ( btEngine btEngine_Core )
+    target_link_libraries ( btEngine btEngine_Core btEngine_ECS )
 
+    # ANDROID
     if ( ANDROID OR BT_ANDROID )
         target_link_libraries ( btEngine btEngine_Android )
     endif ( ANDROID OR BT_ANDROID )

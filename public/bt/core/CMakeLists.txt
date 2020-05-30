@@ -43,10 +43,36 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 set ( BT_CORE_HEADERS
         # CONFIG
         "../cfg/bt_api.hpp"
+        "../cfg/bt_assert.hpp"
+        "../cfg/bt_platform.hpp"
+        "../cfg/bt_atomic.hpp"
         "../cfg/bt_numeric.hpp"
+        "../cfg/bt_mutex.hpp"
+        "../cfg/bt_queue.hpp"
+        "../cfg/bt_stream.hpp"
+        "../cfg/bt_vector.hpp"
+        "../cfg/bt_map.hpp"
+        "../cfg/bt_log.hpp"
+        "../cfg/bt_memory.hpp"
+        # CONTAINERS
+        "containers/AsyncVector.hpp"
+        "containers/AsyncArray.hpp"
+        "containers/AsyncDeque.hpp"
+        "containers/AsyncMap.hpp"
+        # ASYNC
+        "async/IMutex.hxx"
+        "async/Mutex.hpp"
+        "async/ILock.hxx"
+        "async/Lock.hpp"
+        "async/SpinLock.hpp"
+        # MEMORY
+        "memory/IDMap.hpp"
+        "memory/IDVector.hpp"
         # METRICS
         "metrics/ILogger.hxx"
         "metrics/Log.hpp"
+        # RENDER
+        "render/RenderManager.hpp"
         # ENGINE
         "engine/Engine.hpp" )
 
@@ -55,8 +81,19 @@ set ( BT_CORE_HEADERS
 # =================================================================================
 
 set ( BT_CORE_SOURCES
+        # CONTAINERS
+        "../../../private/bt/core/containers/AsyncVector.cpp"
+        "../../../private/bt/core/containers/AsyncArray.cpp"
+        "../../../private/bt/core/containers/AsyncDequeue.cpp"
+        "../../../private/bt/core/containers/AsyncMap.cpp"
+        # ASYNC
+        "../../../private/bt/core/async/Mutex.cpp"
+        "../../../private/bt/core/async/Lock.cpp"
+        "../../../private/bt/core/async/SpinLock.cpp"
         # METRICS
         "../../../private/bt/core/metrics/Log.cpp"
+        # RENDER
+        "../../../private/bt/core/render/RenderManager.cpp"
         # ENGINE
         "../../../private/bt/core/engine/Engine.cpp" )
 
@@ -68,7 +105,7 @@ set ( BT_CORE_SOURCES
 if ( BT_BUILD_STATIC )
 
     # Create STATIC Library Object
-    add_library ( btEngine_Core ${BT_CORE_HEADERS} ${BT_CORE_SOURCES} )
+    add_library ( btEngine_Core STATIC ${BT_CORE_HEADERS} ${BT_CORE_SOURCES} )
 
     # INFO
     if ( BT_CMAKE_DEBUG )
@@ -100,6 +137,17 @@ if ( BT_BUILD_SHARED )
     endif ( BT_CMAKE_DEBUG )
 
 endif ( BT_BUILD_SHARED )
+
+# Include & Link
+if ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
+
+    # Include
+    #include_directories ( "../ecs" ) # ECS
+
+    # Link
+    #target_link_libraries ( btEngine_Core btEngine_ECS )
+
+endif ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
 
 # =================================================================================
 # EXPORT

@@ -125,7 +125,6 @@ namespace bt
 } /// bt
 
 using bt_ILogger = bt::core::ILogger;
-#define BT_CORE_I_LOGGER_DECL
 
 // -----------------------------------------------------------
 

@@ -37,6 +37,8 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 # =================================================================================
 
 set ( BT_ANDROID_HEADERS
+        # ASYNC
+        "async/AndroidMutex.hpp"
         # METRICS
         "metrics/AndroidLogger.hpp" )
 
@@ -45,6 +47,8 @@ set ( BT_ANDROID_HEADERS
 # =================================================================================
 
 set ( BT_ANDROID_SOURCES
+        # ASYNC
+        "../../../private/bt/android/async/AndroidMutex.cpp"
         # METRICS
         "../../../private/bt/android/metrics/AndroidLogger.cpp" )
 
@@ -56,7 +60,7 @@ set ( BT_ANDROID_SOURCES
 if ( BT_BUILD_STATIC )
 
     # Create STATIC Library Object
-    add_library ( btEngine_Android ${BT_ANDROID_HEADERS} ${BT_ANDROID_SOURCES} )
+    add_library ( btEngine_Android STATIC ${BT_ANDROID_HEADERS} ${BT_ANDROID_SOURCES} )
 
     # INFO
     if ( BT_CMAKE_DEBUG )
@@ -82,18 +86,21 @@ if ( BT_BUILD_SHARED )
             RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
             VERSION ${PROJECT_VERSION} )
 
-    # Include btEngine.Core
-    include_directories ( "../core" )
-
-    # Link
-    target_link_libraries ( btEngine_Android btEngine_Core log-lib )
-
     # INFO
     if ( BT_CMAKE_DEBUG )
         message ( STATUS "${PROJECT_NAME} - SHARED Library added." )
     endif ( BT_CMAKE_DEBUG )
 
 endif ( BT_BUILD_SHARED )
+
+# Include & Link
+if ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
+    # Include btEngine.Core
+    include_directories ( "../core" )
+
+    # Link
+    target_link_libraries ( btEngine_Android btEngine_Core ${log-lib} )
+endif ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
 
 # =================================================================================
 # EXPORT
