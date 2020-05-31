@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_I_COMPONENTS_MANAGER_HXX
+#define ECS_I_COMPONENTS_MANAGER_HXX
 
 // -----------------------------------------------------------
 
@@ -39,12 +39,87 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "../types/ecs_api.hpp"
+#endif // !ECS_API_HPP
+
 // ===========================================================
-//
+// FORWARD-DECLARATIONS
 // ===========================================================
 
+// Forward-Declare ecs::Component
+#ifndef ECS_COMPONENT_DECL
 #define ECS_COMPONENT_DECL
+namespace ecs { struct Component; }
+using ecs_Component = ecs::Component;
+#endif // !ECS_COMPONENT_DECL
+
+// ===========================================================
+// TYPES
+// ===========================================================
+
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * IComponentsManager - Components Manager interface.
+     *
+     * @version 0.1
+    **/
+    class ECS_API IComponentsManager
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_INTERFACE
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * IComponentsManager destructor.
+         *
+         * @throws - can throw exceptions.
+        **/
+        virtual ~IComponentsManager()
+        {
+        }
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        // -----------------------------------------------------------
+
+    }; /// bt::IComponentsManager
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using bt_IComponentsManager = ecs::IComponentsManager;
+#define ECS_I_COMPONENTS_MANAGER_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_I_COMPONENTS_MANAGER_HXX

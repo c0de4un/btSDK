@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_SYSTEM_HPP
+#define ECS_SYSTEM_HPP
 
 // -----------------------------------------------------------
 
@@ -39,11 +39,272 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::ISystem
+#ifndef ECS_I_SYSTEM_HXX
+#include "ISystem.hxx"
+#endif // !ECS_I_SYSTEM_HXX
+
+// Include ecs::atomic
+#ifndef ECS_ATOMIC_HPP
+#include "../types/ecs_atomic.hpp"
+#endif // !ECS_ATOMIC_HPP
+
+// Include ecs::mutex
+#ifndef ECS_MUTEX_HPP
+#include "../types/ecs_mutex.hpp"
+#endif // !ECS_MUTEX_HPP
+
 // ===========================================================
-//
+// TYPES
 // ===========================================================
 
-#define ECS_COMPONENT_DECL
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * System - base System class.
+     *
+     * @version 0.1
+    **/
+    class ECS_API System : public ecs_ISystem
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_CLASS
+
+        // -----------------------------------------------------------
+
+    protected:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTANTS
+        // ===========================================================
+
+        static constexpr const unsigned char SYSTEM_STATE_NOT_STARTED = 0;
+        static constexpr const unsigned char SYSTEM_STATE_STARTING = 1;
+        static constexpr const unsigned char SYSTEM_STATE_STARTED = 2;
+        static constexpr const unsigned char SYSTEM_STATE_PAUSING = 3;
+        static constexpr const unsigned char SYSTEM_STATE_PAUSED = 4;
+        static constexpr const unsigned char SYSTEM_STATE_RESUMING = 5;
+        static constexpr const unsigned char SYSTEM_STATE_STOPPING = 6;
+        static constexpr const unsigned char SYSTEM_STATE_STOPPED = 7;
+
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        /** Mutex to synchronize state-value access. **/
+        mutable ecs_Mutex mStateMutex;
+
+        /** State. **/
+        ecs_atomic<unsigned char> mCurrentState;
+
+        // ===========================================================
+        // CONSTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * System constructor.
+         *
+         * @param pType - Type-ID.
+         * @throws - can throw exception.
+        **/
+        explicit System( const ecs_TypeID pType );
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns current state.
+         *
+         * @thread_safety - atomics used.
+         * @throws - no exceptions.
+        **/
+        unsigned char getState() const;
+
+        /**
+         * @brief
+         * Sets new state.
+         *
+         * @thread_safety - atomics used.
+         * @returns - 'true' if state set, false if no need.
+         * @throws - no exceptions.
+        **/
+        bool setState( const unsigned char newState );
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Called when System starting.
+         *
+         * @thread_safety - thread-lock used.
+         * @throws - can throw exception.
+        **/
+        virtual bool onStart();
+
+        /**
+         * @brief
+         * Called whe System resuming from pause.
+         *
+         * @thread_safety - thread-lock used.
+         * @throws - can throw exception.
+        **/
+        virtual bool onResume();
+
+        /**
+         * @brief
+         * Called whe System pausing.
+         *
+         * @thread_safety - thread-lock used.
+         * @throws - can throw exception.
+        **/
+        virtual void onPause();
+
+        /**
+         * @brief
+         * Called whe System stopping.
+         *
+         * @thread_safety - thread-lock used.
+         * @throws - can throw exception.
+        **/
+        virtual void onStop();
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        System(const System&) = delete;
+        System& operator=(const System&) = delete;
+        System(System&&) = delete;
+        System& operator=(System&&) = delete;
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTANTS
+        // ===========================================================
+
+        /** Type-ID. **/
+        const ecs_TypeID mTypeID;
+
+        /** ID. **/
+        const ecs_ObjectID mID;
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * System constructor.
+         *
+         * @throws - can throw exception.
+        **/
+        virtual ~System();
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns Type-ID.
+         *
+         * @thread_safety - not required.
+         * @throws - no exceptions.
+        **/
+        virtual ecs_TypeID getTypeID() const BT_NOEXCEPT override;
+
+        /**
+         * @brief
+         * Returns System ID.
+         *
+         * @throws - no exceptions.
+        **/
+        virtual ecs_ObjectID getID() const BT_NOEXCEPT final;
+
+        /**
+         * @brief
+         * Returns 'true' if paused.
+         *
+         * @thread_safety - atomic used.
+         * @throws - no exceptions.
+        **/
+        virtual bool isPaused() const noexcept final;
+
+        /**
+         * @brief
+         * Returns 'true' if System started.
+         *
+         * @thread_safety - atomic used.
+         * @throws - no exceptions.
+        **/
+        virtual bool isStarted() const noexcept final;
+
+        // ===========================================================
+        // ecs::ISystem
+        // ===========================================================
+
+        /**
+         * @brief
+         * Start/Resume System.
+         *
+         * @thread_safety - thread-locks used.
+         * @return - 'true' if OK, 'false' if error.
+         * @throws - can throw exception.
+        **/
+        virtual bool Start() final;
+
+        /**
+         * @brief
+         * Pause System.
+         *
+         * @thread_safety - thread-locks used.
+         * @throws - can throw exception.
+        **/
+        virtual void Pause() final;
+
+        /**
+         * @brief
+         * Stop System.
+         * Unlikely #Pause, release (unload) all related resources.
+         *
+         * @thread_safety - thread-locks used.
+         * @throws - no exceptions.
+        **/
+        virtual void Stop() final;
+
+        // -----------------------------------------------------------
+
+    }; /// ecs::System
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using ecs_System = ecs::System;
+
+#define ECS_SYSTEM_DECL
 
 // -----------------------------------------------------------
 

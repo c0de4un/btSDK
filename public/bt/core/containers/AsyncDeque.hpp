@@ -38,7 +38,20 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::deque
+// Include bt::queue
+#ifndef BT_CFG_QUEUE_HPP
+#include "../../cfg/bt_queue.hpp"
+#endif // !BT_CFG_QUEUE_HPP
+
+// Include bt:atomic
+#ifndef BT_CFG_ATOMIC_HPP
+#include "../../cfg/bt_atomic.hpp"
+#endif // !BT_CFG_ATOMIC_HPP
+
+// Include bt::mutex
+#ifndef BT_CFG_MUTEX_HPP
+#include "../../cfg/bt_mutex.hpp"
+#endif // !BT_CFG_MUTEX_HPP
 
 // ===========================================================
 // TYPES
@@ -80,9 +93,37 @@ namespace bt
             // FIELDS
             // ===========================================================
 
+            /** Mutex. **/
+            bt_Mutex mMutex;
+
+            /** Elements counter. **/
+            bt_atomic<bt_size_t> mElementsCount;
+
+            /** Deque **/
+            bt_deque<T> mDeque;
+
             // ===========================================================
             // DELETED
             // ===========================================================
+
+            AsyncDeque(const AsyncDeque&) = delete;
+            AsyncDeque& operator=(const AsyncDeque&) = delete;
+            AsyncDeque(AsyncDeque&&) = delete;
+            AsyncDeque& operator=(AsyncDeque&&) = delete;
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Updates elements counter.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - no exceptions.
+            **/
+            inline void updateElementsCount() noexcept
+            { mElementsCount = mDeque.size(); }
 
             // -----------------------------------------------------------
 
@@ -93,6 +134,27 @@ namespace bt
             // ===========================================================
             // CONSTRUCTOR & DESTRUCTOR
             // ===========================================================
+
+            /**
+             * @brief
+             * AsyncDeque constructor.
+             *
+             * @throws - can throw exception.
+            **/
+            explicit AsyncDeque( )
+                : mMutex(),
+                mElementsCount(0),
+                mDeque( )
+            {
+            }
+
+            /**
+             * @brief
+             * AsyncDeque destructor.
+             *
+             * @throws - can throw exception.
+            **/
+            ~AsyncDeque() = default;
 
             // ===========================================================
             // METHODS

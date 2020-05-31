@@ -33,7 +33,9 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 set ( BT_ECS_HEADERS
         # CONFIG
         "ecs.hpp"
+        "types/ecs_ids.hpp"
         "types/ecs_api.hpp"
+        "types/ecs_atomic.hpp"
         "types/ecs_numeric.hpp"
         "types/ecs_mutex.hpp"
         "types/ecs_memory.hpp"

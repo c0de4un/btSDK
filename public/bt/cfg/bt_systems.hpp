@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CFG_MEMORY_HPP
-#define BT_CFG_MEMORY_HPP
+#ifndef BT_CFG_SYSTEMS_HPP
+#define BT_CFG_SYSTEMS_HPP
 
 // -----------------------------------------------------------
 
@@ -43,20 +43,10 @@
 #include "bt_api.hpp"
 #endif // !BT_CFG_API_HPP
 
-// PLATFORM
-#if defined(ANDROID) || defined( BT_ANDROID ) || defined( BT_WINDOWS ) || defined( BT_LINUX )
-
-// Include C++ memory
-#include <memory>
-
-template <typename T>
-using bt_sptr = std::shared_ptr<T>;
-
-template <typename T>
-using bt_wptr = std::weak_ptr<T>;
-
-template <typename T>
-using bt_uptr = std::unique_ptr<T>;
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../ecs/types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
 
 // ===========================================================
 // TYPES
@@ -67,79 +57,41 @@ namespace bt
 
     // -----------------------------------------------------------
 
-    /**
-     * @brief
-     * Memory - utility-class to handle memory-related logic (pointers, allocators).
-     *
-     * @version 0.1
-    **/
-    class BT_API Memory
-    {
-
-        // -----------------------------------------------------------
-
-        // ===========================================================
-        // META
-        // ===========================================================
-
-        BT_CLASS
-
-        // -----------------------------------------------------------
-
-    public:
-
-        // -----------------------------------------------------------
-
-        // ===========================================================
-        // GETTERS & SETTERS
-        // ===========================================================
-
-        template <typename T>
-        static T* GetRawPointer(bt_sptr<T>& pObject)
-        {
-            T& object_ref = *(pObject);
-            return &object_ref;
-        }
-
-        // ===========================================================
-        // METHODS
-        // ===========================================================
-
         /**
          * @brief
-         * Make shared pointer for new object.
+         * SystemTypes - basic Systems Type-IDs.
+         * Designed to support extending by other list, with start from this.MAX.
          *
-         * @thread_safety - not required.
-         * @param pArgs - constructor-arguments.
-         * @return - shared-pointer.
-         * @throws - can throw exception.
+         * @version 0.1
         **/
-        template <typename T, typename... _Types>
-        static bt_sptr<T> MakeShared( _Types&& ... _Args )
-        { return std::make_shared<T>( std::forward<_Types>(_Args)... ); }
+        enum SystemTypes : ecs_TypeID
+        {
 
-        template <class _Tp>
-        static typename std::remove_reference<_Tp>::type&& MoveShared(_Tp&& __t)
-        { return std::move<_Tp>(__t); }
+            // -----------------------------------------------------------
 
-        // -----------------------------------------------------------
+            MIN = 0,
+            ENGINE,
+            GRAPHICS,
+            RENDER,
+            BATCHING,
+            PARTICLES,
+            AI,
+            AUDIO,
+            THREAD,
+            TASKS,
+            INPUT,
+            MAX = 99
 
-    }; /// bt::memory
+            // -----------------------------------------------------------
+
+        }; /// bt::core::Systems
 
     // -----------------------------------------------------------
 
 } /// bt
 
-using bt_Memory = bt::Memory;
-
-#define New bt_Memory::MakeShared
+using bt_SystemTypes = bt::SystemTypes;
 
 // -----------------------------------------------------------
 
-#else
-#error "bt_memory.hpp - platform not detected, configuration required."
-#endif
-// PLATFORM
-
-
-#endif // !BT_CFG_MEMORY_HPP
+#endif // !BT_CFG_SYSTEMS_HPP

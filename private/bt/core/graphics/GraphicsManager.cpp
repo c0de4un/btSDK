@@ -30,77 +30,107 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_I_ENTITIES_MANAGER_HXX
-#define ECS_I_ENTITIES_MANAGER_HXX
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include ecs::api
-#ifndef ECS_API_HPP
-#include "../types/ecs_api.hpp"
-#endif // !ECS_API_HPP
+// HEADER
+#ifndef BT_CORE_GRAPHICS_MANAGER_HPP
+#include "../../../../public/bt/core/graphics/GraphicsManager.hpp"
+#endif // !BT_CORE_GRAPHICS_MANAGER_HPP
+
+// Include bt::SystemTypes
+#ifndef BT_CFG_SYSTEMS_HPP
+#include "../../../../public/bt/cfg/bt_systems.hpp"
+#endif // !BT_CFG_SYSTEMS_HPP
 
 // ===========================================================
-// TYPES
+// bt::core::GraphicsManager
 // ===========================================================
 
-namespace ecs
+namespace bt
 {
 
-    // -----------------------------------------------------------
-
-    /**
-     * @brief
-     * IEntitiesManager - Entities Manager interface.
-     *
-     * @version 0.1
-    **/
-    class ECS_API IEntitiesManager
+    namespace core
     {
 
         // -----------------------------------------------------------
 
         // ===========================================================
-        // META
+        // FIELDS
         // ===========================================================
 
-        ECS_INTERFACE
-
-        // -----------------------------------------------------------
-
-    public:
-
-        // -----------------------------------------------------------
+        bt_sptr<GraphicsManager> GraphicsManager::mInstance(nullptr);
 
         // ===========================================================
-        // DESTRUCTOR
+        // CONSTRUCTOR & DESTRUCTOR
         // ===========================================================
 
-        /**
-         * @brief
-         * IEntitiesManager destructor.
-         *
-         * @throws - can throw exceptions.
-        **/
-        virtual ~IEntitiesManager()
+        GraphicsManager::GraphicsManager( const GraphicsSettings& pSettings )
+            : System(bt_SystemTypes::GRAPHICS),
+            mSettings( pSettings )
         {
+        }
+
+        GraphicsManager::~GraphicsManager()
+        {
+            this->Stop();
+        }
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        GraphicsSettings GraphicsManager::getSettings() const BT_NOEXCEPT
+        { return mSettings; }
+
+        // ===========================================================
+        // ecs::System
+        // ===========================================================
+
+        bool GraphicsManager::onStart()
+        {
+            return System::onStart();
+        }
+
+        bool GraphicsManager::onResume()
+        {
+            return System::onResume();
+        }
+
+        void GraphicsManager::onPause()
+        {
+            System::onPause();
+        }
+
+        void GraphicsManager::onStop()
+        {
+            System::onStop();
+        }
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        void GraphicsManager::Initialize( bt_sptr<GraphicsManager> pInstance )
+        {
+            if ( mInstance != nullptr )
+                return;
+
+            mInstance = bt_Memory::MoveShared(pInstance); //std::move(pInstance);
+        }
+
+        void GraphicsManager::Terminate()
+        {
+
         }
 
         // -----------------------------------------------------------
 
-    }; /// bt::IEntitiesManager
+    } /// bt::core
 
-    // -----------------------------------------------------------
-
-} /// ecs
-
-using bt_IEntitiesManager = ecs::IEntitiesManager;
-#define ECS_I_ENTITIES_MANAGER_DECL
+} /// bt
 
 // -----------------------------------------------------------
-
-#endif // !ECS_I_ENTITIES_MANAGER_HXX

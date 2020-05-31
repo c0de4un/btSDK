@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_ENTITIES_MANAGER_HPP
+#define ECS_ENTITIES_MANAGER_HPP
 
 // -----------------------------------------------------------
 
@@ -43,8 +43,8 @@
 //
 // ===========================================================
 
-#define ECS_COMPONENT_DECL
+#define ECS_ENTITIES_MANAGER_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_ENTITIES_MANAGER_HPP

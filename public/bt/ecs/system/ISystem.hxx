@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_I_SYSTEM_HXX
+#define ECS_I_SYSTEM_HXX
 
 // -----------------------------------------------------------
 
@@ -39,12 +39,145 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "../types/ecs_api.hpp"
+#endif // !ECS_API_HPP
+
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
+
 // ===========================================================
-//
+// TYPES
 // ===========================================================
 
-#define ECS_COMPONENT_DECL
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * ISystem - System interface.
+     *
+     * @version 0.1
+    **/
+    class ECS_API ISystem
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_INTERFACE
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * ISystem destructor.
+         *
+         * @throws - can throw exceptions.
+        **/
+        virtual ~ISystem()
+        {
+        }
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns Type-ID.
+         *
+         * @thread_safety - not required.
+         * @throws - no exceptions.
+        **/
+        virtual ecs_TypeID getTypeID() const BT_NOEXCEPT = 0;
+
+        /**
+         * @brief
+         * Returns System ID.
+         *
+         * @throws - no exceptions.
+        **/
+        virtual ecs_ObjectID getID() const BT_NOEXCEPT = 0;
+
+        /**
+         * @brief
+         * Returns 'true' if paused.
+         *
+         * @thread_safety - atomic used.
+         * @throws - no exceptions.
+        **/
+        virtual bool isPaused() const noexcept = 0;
+
+        /**
+         * @brief
+         * Returns 'true' if System started.
+         *
+         * @thread_safety - atomic used.
+         * @throws - no exceptions.
+        **/
+        virtual bool isStarted() const noexcept = 0;
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Start/Resume System.
+         *
+         * @thread_safety - thread-locks used.
+         * @return - 'true' if OK, 'false' if error.
+         * @throws - can throw exception.
+        **/
+        virtual bool Start() = 0;
+
+        /**
+         * @brief
+         * Pause System.
+         *
+         * @thread_safety - thread-locks used.
+         * @throws - can throw exception.
+        **/
+        virtual void Pause() = 0;
+
+        /**
+         * @brief
+         * Stop System.
+         * Unlikely #Pause, release (unload) all related resources.
+         *
+         * @thread_safety - thread-locks used.
+         * @throws - no exceptions.
+        **/
+        virtual void Stop() = 0;
+
+        // -----------------------------------------------------------
+
+    }; /// ecs::ISystem
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using ecs_ISystem = ecs::ISystem;
+#define ECS_I_SYSTEM_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_I_SYSTEM_HXX

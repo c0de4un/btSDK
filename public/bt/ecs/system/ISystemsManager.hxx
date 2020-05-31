@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_I_SYSTEMS_MANAGER_HXX
+#define ECS_I_SYSTEMS_MANAGER_HXX
 
 // -----------------------------------------------------------
 
@@ -39,12 +39,68 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "../types/ecs_api.hpp"
+#endif // !ECS_API_HPP
+
 // ===========================================================
-//
+// TYPES
 // ===========================================================
 
-#define ECS_COMPONENT_DECL
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * ISystemsManager - Systems Manager interface.
+     *
+     * @version 0.1
+    **/
+    class ECS_API ISystemsManager
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_INTERFACE
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * ISystemsManager destructor.
+         *
+         * @throws - can throw exceptions.
+        **/
+        virtual ~ISystemsManager()
+        {
+        }
+
+        // -----------------------------------------------------------
+
+    }; /// bt::ISystemsManager
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using bt_ISystemsManager = ecs::ISystemsManager;
+#define ECS_I_SYSTEMS_MANAGER_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_I_SYSTEMS_MANAGER_HXX

@@ -29,72 +29,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef ECS_ATOMIC_HPP
+#define ECS_ATOMIC_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef ECS_HPP
-#include "../../../public/bt/ecs/ecs.hpp"
-#endif // ECS_HPP
-
-// Include ecs::ComponentsManager
-#ifndef ECS_COMPONENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/component/ComponentsManager.hpp"
-#endif // !ECS_COMPONENTS_MANAGER_HPP
-
-// Include ecs::EventsManager
-//#ifndef ECS_EVENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/event/EventsManager.hpp"
-//#endif // !ECS_EVENTS_MANAGER_HPP
-
-// Include ecs::EntitiesManager
-#ifndef ECS_ENTITIES_MANAGER_HPP
-#include "../../../public/bt/ecs/entity/EntitiesManager.hpp"
-#endif // !ECS_ENTITIES_MANAGER_HPP
-
-// Include ecs::SystemsManager
-#ifndef ECS_SYSTEMS_MANAGER_HPP
-#include "../../../public/bt/ecs/system/SystemsManager.hpp"
-#endif // !ECS_SYSTEMS_MANAGER_HPP
+// Include bt::atomic
+#ifndef BT_CFG_ATOMIC_HPP
+#include "../../cfg/bt_atomic.hpp"
+#endif // !BT_CFG_ATOMIC_HPP
 
 // ===========================================================
-// ecs::ECSEngine
+// TYPES
 // ===========================================================
 
-namespace ecs
-{
-
-    // -----------------------------------------------------------
-
-    // ===========================================================
-    // CONSTRUCTOR & DESTRUCTOR
-    // ===========================================================
-
-    ECSEngine::ECSEngine() = default;
-
-    ECSEngine::~ECSEngine() = default;
-
-    // ===========================================================
-    // METHODS
-    // ===========================================================
-
-    void ECSEngine::Initialize()
-    {
-        ecs_ComponentsManager::Initialize();
-        ecs_SystemsManager::Initialize();
-    }
-
-    void ECSEngine::Terminate()
-    {
-        ecs_ComponentsManager::Terminate();
-        ecs_SystemsManager::Terminate();
-    }
-
-    // -----------------------------------------------------------
-
-} /// ecs
+template <typename T>
+using ecs_atomic = bt_atomic<T>;
 
 // -----------------------------------------------------------
+
+#endif // !ECS_ATOMIC_HPP

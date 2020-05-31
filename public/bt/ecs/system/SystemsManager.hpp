@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_SYSTEMS_MANAGER_HPP
+#define ECS_SYSTEMS_MANAGER_HPP
 
 // -----------------------------------------------------------
 
@@ -39,12 +39,193 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::ids
+#ifndef ECS_IDS_HPP
+#include "../types/ecs_ids.hpp"
+#endif // !ECS_IDS_HPP
+
+// Include ecs::mutex
+#ifndef ECS_MUTEX_HPP
+#include "../types/ecs_mutex.hpp"
+#endif // ECS_MUTEX_HPP
+
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
+
+// Include ecs::memory
+#ifndef ECS_MEMORY_HPP
+#include "../types/ecs_memory.hpp"
+#endif // !ECS_MEMORY_HPP
+
+// Include ecs::map
+#ifndef ECS_MAP_HPP
+#include "../types/ecs_map.hpp"
+#endif // !ECS_MAP_HPP
+
 // ===========================================================
-//
+// FORWARD-DECLARATION
 // ===========================================================
 
-#define ECS_COMPONENT_DECL
+// Forward-Declare ecs::ISystem
+#ifndef ECS_I_SYSTEM_DECL
+#define ECS_I_SYSTEM_DECL
+namespace ecs { class ISystem; }
+using ecs_ISystem = ecs::ISystem;
+#endif // !ECS_I_SYSTEM_DECL
+
+// ===========================================================
+// TYPES
+// ===========================================================
+
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * SystemsManager - stores & manage Systems.
+     *
+     * @version 0.1
+    **/
+    class ECS_API SystemsManager
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_CLASS
+
+        // -----------------------------------------------------------
+
+    private:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        /** ComponentsManager instance. **/
+        static ecs_sptr<SystemsManager> mInstance;
+
+        /** IDStorage **/
+        ecs_IDMap<ecs_TypeID, ecs_ObjectID> mIDStorage;
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns weak-pointer to ComponentsManager isntance.
+         *
+         * (?) To support thread-safe isntance sharing without locking.
+         * shared-pointer stored, and all accesses gained through weak-pointer.
+         *
+         * @thread_safety - thread-safe due to atomic nature.
+         * @throws - can throw exception.
+        **/
+        static ECS_API ecs_sptr<SystemsManager> getInstance();
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        SystemsManager(const SystemsManager&) = delete;
+        SystemsManager& operator=(const SystemsManager&) = delete;
+        SystemsManager(SystemsManager&&) = delete;
+        SystemsManager& operator=(SystemsManager&&) = delete;
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * SystemsManager constructor.
+         *
+         * @throws - can throw exception.
+        **/
+        explicit SystemsManager();
+
+        /**
+         * @brief
+         * SystemsManager destructor.
+         *
+         * @throws - can throw exception.
+        **/
+        ~SystemsManager();
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns System ID.
+         *
+         * @thread_safety - thread-lock used.
+         * @param pType - Type-ID.
+         * @throws - can throw exception.
+        **/
+        static ecs_ObjectID generateSystemID(const ecs_TypeID pType) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Returns System ID for reusage.
+         *
+         * @thread_safety - thread-lock used.
+         * @param pType - Type-ID.
+         * @param pID - ID to return for reusage.
+         * @throws - can throw exception.
+        **/
+        static void releaseSystemID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Initialize SystemsManager instance.
+         *
+         * @thread_safety - main thread only.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void Initialize();
+
+        /**
+         * @brief
+         * Terminate SystemsManager instance.
+         *
+         * @thread_safety - main thread only.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void Terminate();
+
+        // -----------------------------------------------------------
+
+    }; /// ecs::SystemsManager
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using ecs_SystemsManager = ecs::SystemsManager;
+#define ECS_SYSTEMS_MANAGER_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_SYSTEMS_MANAGER_HPP

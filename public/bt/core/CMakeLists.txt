@@ -54,11 +54,18 @@ set ( BT_CORE_HEADERS
         "../cfg/bt_map.hpp"
         "../cfg/bt_log.hpp"
         "../cfg/bt_memory.hpp"
+        "../cfg/bt_bits.hpp"
+        "../cfg/bt_sets.hpp"
+        "../cfg/bt_systems.hpp"
+        "../cfg/bt_events.hpp"
+        "../cfg/bt_components.hpp"
+        "../cfg/bt_entities.hpp"
         # CONTAINERS
         "containers/AsyncVector.hpp"
         "containers/AsyncArray.hpp"
         "containers/AsyncDeque.hpp"
         "containers/AsyncMap.hpp"
+        "containers/IMapIterator.hxx"
         # ASYNC
         "async/IMutex.hxx"
         "async/Mutex.hpp"
@@ -71,6 +78,8 @@ set ( BT_CORE_HEADERS
         # METRICS
         "metrics/ILogger.hxx"
         "metrics/Log.hpp"
+        # GRAPHICS
+        "graphics/GraphicsManager.hpp"
         # RENDER
         "render/RenderManager.hpp"
         # ENGINE
@@ -92,6 +101,8 @@ set ( BT_CORE_SOURCES
         "../../../private/bt/core/async/SpinLock.cpp"
         # METRICS
         "../../../private/bt/core/metrics/Log.cpp"
+        # GRAPHICS
+        "../../../private/bt/core/graphics/GraphicsManager.cpp"
         # RENDER
         "../../../private/bt/core/render/RenderManager.cpp"
         # ENGINE
@@ -142,10 +153,10 @@ endif ( BT_BUILD_SHARED )
 if ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
 
     # Include
-    #include_directories ( "../ecs" ) # ECS
+    include_directories ( "../ecs" ) # ECS
 
     # Link
-    #target_link_libraries ( btEngine_Core btEngine_ECS )
+    target_link_libraries ( btEngine_Core btEngine_ECS )
 
 endif ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
 

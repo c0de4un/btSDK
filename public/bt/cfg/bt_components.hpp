@@ -35,66 +35,22 @@
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef ECS_HPP
-#include "../../../public/bt/ecs/ecs.hpp"
-#endif // ECS_HPP
-
-// Include ecs::ComponentsManager
-#ifndef ECS_COMPONENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/component/ComponentsManager.hpp"
-#endif // !ECS_COMPONENTS_MANAGER_HPP
-
-// Include ecs::EventsManager
-//#ifndef ECS_EVENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/event/EventsManager.hpp"
-//#endif // !ECS_EVENTS_MANAGER_HPP
-
-// Include ecs::EntitiesManager
-#ifndef ECS_ENTITIES_MANAGER_HPP
-#include "../../../public/bt/ecs/entity/EntitiesManager.hpp"
-#endif // !ECS_ENTITIES_MANAGER_HPP
-
-// Include ecs::SystemsManager
-#ifndef ECS_SYSTEMS_MANAGER_HPP
-#include "../../../public/bt/ecs/system/SystemsManager.hpp"
-#endif // !ECS_SYSTEMS_MANAGER_HPP
-
 // ===========================================================
-// ecs::ECSEngine
+// TYPES
 // ===========================================================
 
-namespace ecs
+namespace bt
 {
 
-    // -----------------------------------------------------------
-
-    // ===========================================================
-    // CONSTRUCTOR & DESTRUCTOR
-    // ===========================================================
-
-    ECSEngine::ECSEngine() = default;
-
-    ECSEngine::~ECSEngine() = default;
-
-    // ===========================================================
-    // METHODS
-    // ===========================================================
-
-    void ECSEngine::Initialize()
+    namespace core
     {
-        ecs_ComponentsManager::Initialize();
-        ecs_SystemsManager::Initialize();
-    }
 
-    void ECSEngine::Terminate()
-    {
-        ecs_ComponentsManager::Terminate();
-        ecs_SystemsManager::Terminate();
-    }
+        // -----------------------------------------------------------
 
-    // -----------------------------------------------------------
+        // -----------------------------------------------------------
 
-} /// ecs
+    } /// bt::core
+
+} /// bt
 
 // -----------------------------------------------------------

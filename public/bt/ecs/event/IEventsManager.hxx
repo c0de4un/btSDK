@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#ifndef ECS_I_EVENTS_MANAGER_HXX
+#define ECS_I_EVENTS_MANAGER_HXX
 
 // -----------------------------------------------------------
 
@@ -39,12 +39,68 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "../types/ecs_api.hpp"
+#endif // !ECS_API_HPP
+
 // ===========================================================
-//
+// TYPES
 // ===========================================================
 
-#define ECS_COMPONENT_DECL
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * IEventsManager - Events Manager interface.
+     *
+     * @version 0.1
+    **/
+    class ECS_API IEventsManager
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_INTERFACE
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * IEventsManager destructor.
+         *
+         * @throws - can throw exceptions.
+        **/
+        virtual ~IEventsManager()
+        {
+        }
+
+        // -----------------------------------------------------------
+
+    }; /// bt::IEventsManager
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using bt_IEventsManager = ecs::IEventsManager;
+#define ECS_I_EVENTS_MANAGER_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_I_EVENTS_MANAGER_HXX

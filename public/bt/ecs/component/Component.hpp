@@ -91,6 +91,9 @@ namespace ecs
         /** Component-ID **/
         const ecs_ObjectID mID;
 
+        /** Type-ID. Used instead of a template value to avoid templates & virtual-calls combination. **/
+        const ecs_TypeID mTypeID;
+
         /** Mutex. **/
         ecs_Mutex* const mMutex;
 
@@ -102,10 +105,11 @@ namespace ecs
          * @brief
          * Component constructor.
          *
+         * @param pType - Type-ID
          * @param pMutex - Mutex, null if not used. Value deleted in destructor.
          * @throws - can throw exception.
         **/
-        explicit Component( ecs_Mutex* const pMutex = nullptr );
+        explicit Component( const ecs_TypeID pType, ecs_Mutex* const pMutex = nullptr );
 
         /**
          * @brief

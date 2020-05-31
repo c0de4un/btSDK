@@ -29,72 +29,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef ECS_IDS_HPP
+#define ECS_IDS_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef ECS_HPP
-#include "../../../public/bt/ecs/ecs.hpp"
-#endif // ECS_HPP
+// Include bt::core::IDMap
+#ifndef BT_CORE_ID_MAP_HPP
+#include "../../core/memory/IDMap.hpp"
+#endif // !BT_CORE_ID_MAP_HPP
 
-// Include ecs::ComponentsManager
-#ifndef ECS_COMPONENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/component/ComponentsManager.hpp"
-#endif // !ECS_COMPONENTS_MANAGER_HPP
-
-// Include ecs::EventsManager
-//#ifndef ECS_EVENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/event/EventsManager.hpp"
-//#endif // !ECS_EVENTS_MANAGER_HPP
-
-// Include ecs::EntitiesManager
-#ifndef ECS_ENTITIES_MANAGER_HPP
-#include "../../../public/bt/ecs/entity/EntitiesManager.hpp"
-#endif // !ECS_ENTITIES_MANAGER_HPP
-
-// Include ecs::SystemsManager
-#ifndef ECS_SYSTEMS_MANAGER_HPP
-#include "../../../public/bt/ecs/system/SystemsManager.hpp"
-#endif // !ECS_SYSTEMS_MANAGER_HPP
+// Include bt::core::IDVector
+#ifndef BT_CORE_ID_VECTOR_HPP
+#include "../../core/memory/IDVector.hpp"
+#endif // !BT_CORE_ID_VECTOR_HPP
 
 // ===========================================================
-// ecs::ECSEngine
+// CONFIG
 // ===========================================================
 
-namespace ecs
-{
+template <typename T>
+using ecs_IDVector = bt_IDVector<T>;
 
-    // -----------------------------------------------------------
-
-    // ===========================================================
-    // CONSTRUCTOR & DESTRUCTOR
-    // ===========================================================
-
-    ECSEngine::ECSEngine() = default;
-
-    ECSEngine::~ECSEngine() = default;
-
-    // ===========================================================
-    // METHODS
-    // ===========================================================
-
-    void ECSEngine::Initialize()
-    {
-        ecs_ComponentsManager::Initialize();
-        ecs_SystemsManager::Initialize();
-    }
-
-    void ECSEngine::Terminate()
-    {
-        ecs_ComponentsManager::Terminate();
-        ecs_SystemsManager::Terminate();
-    }
-
-    // -----------------------------------------------------------
-
-} /// ecs
+template <typename K, typename V>
+using ecs_IDMap = bt_IDMap<K, V>;
 
 // -----------------------------------------------------------
+
+#endif // !ECS_IDS_HPP

@@ -49,6 +49,8 @@
 
 using ecs_Mutex = bt_Mutex;
 
+using ecs_SpinLock = bt_SpinLock;
+
 // -----------------------------------------------------------
 
 #endif // !ECS_MUTEX_HPP

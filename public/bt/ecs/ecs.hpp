@@ -39,10 +39,19 @@
 // ===========================================================
 
 // Include ecs::memory
+#ifndef ECS_API_HPP
+#include "types/ecs_api.hpp"
+#endif // !ECS_API_HPP
 
 // Include ecs::mutex
+#ifndef ECS_MUTEX_HPP
+#include "types/ecs_mutex.hpp"
+#endif // !ECS_MUTEX_HPP
 
 // Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
 
 // ===========================================================
 // TYPES
@@ -53,9 +62,99 @@ namespace ecs
 
     // -----------------------------------------------------------
 
+    /**
+     * @brief
+     * ECSEngine - ECS wrapper.
+     *
+     * @version 0.1
+    **/
+    class ECS_API ECSEngine
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_CLASS
+
+        // -----------------------------------------------------------
+
+    private:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * ECSEngine constructor.
+         *
+         * @throws - can throw exception.
+        **/
+        explicit ECSEngine();
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        ECSEngine(const ECSEngine&) = delete;
+        ECSEngine& operator=(const ECSEngine&) = delete;
+        ECSEngine(ECSEngine&&) = delete;
+        ECSEngine& operator=(ECSEngine&&) = delete;
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * ECSEngine destructor.
+         *
+         * @throws - no exceptions.
+        **/
+        ~ECSEngine() ECS_NOEXCEPT;
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Initialize ECS.
+         *
+         * @thread_safety - main thread-only.
+         * @throws - can throw exception.
+        **/
+        static void Initialize();
+
+        /**
+         * @brief
+         * Terminate ECS.
+         *
+         * @thread_safety - main thread-only.
+         * @throws - can throw exception.
+        **/
+        static void Terminate();
+
+        // -----------------------------------------------------------
+
+    }; /// bt::ECSEngine
+
     // -----------------------------------------------------------
 
 } /// ecs
+
+using ecs_Engine = ecs::ECSEngine;
 
 // -----------------------------------------------------------
 

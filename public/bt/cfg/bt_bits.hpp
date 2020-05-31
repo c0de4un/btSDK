@@ -29,72 +29,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef BT_CFG_BITS_HPP
+#define BT_CFG_BITS_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef ECS_HPP
-#include "../../../public/bt/ecs/ecs.hpp"
-#endif // ECS_HPP
-
-// Include ecs::ComponentsManager
-#ifndef ECS_COMPONENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/component/ComponentsManager.hpp"
-#endif // !ECS_COMPONENTS_MANAGER_HPP
-
-// Include ecs::EventsManager
-//#ifndef ECS_EVENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/event/EventsManager.hpp"
-//#endif // !ECS_EVENTS_MANAGER_HPP
-
-// Include ecs::EntitiesManager
-#ifndef ECS_ENTITIES_MANAGER_HPP
-#include "../../../public/bt/ecs/entity/EntitiesManager.hpp"
-#endif // !ECS_ENTITIES_MANAGER_HPP
-
-// Include ecs::SystemsManager
-#ifndef ECS_SYSTEMS_MANAGER_HPP
-#include "../../../public/bt/ecs/system/SystemsManager.hpp"
-#endif // !ECS_SYSTEMS_MANAGER_HPP
+// Include bt::api
+#ifndef BT_CFG_API_HPP
+#include "bt_api.hpp"
+#endif // !BT_CFG_API_HPP
 
 // ===========================================================
-// ecs::ECSEngine
+// TYPES
 // ===========================================================
 
-namespace ecs
-{
+// PLATFORM
+#if defined(ANDROID) || defined( BT_ANDROID ) || defined( BT_WINDOWS ) || defined( BT_LINUX )
 
-    // -----------------------------------------------------------
+// Include C++ (STL) bitset
+#include <bitset>
 
-    // ===========================================================
-    // CONSTRUCTOR & DESTRUCTOR
-    // ===========================================================
+using bt_bitset = std::bitset;
 
-    ECSEngine::ECSEngine() = default;
-
-    ECSEngine::~ECSEngine() = default;
-
-    // ===========================================================
-    // METHODS
-    // ===========================================================
-
-    void ECSEngine::Initialize()
-    {
-        ecs_ComponentsManager::Initialize();
-        ecs_SystemsManager::Initialize();
-    }
-
-    void ECSEngine::Terminate()
-    {
-        ecs_ComponentsManager::Terminate();
-        ecs_SystemsManager::Terminate();
-    }
-
-    // -----------------------------------------------------------
-
-} /// ecs
+#endif
+// PLATFORM
 
 // -----------------------------------------------------------
+
+#endif // !BT_CFG_BITS_HPP

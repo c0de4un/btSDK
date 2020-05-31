@@ -39,6 +39,8 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 set ( BT_ANDROID_HEADERS
         # ASYNC
         "async/AndroidMutex.hpp"
+        # GRAPHICS
+        "graphics/AndroidGraphics.hpp"
         # METRICS
         "metrics/AndroidLogger.hpp" )
 
@@ -49,6 +51,8 @@ set ( BT_ANDROID_HEADERS
 set ( BT_ANDROID_SOURCES
         # ASYNC
         "../../../private/bt/android/async/AndroidMutex.cpp"
+        # GRAPHICS
+        "../../../private/bt/android/graphics/AndroidGraphics.cpp"
         # METRICS
         "../../../private/bt/android/metrics/AndroidLogger.cpp" )
 

@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CORE_MUTEX_HPP
-#define BT_CORE_MUTEX_HPP
+#ifndef BT_CORE_I_MAP_ITERATOR_HXX
+#define BT_CORE_I_MAP_ITERATOR_HXX
 
 // -----------------------------------------------------------
 
@@ -38,15 +38,10 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::IMutex
-#ifndef BT_CORE_I_MUTEX_HXX
-#include "IMutex.hxx"
-#endif // !BT_CORE_I_MUTEX_HXX
-
-// Include bt::atomic
-#ifndef BT_CFG_ATOMIC_HPP
-#include "../../cfg/bt_atomic.hpp"
-#endif // !BT_CFG_ATOMIC_HPP
+// Include bt::api
+#ifndef BT_CFG_API_HPP
+#include "../../cfg/bt_api.hpp"
+#endif // !BT_CFG_API_HPP
 
 // ===========================================================
 // TYPES
@@ -62,11 +57,12 @@ namespace bt
 
         /**
          * @brief
-         * Mutex - base mutex class.
+         * IMapIterator - interface to abstract map (associative key-value) container
+         * iteration.
          *
          * @version 0.1
         **/
-        class BT_API Mutex : public bt_IMutex
+        class BT_API IMapIterator
         {
 
             // -----------------------------------------------------------
@@ -75,41 +71,7 @@ namespace bt
             // META
             // ===========================================================
 
-            BT_CLASS
-
-            // -----------------------------------------------------------
-
-        protected:
-
-            // -----------------------------------------------------------
-
-            // ===========================================================
-            // FIELDS
-            // ===========================================================
-
-            /** Locked-flag. **/
-            bt_atomic<bool> mLockedFlag;
-
-            // ===========================================================
-            // CONSTRUCTOR
-            // ===========================================================
-
-            /**
-             * @brief
-             * Mutex constructor.
-             *
-             * @throws - no exceptions.
-            **/
-            explicit Mutex();
-
-            // ===========================================================
-            // DELETED
-            // ===========================================================
-
-            Mutex(const Mutex&) = delete;
-            Mutex& operator=(const Mutex&) = delete;
-            Mutex(Mutex&&) = delete;
-            Mutex& operator=(Mutex&&) = delete;
+            BT_INTERFACE
 
             // -----------------------------------------------------------
 
@@ -121,30 +83,29 @@ namespace bt
             // DESTRUCTOR
             // ===========================================================
 
-            /**
-             * @brief
-             * Mutex destructor.
-             *
-             * @throws - no exceptions.
-            **/
-            virtual ~Mutex();
+            virtual ~IMapIterator()
+            {
+            }
 
             // ===========================================================
-            // GETTERS & SETTERS
+            // METHODS
             // ===========================================================
 
             /**
              * @brief
-             * Check if this mutex is locked.
+             * Called on map iteration.
              *
-             * @thread_safety - thread-safe (atomic, not thread-lock).
+             * @thread_safety - called while thread-lock.
+             * @param pKey - Key.
+             * @param pVal - Value.
+             * @return 'true' to stop & return value.
              * @throws - no exceptions.
             **/
-            virtual bool isLocked() const BT_NOEXCEPT final;
+            virtual const void* onIterateMap( const void* pKey, void* pVal ) BT_NOEXCEPT = 0;
 
             // -----------------------------------------------------------
 
-        }; /// bt::core::Mutex
+        };
 
         // -----------------------------------------------------------
 
@@ -152,6 +113,9 @@ namespace bt
 
 } /// bt
 
+using bt_IMapIterator = bt::core::IMapIterator;
+#define BT_CORE_I_MAP_ITERATOR_DECL
+
 // -----------------------------------------------------------
 
-#endif // !BT_CORE_MUTEX_HPP
+#endif // !BT_CORE_I_MAP_ITERATOR_HXX

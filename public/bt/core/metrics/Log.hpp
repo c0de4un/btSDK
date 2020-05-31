@@ -41,9 +41,12 @@
 // Include bt::api
 #ifndef BT_CFG_API_HPP
 #include "../../cfg/bt_api.hpp"
-#include "ILogger.hxx"
-
 #endif // !BT_CFG_API_HPP
+
+// Include bt::core::ILogger
+#ifndef BT_CORE_I_LOGGER_HXX
+#include "ILogger.hxx"
+#endif // !BT_CORE_I_LOGGER_HXX
 
 // ===========================================================
 // FORWARD-DECLARATIONS

@@ -37,43 +37,77 @@
 // ===========================================================
 
 // HEADER
-#ifndef ECS_COMPONENT_HPP
-#include "../../../../public/bt/ecs/component/Component.hpp"
-#endif // !ECS_COMPONENT_HPP
+#ifndef BT_ANDROID_GRAPHICS_HPP
+#include "../../../../public/bt/android/graphics/AndroidGraphics.hpp"
+#endif // !BT_ANDROID_GRAPHICS_HPP
 
-// Include ecs::ComponentsManager
-#ifndef ECS_COMPONENTS_MANAGER_HPP
-#include "../../../public/bt/ecs/component/ComponentsManager.hpp"
-#endif // !ECS_COMPONENTS_MANAGER_HPP
+// DEBUG
+#if defined( DEBUG ) || defined( BT_DEBUG )
+
+// Include bt::assert
+#ifndef BT_CFG_ASSERT_HPP
+#include "../../../../public/bt/cfg/bt_assert.hpp"
+#endif // !BT_CFG_ASSERT_HPP
+
+// Include bt::log
+#ifndef BT_CFG_LOG_HPP
+#include "../../../../public/bt/cfg/bt_log.hpp"
+#endif // !BT_CFG_LOG_HPP
+
+#endif
+// DEBUG
 
 // ===========================================================
-// ecs::Component
+// bt::android::AndroidGraphics
 // ===========================================================
 
-namespace ecs
+namespace bt
 {
 
-    // -----------------------------------------------------------
-
-    // ===========================================================
-    // CONSTRUCTOR & DESTRUCTOR
-    // ===========================================================
-
-    Component::Component( const ecs_TypeID pType, ecs_Mutex* const pMutex )
-        : mID( ecs_ComponentsManager::generateComponentID(pType) ),
-        mTypeID( pType ),
-        mMutex( pMutex )
+    namespace android
     {
-    }
 
-    Component::~Component() ECS_NOEXCEPT
-    {
-        delete mMutex;
-        ecs_ComponentsManager::releaseComponentID( mTypeID, mID );
-    }
+        // -----------------------------------------------------------
 
-    // -----------------------------------------------------------
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
 
-} /// ecs
+        AndroidGraphics::AndroidGraphics( const bt_GraphicsSettings& pSettings )
+            : GraphicsManager( pSettings )
+        {
+        }
+
+        AndroidGraphics::~AndroidGraphics() = default;
+
+        // ===========================================================
+        // bt::core::GraphicsManager
+        // ===========================================================
+
+        bool AndroidGraphics::onStart()
+        {
+            return GraphicsManager::onStart();
+        }
+
+        bool AndroidGraphics::onResume()
+        {
+            return GraphicsManager::onResume();
+        }
+
+        void AndroidGraphics::onPause()
+        {
+            GraphicsManager::onPause();
+        }
+
+        void AndroidGraphics::onStop()
+        {
+            GraphicsManager::onStop();
+        }
+
+        // -----------------------------------------------------------
+
+    } /// bt::android
+
+} /// bt
 
 // -----------------------------------------------------------
