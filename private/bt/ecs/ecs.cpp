@@ -84,12 +84,14 @@ namespace ecs
     void ECSEngine::Initialize()
     {
         ecs_ComponentsManager::Initialize();
+        ecs_EventsManager::Initialize();
         ecs_SystemsManager::Initialize();
     }
 
     void ECSEngine::Terminate()
     {
         ecs_ComponentsManager::Terminate();
+        ecs_EventsManager::Terminate();
         ecs_SystemsManager::Terminate();
     }
 

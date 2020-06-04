@@ -61,7 +61,7 @@ template <typename K, typename V>
 using ecs_map = bt_map<K, V>;
 
 template <typename K, typename V>
-using ecs_async_map = bt_AsyncMap<K, V>;
+using ecs_AsyncMap = bt_AsyncMap<K, V>;
 
 using ecs_IMapIterator = bt::core::IMapIterator;
 

@@ -38,10 +38,25 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::api
-#ifndef BT_CFG_API_HPP
-#include "../../cfg/bt_api.hpp"
-#endif // !BT_CFG_API_HPP
+// Include ecs::System
+#ifndef ECS_SYSTEM_HPP
+#include "../../ecs/system/System.hpp"
+#endif // !ECS_SYSTEM_HPP
+
+// Include bt::core::IGraphicsListener
+#ifndef BT_CORE_I_GRAPHICS_LISTENER_HXX
+#include "../graphics/IGraphicsListener.hxx"
+#endif // !BT_CORE_I_GRAPHICS_LISTENER_HXX
+
+// Include bt::memory
+#ifndef BT_CFG_MEMORY_HPP
+#include "../../cfg/bt_memory.hpp"
+#endif // !BT_CFG_MEMORY_HPP
+
+// Include bt::core::Color4f
+#ifndef BT_CORE_COLOR_4F_HPP
+#include "../math/Color4f.hpp"
+#endif // !BT_CORE_COLOR_4F_HPP
 
 // ===========================================================
 // TYPES
@@ -59,7 +74,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API RenderManager
+        class BT_API RenderManager : public ecs_System, public bt_IGraphicsListener
         {
 
             // -----------------------------------------------------------
@@ -79,6 +94,12 @@ namespace bt
             // ===========================================================
             // FIELDS
             // ===========================================================
+
+            /** Engine instance. **/
+            static bt_sptr<RenderManager> mInstance;
+
+            /** Background Color .**/
+            bt_Color4f mClearColor;
 
             // ===========================================================
             // CONSTRUCTOR
@@ -123,9 +144,96 @@ namespace bt
             // GETTERS & SETTERS
             // ===========================================================
 
+            /**
+             * @brief
+             * Returns Engine instance, or null.
+             *
+             * @thread_safety - not thread-safe.
+             * @throws - no exceptions.
+            **/
+            static bt_sptr<RenderManager> getInstance() BT_NOEXCEPT;
+
+            /**
+             * @brief
+             * Set Surface clear-color.
+             *
+             * @thread_safety - render thread-only.
+             * @param pColor - color. Value copied/moved.
+             * @throws - no exceptions.
+            **/
+            virtual void setSurfaceColor( const Color4f& pColor ) BT_NOEXCEPT;
+
+            /**
+             * @brief
+             * Returns surface clear-color.
+             *
+             * @thread_safety - render-thread only.
+             * @throws - no exceptions.
+            **/
+            Color4f getSurfaceColor() const BT_NOEXCEPT;
+
+            // ===========================================================
+            // ecs::System
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called when RenderManager starting.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual bool onStart() override;
+
+            /**
+             * @brief
+             * Called whe RenderManager resuming from pause.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual bool onResume() override;
+
+            /**
+             * @brief
+             * Called whe RenderManager pausing.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual void onPause() override;
+
+            /**
+             * @brief
+             * Called whe RenderManager stopping.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual void onStop() override;
+
             // ===========================================================
             // METHODS
             // ===========================================================
+
+            /**
+             * @brief
+             * Initialize Render Manager.
+             *
+             * @thread_safety - main thread only.
+             * @param pInstance - isntance to use.
+             * @throws - can throw exceptions
+            **/
+            static void Initialize( bt_sptr<RenderManager> pInstance );
+
+            /**
+             * @brief
+             * Terminate Render Manager.
+             *
+             * @thread_safety - main thread only.
+             * @throws - can throw exception.
+            **/
+            static void Terminate();
 
             // -----------------------------------------------------------
 

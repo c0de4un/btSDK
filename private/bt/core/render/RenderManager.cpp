@@ -35,10 +35,102 @@
 // INCLUDES
 // ===========================================================
 
+// HEADER
+#ifndef BT_CORE_RENDER_MANAGER_HPP
+#include "../../../../public/bt/core/render/RenderManager.hpp"
+#endif // !BT_CORE_RENDER_MANAGER_HPP
+
+// Include bt::SystemTypes
+#ifndef BT_CFG_SYSTEMS_HPP
+#include "../../../../public/bt/cfg/bt_systems.hpp"
+#endif // !BT_CFG_SYSTEMS_HPP
+
 // ===========================================================
 // bt::core::RenderManager
 // ===========================================================
 
+namespace bt
+{
 
+    namespace core
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        bt_sptr<RenderManager> RenderManager::mInstance(nullptr);
+
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        RenderManager::RenderManager()
+            : System( bt_SystemTypes::RENDER ),
+              mClearColor( 0.39F, 0.6F, 1.0F, 1.0F )
+        {
+        }
+
+        RenderManager::~RenderManager()
+        {
+            this->Stop();
+        }
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        bt_sptr<RenderManager> RenderManager::getInstance() BT_NOEXCEPT
+        { return mInstance; }
+
+        void RenderManager::setSurfaceColor( const Color4f& pColor ) BT_NOEXCEPT
+        { mClearColor = pColor; }
+
+        Color4f RenderManager::getSurfaceColor() const BT_NOEXCEPT
+        { return mClearColor; }
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        bool RenderManager::onStart()
+        {
+            return System::onStart();
+        }
+
+        bool RenderManager::onResume()
+        {
+            return System::onResume();
+        }
+
+        void RenderManager::onPause()
+        {
+            System::onPause();
+        }
+
+        void RenderManager::onStop()
+        {
+            System::onPause();
+        }
+
+        void RenderManager::Initialize( bt_sptr<RenderManager> pInstance )
+        {
+            if ( mInstance != nullptr )
+                return;
+
+            mInstance = bt_Memory::MoveShared(pInstance); //std::move(pInstance);
+        }
+
+        void RenderManager::Terminate()
+        {
+            mInstance = nullptr;
+        }
+        // -----------------------------------------------------------
+
+    } /// bt::core
+
+} /// bt
 
 // -----------------------------------------------------------

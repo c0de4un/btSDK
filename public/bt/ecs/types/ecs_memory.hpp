@@ -43,6 +43,11 @@
 #include "../../cfg/bt_memory.hpp"
 #endif // !BT_CFG_MEMORY_HPP
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "ecs_api.hpp"
+#endif // !ECS_API_HPP
+
 // ===========================================================
 // TYPES
 // ===========================================================

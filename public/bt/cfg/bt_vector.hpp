@@ -143,7 +143,7 @@ namespace bt
 
                 if ( itemsIterator != pVector.cend() ) {
                     if ( pOutput != nullptr )
-                        *pOutput = *itemsIterator;
+                        *pOutput = std::distance( pVector.begin(), itemsIterator );
                     return true;
                 } else {
                     return false;

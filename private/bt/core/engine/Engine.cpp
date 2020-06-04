@@ -40,6 +40,23 @@
 #include "../../../../public/bt/core/engine/Engine.hpp"
 #endif // !BT_CORE_ENGINE_HPP
 
+// Include bt::SystemTypes
+#ifndef BT_CFG_SYSTEMS_HPP
+#include "../../../../public/bt/cfg/bt_systems.hpp"
+#endif // !BT_CFG_SYSTEMS_HPP
+
+// Include bt::core::RenderManager
+
+// Include bt::core::AssetsManager
+
+// Include bt::core::InputManager
+
+// Include bt::core::TasksManager
+
+// Include bt::core::ExtensionsManager
+
+// Include bt::core::AudioManager
+
 // ===========================================================
 //
 // ===========================================================
@@ -50,7 +67,73 @@ namespace bt
     namespace core
     {
 
+        // -----------------------------------------------------------
 
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        bt_sptr<Engine> Engine::mInstance(nullptr);
+
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        Engine::Engine()
+            : System( bt_SystemTypes::ENGINE )
+        {
+        }
+
+        Engine::~Engine()
+        {
+            this->Stop();
+        }
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        bt_sptr<Engine> Engine::getInstance() BT_NOEXCEPT
+        { return mInstance; }
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        bool Engine::onStart()
+        {
+            return System::onStart();
+        }
+
+        bool Engine::onResume()
+        {
+            return System::onResume();
+        }
+
+        void Engine::onPause()
+        {
+            System::onPause();
+        }
+
+        void Engine::onStop()
+        {
+            System::onPause();
+        }
+
+        void Engine::Initialize( bt_sptr<Engine> pInstance )
+        {
+            if ( mInstance != nullptr )
+                return;
+
+            mInstance = bt_Memory::MoveShared(pInstance); //std::move(pInstance);
+        }
+
+        void Engine::Terminate()
+        {
+            mInstance = nullptr;
+        }
+
+        // -----------------------------------------------------------
 
     } /// bt::core
 

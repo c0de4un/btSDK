@@ -31,6 +31,10 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 # =================================================================================
 
 set ( BT_GL_HEADERS
+        # CONFIG
+        "../cfg/bt_open_gl.hpp"
+        # ASSETS
+        # RENDER
         "render/GLRendererManager.hpp" )
 
 # =================================================================================
@@ -38,6 +42,8 @@ set ( BT_GL_HEADERS
 # =================================================================================
 
 set ( BT_GL_SOURCES
+        # ASSETS
+        # RENDER
         "../../../private/bt/gl/render/GLRenderManager.cpp" )
 
 # =================================================================================
@@ -80,6 +86,21 @@ if ( BT_BUILD_SHARED )
     endif ( BT_CMAKE_DEBUG )
 
 endif ( BT_BUILD_SHARED )
+
+# Link
+if ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
+
+    if ( BT_OPEN_GL_ES ) # Mobile
+        if ( ANDROID ) # Android
+            target_link_libraries ( btEngine_GL ${OpenGL} )
+        else ( ANDROID )
+            message ( FATAL_ERROR "${PROJECT_NAME} - Mobile configuration required." )
+        endif ( ANDROID )
+    else ( BT_OPEN_GL_ES ) # Desktop
+        message ( FATAL_ERROR "${PROJECT_NAME} - Desktop configuration required." )
+    endif ( BT_OPEN_GL_ES )
+
+endif ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
 
 # =================================================================================
 # EXPORT

@@ -34,7 +34,8 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 # IMPORT
 # =================================================================================
 
-
+# GLM
+include_directories ( "${GLM_LIB_DIR}" )
 
 # =================================================================================
 # HEADERS
@@ -54,6 +55,7 @@ set ( BT_CORE_HEADERS
         "../cfg/bt_map.hpp"
         "../cfg/bt_log.hpp"
         "../cfg/bt_memory.hpp"
+        "../cfg/bt_math.hpp"
         "../cfg/bt_bits.hpp"
         "../cfg/bt_sets.hpp"
         "../cfg/bt_systems.hpp"
@@ -72,6 +74,8 @@ set ( BT_CORE_HEADERS
         "async/ILock.hxx"
         "async/Lock.hpp"
         "async/SpinLock.hpp"
+        # MATH
+        "math/Color4f.hpp"
         # MEMORY
         "memory/IDMap.hpp"
         "memory/IDVector.hpp"
@@ -79,10 +83,12 @@ set ( BT_CORE_HEADERS
         "metrics/ILogger.hxx"
         "metrics/Log.hpp"
         # GRAPHICS
+        "graphics/IGraphicsListener.hxx"
         "graphics/GraphicsManager.hpp"
         # RENDER
         "render/RenderManager.hpp"
         # ENGINE
+        "engine/ArcadeEngine.hpp"
         "engine/Engine.hpp" )
 
 # =================================================================================
@@ -90,15 +96,12 @@ set ( BT_CORE_HEADERS
 # =================================================================================
 
 set ( BT_CORE_SOURCES
-        # CONTAINERS
-        "../../../private/bt/core/containers/AsyncVector.cpp"
-        "../../../private/bt/core/containers/AsyncArray.cpp"
-        "../../../private/bt/core/containers/AsyncDequeue.cpp"
-        "../../../private/bt/core/containers/AsyncMap.cpp"
         # ASYNC
         "../../../private/bt/core/async/Mutex.cpp"
         "../../../private/bt/core/async/Lock.cpp"
         "../../../private/bt/core/async/SpinLock.cpp"
+        # MATH
+        "../../../private/bt/core/math/Color4f.cpp"
         # METRICS
         "../../../private/bt/core/metrics/Log.cpp"
         # GRAPHICS
@@ -106,6 +109,7 @@ set ( BT_CORE_SOURCES
         # RENDER
         "../../../private/bt/core/render/RenderManager.cpp"
         # ENGINE
+        "../../../private/bt/core/engine/ArcadeEngine.cpp"
         "../../../private/bt/core/engine/Engine.cpp" )
 
 # =================================================================================

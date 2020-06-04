@@ -39,6 +39,11 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "ecs_api.hpp"
+#endif // !ECS_API_HPP
+
 // Include bt::numeric
 #ifndef BT_CFG_NUMERIC_HPP
 #include "../../cfg/bt_numeric.hpp"
@@ -63,6 +68,7 @@ using ecs_uint64_t = bt_uint64_t;
 using ecs_float_t = bt_float_t;
 using ecs_double_t = bt_double_t;
 using ecs_real_t = bt_real_t;
+using ecs_size_t = bt_size_t;
 
 using ecs_TypeID = ecs_uint16_t;
 static constexpr const ecs_TypeID ECS_INVALID_TYPE_ID = ecs_NumericUtil<ecs_TypeID>::MAX - 1;

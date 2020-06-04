@@ -29,28 +29,75 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef BT_CFG_OPEN_GL_HPP
+#define BT_CFG_OPEN_GL_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
+// Include bt::api
+#ifndef BT_CFG_API_HPP
+#include "bt_api.hpp"
+#endif // !BT_CFG_API_HPP
+
+// Default Defines
+#ifndef BT_GL_MAJOR
+
+#define BT_GL_MAJOR 3
+#define BT_GL_MINOR 0
+
+#warning "bt_open_gl.hpp - automatically setting open gl api version."
+
+#endif
+// Default Defines
+
+// PLATFORM
+#if defined( BT_WINDOWS ) || defined( BT_LINUX ) // DESKTOP
+
+// Include GLEW
+#ifndef _glew_h_
+#define GLEW_STATIC
+#include <glew.h>
+#endif
+
+// Include GLFW
+#ifndef _glfw3_h_
+#include <glfw3.h>
+#endif
+
+#elif defined( ANDROID ) || defined( BT_ANDROID ) // ES
+
+#ifndef BT_OPEN_GL_ES
+#define BT_OPEN_GL_ES 1
+#warning "bt_open_gl.hpp - ES automatically detected."
+#endif // !BT_OPEN_GL_ES
+
+#if BT_GL_MAJOR == 2 // OpenGL 2.0
+
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#elif BT_GL_MAJOR == 3 // OpenGL 3+
+
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
+
+#else
+#error "bt_open_gl.hpp - configuration required."
+#endif
+
+#else
+#error "bt_open_gl.hpp - configuration required."
+#endif
+// PLATFORM
+
 // ===========================================================
-//
+// CONFIGS
 // ===========================================================
-
-namespace bt
-{
-
-    namespace core
-    {
-
-        // -----------------------------------------------------------
-
-        // -----------------------------------------------------------
-
-    } /// bt::core
-
-} /// bt
 
 // -----------------------------------------------------------
+
+#endif // !BT_CFG_OPEN_GL_HPP

@@ -25,7 +25,7 @@ if ( BT_OPEN_GL )
     if ( NOT EXISTS ${OpenGL} )
         message ( STATUS "${PROJECT_NAME} - OpenGL ES library not found !" )
     elseif ( BT_CMAKE_DEBUG )
-        message ( STATUS "${PROJECT_NAME} - OpenGL found at ${OpenGL}" )
+        message ( STATUS "${PROJECT_NAME} - OpenGL found at ${OpenGL}, API ${BT_GL_VERSION_MAJOR}.${BT_GL_VERSION_MINOR}" )
     endif ( NOT EXISTS ${OpenGL} )
 
 endif ( BT_OPEN_GL )

@@ -39,10 +39,10 @@
 // INCLUDES
 // ===========================================================
 
-// Include ecs::api
-#ifndef ECS_API_HPP
-#include "../types/ecs_api.hpp"
-#endif // !ECS_API_HPP
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
 
 // ===========================================================
 // TYPES
@@ -90,6 +90,44 @@ namespace ecs
         {
         }
 
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns Event Type-ID.
+         *
+         * @thread_safety - no required.
+         * @throws - no exception.
+        **/
+        virtual ecs_TypeID getTypeID() const ECS_NOEXCEPT = 0;
+
+        /**
+         * @brief
+         * Returns 'true' if Event already handled.
+         *
+         * @thread_safety - atomics used.
+         * @throws - no exceptions.
+        **/
+        virtual bool isHandled() const BT_NOEXCEPT = 0;
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Send this Event.
+         *
+         * (?) Wrapper/utility method.
+         *
+         * @thread_safety - not required.
+         * @param pAsync - 'true' to queue Event sending, 'false' to handle right now with thread-locks.
+         * @throws - unlikely, but can throw unhandled exception, error though collected & reported.
+        **/
+        virtual void Send( const bool pAsync, const ecs_uint8_t pThread = 0 ) = 0;
+
         // -----------------------------------------------------------
 
     }; /// bt::IEvent
@@ -98,7 +136,7 @@ namespace ecs
 
 } /// ecs
 
-using bt_IEvent = ecs::IEvent;
+using ecs_IEvent = ecs::IEvent;
 #define ECS_I_EVENT_DECL
 
 // -----------------------------------------------------------

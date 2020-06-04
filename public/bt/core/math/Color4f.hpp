@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CORE_ARCADE_ENGINE_HPP
-#define BT_CORE_ARCADE_ENGINE_HPP
+#ifndef BT_CORE_COLOR_4F_HPP
+#define BT_CORE_COLOR_4F_HPP
 
 // -----------------------------------------------------------
 
@@ -38,13 +38,13 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::Engine
-#ifndef BT_CORE_ENGINE_HPP
-#include "Engine.hpp"
-#endif // !BT_CORE_ENGINE_HPP
+// Include bt::numeric
+#ifndef BT_CFG_NUMERIC_HPP
+#include "../../cfg/bt_numeric.hpp"
+#endif // !BT_CFG_NUMERIC_HPP
 
 // ===========================================================
-// TYPES
+// bt::core::Color4f
 // ===========================================================
 
 namespace bt
@@ -57,11 +57,11 @@ namespace bt
 
         /**
          * @brief
-         * ArcadeEngine - simple engine implementation designed for robust games.
+         * Color4f - 4 float (double || real) values color struct.
          *
          * @version 0.1
         **/
-        class BT_API ArcadeEngine final : public bt_Engine
+        struct BT_STRUCT Color4f
         {
 
             // -----------------------------------------------------------
@@ -72,98 +72,68 @@ namespace bt
 
             BT_CLASS
 
-            // -----------------------------------------------------------
+            // ===========================================================
+            // FIELDS
+            // ===========================================================
 
-        private:
+            /** Components. **/
+            bt_float_t r, g, b, a;
 
-            // -----------------------------------------------------------
+            // ===========================================================
+            // CONSTRUCTORS & DESTRUCTOR
+            // ===========================================================
+
+            explicit Color4f();
+
+            /**
+             * @brief
+             * Color4f constructor.
+             *
+             * @param r - Red.
+             * @param g - Green.
+             * @param b - Blue.
+             * @param a - Alpha.
+             * @throws - no exceptions.
+            **/
+            explicit Color4f( const bt_float_t r, const bt_float_t g, const bt_float_t b, const bt_float_t a) BT_NOEXCEPT;
+
+            /**
+             * @brief
+             * Color4f destructor.
+            **/
+            ~Color4f() BT_NOEXCEPT;
 
             // ===========================================================
             // DELETED
             // ===========================================================
 
-            ArcadeEngine(const ArcadeEngine&) = delete;
-            ArcadeEngine& operator=(const ArcadeEngine&) = delete;
-            ArcadeEngine(ArcadeEngine&&) = delete;
-            ArcadeEngine& operator=(ArcadeEngine&&) = delete;
+
+
+            // ===========================================================
+            // METHODS & OPERATORS
+            // ===========================================================
+
+            void add( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void sub( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void div( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void mul( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void operator-( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void operator*( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void operator/( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void operator+( const Color4f& pOther ) BT_NOEXCEPT;
+
+            void norm() BT_NOEXCEPT;
 
             // -----------------------------------------------------------
 
-        public:
-
-            // -----------------------------------------------------------
-
-            // ===========================================================
-            // CONSTRUCTOR & DESTRUCTOR
-            // ===========================================================
-
-            /**
-             * @brief
-             * ArcadeEngine constructor.
-             *
-             * @throws - can throw exception.
-            **/
-            explicit ArcadeEngine();
-
-            /**
-             * @brief
-             * ArcadeEngine destructor.
-             *
-             * @throws - can throw exception.
-            **/
-            virtual ~ArcadeEngine();
-
-            // ===========================================================
-            // GETTERS & SETTERS
-            // ===========================================================
-
-            // ===========================================================
-            // METHODS
-            // ===========================================================
-
-            // ===========================================================
-            // bt::core::Engine
-            // ===========================================================
-
-            /**
-             * @brief
-             * Called when System starting.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual bool onStart() final;
-
-            /**
-             * @brief
-             * Called whe System resuming from pause.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual bool onResume() final;
-
-            /**
-             * @brief
-             * Called whe System pausing.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual void onPause() final;
-
-            /**
-             * @brief
-             * Called whe System stopping.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual void onStop() final;
-
-            // -----------------------------------------------------------
-
-        }; /// bt::core::ArcadeEngine
+        }; /// bt::core::Color4f
 
         // -----------------------------------------------------------
 
@@ -171,9 +141,9 @@ namespace bt
 
 } /// bt
 
-using bt_ArcadeEngine = bt::core::ArcadeEngine;
-#define BT_CORE_ARCADE_ENGINE_DECL
+using bt_Color4f = bt::core::Color4f;
+#define BT_CORE_COLOR_4F_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_CORE_ARCADE_ENGINE_HPP
+#endif // !BT_CORE_COLOR_4F_HPP

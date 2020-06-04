@@ -29,80 +29,104 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef ECS_I_EVENT_LISTENER_HXX
+#define ECS_I_EVENT_LISTENER_HXX
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef BT_GL_RENDER_MANAGER_HPP
-#include "../../../../public/bt/gl/render/GLRendererManager.hpp"
-#endif // !BT_GL_RENDER_MANAGER_HPP
-
-// Include OpenGL API
-#ifndef BT_CFG_OPEN_GL_HPP
-#include "../../../../public/bt/cfg/bt_open_gl.hpp"
-#endif // !BT_CFG_OPEN_GL_HPP
+// Include ecs::memory
+#ifndef ECS_MEMORY_HPP
+#include "../types/ecs_memory.hpp"
+#endif // !ECS_MEMORY_HPP
 
 // ===========================================================
-// bt::gl::GLRenderManager
+// FORWARD-DECLARATION
 // ===========================================================
 
-namespace bt
+// Forward-Declare ecs::IEvent
+#ifndef ECS_I_EVENT_DECL
+#define ECS_I_EVENT_DECL
+namespace ecs { class IEvent; }
+using ecs_IEvent = ecs::IEvent;
+#endif // !ECS_I_SYSTEM_DECL
+
+// ===========================================================
+// TYPES
+// ===========================================================
+
+namespace ecs
 {
 
-    namespace gl
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * IEventListener - interface for events handlers/listeners.
+     *
+     * @version 0.1
+    **/
+    class ECS_API IEventListener
     {
 
         // -----------------------------------------------------------
 
         // ===========================================================
-        // CONSTRUCTOR & DESTRUCTOR
+        // META
         // ===========================================================
 
-        GLRenderManager::GLRenderManager() BT_NOEXCEPT
-            : RenderManager(),
-            mSurfaceReady( false )
+        ECS_INTERFACE
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        /**
+         * @brief
+         * IEventListener destructor.
+         *
+         * @throws - can throw exception.
+        **/
+        virtual ~IEventListener()
         {
-        }
-
-        GLRenderManager::~GLRenderManager() BT_NOEXCEPT = default;
-
-        // ===========================================================
-        // GETTERS & SETTERS
-        // ===========================================================
-
-        void GLRenderManager::setSurfaceColor( const bt_Color4f& pColor ) BT_NOEXCEPT
-        {
-            RenderManager::setSurfaceColor( pColor );
-            glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
-        }
-
-        // ===========================================================
-        // bt::core::IGraphicsListener
-        // ===========================================================
-
-        bool GLRenderManager::onSurfaceReady()
-        {
-
-            mSurfaceReady = true;
-            return true;
-        }
-
-        void GLRenderManager::onSurfaceDraw( const bt_real_t elapsedTime )
-        {
-
         }
 
         // ===========================================================
         // METHODS
         // ===========================================================
 
+        /**
+         * @brief
+         * Called on Event.
+         *
+         * @thread_safety - depends on implementation.
+         * @param pEvent - Event to handle.
+         * @param pThread - Thread-Type.
+         * @return - 'true' if handled, to stop further polling.
+         * @throws - can throw exception. Exceptions collected & reported.
+        **/
+        virtual bool OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread ) = 0;
+
         // -----------------------------------------------------------
 
-    } /// bt::gl
+    }; /// ecs::IEventListener
 
-} /// bt
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using ecs_IEventListener = ecs::IEventListener;
+#define ECS_I_EVENT_LISTENER_DECL
 
 // -----------------------------------------------------------
+
+#endif // !ECS_I_EVENT_LISTENER_HXX

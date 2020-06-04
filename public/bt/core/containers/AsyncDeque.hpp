@@ -94,7 +94,7 @@ namespace bt
             // ===========================================================
 
             /** Mutex. **/
-            bt_Mutex mMutex;
+            mutable bt_Mutex mMutex;
 
             /** Elements counter. **/
             bt_atomic<bt_size_t> mElementsCount;
@@ -159,6 +159,136 @@ namespace bt
             // ===========================================================
             // METHODS
             // ===========================================================
+
+            bool isEmpty() const
+            {
+                bt_SpinLock lock( &mMutex );
+                return mDeque.empty();
+            }
+
+            bt_size_t Count() const
+            {
+                bt_SpinLock lock( &mMutex );
+                return mDeque.size();
+            }
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Push Front.
+             *
+             * @thread_safety - thread-lock used.
+             * @param pItem - Item.
+             * @throws - can throw exception.
+            **/
+            void PushFront( T& pItem )
+            {
+                bt_SpinLock lock( &mMutex );
+                mDeque.push_front( pItem );
+            }
+
+            /**
+             * @brief
+             * Push Back.
+             *
+             * @thread_safety - thread-lock used.
+             * @param pItem - Item.
+             * @throws - can throw exception.
+            **/
+            void PushBack( T& pItem )
+            {
+                bt_SpinLock lock( &mMutex );
+                mDeque.push_back( pItem );
+            }
+
+            /**
+             * @brief
+             * Remove Last element.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            void PopBack()
+            {
+                bt_SpinLock lock( &mMutex );
+                mDeque.pop_back();
+            }
+
+            /**
+             * @brief
+             * Remove Last element.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            void PopFront()
+            {
+                bt_SpinLock lock( &mMutex );
+                mDeque.pop_front();
+            }
+
+            /**
+             * @brief
+             * Get First element.
+             *
+             * (!) Be careful & use #isEmpty or # before.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            T& Front( )
+            {
+                bt_SpinLock lock( &mMutex );
+                return mDeque.front();
+            }
+
+            /**
+             * @brief
+             * Get First element.
+             *
+             * (!) Be careful & use #isEmpty or # before.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            T& Front( ) const
+            {
+                bt_SpinLock lock( &mMutex );
+                return mDeque.front();
+            }
+
+            /**
+             * @brief
+             * Get Last element.
+             *
+             * (!) Be careful & use #isEmpty or # before.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            T& Back( )
+            {
+                bt_SpinLock lock( &mMutex );
+                return mDeque.back();
+            }
+
+            /**
+             * @brief
+             * Get Last element.
+             *
+             * (!) Be careful & use #isEmpty or # before.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            T& Back( ) const
+            {
+                bt_SpinLock lock( &mMutex );
+                return mDeque.back();
+            }
 
             // -----------------------------------------------------------
 

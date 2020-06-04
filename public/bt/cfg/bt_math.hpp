@@ -29,80 +29,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef BT_CFG_MATH_HPP
+#define BT_CFG_MATH_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef BT_GL_RENDER_MANAGER_HPP
-#include "../../../../public/bt/gl/render/GLRendererManager.hpp"
-#endif // !BT_GL_RENDER_MANAGER_HPP
-
-// Include OpenGL API
-#ifndef BT_CFG_OPEN_GL_HPP
-#include "../../../../public/bt/cfg/bt_open_gl.hpp"
-#endif // !BT_CFG_OPEN_GL_HPP
+// Include GLM
+#include <glm/glm.hpp> // glm basics
+#define GLM_ENABLE_EXPERIMENTAL 1 // Enable GLM-GTX Experimental functions
+#include <glm/gtc/matrix_transform.hpp> // matrix transformations
+#include <glm/gtx/transform.hpp> // vector transformations
+#include <glm/gtc/type_ptr.hpp> // pointers support
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/vec3.hpp> // Vector3
+#include <glm/vec4.hpp> // Vector4
+#include <glm/mat4x4.hpp> // Matrix 4x4
 
 // ===========================================================
-// bt::gl::GLRenderManager
+// CONFIGS
 // ===========================================================
-
-namespace bt
-{
-
-    namespace gl
-    {
-
-        // -----------------------------------------------------------
-
-        // ===========================================================
-        // CONSTRUCTOR & DESTRUCTOR
-        // ===========================================================
-
-        GLRenderManager::GLRenderManager() BT_NOEXCEPT
-            : RenderManager(),
-            mSurfaceReady( false )
-        {
-        }
-
-        GLRenderManager::~GLRenderManager() BT_NOEXCEPT = default;
-
-        // ===========================================================
-        // GETTERS & SETTERS
-        // ===========================================================
-
-        void GLRenderManager::setSurfaceColor( const bt_Color4f& pColor ) BT_NOEXCEPT
-        {
-            RenderManager::setSurfaceColor( pColor );
-            glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
-        }
-
-        // ===========================================================
-        // bt::core::IGraphicsListener
-        // ===========================================================
-
-        bool GLRenderManager::onSurfaceReady()
-        {
-
-            mSurfaceReady = true;
-            return true;
-        }
-
-        void GLRenderManager::onSurfaceDraw( const bt_real_t elapsedTime )
-        {
-
-        }
-
-        // ===========================================================
-        // METHODS
-        // ===========================================================
-
-        // -----------------------------------------------------------
-
-    } /// bt::gl
-
-} /// bt
 
 // -----------------------------------------------------------
+
+#endif // !BT_CFG_MATH_HPP

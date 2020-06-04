@@ -80,6 +80,9 @@ namespace bt
             // FIELDS
             // ===========================================================
 
+            /** Surface-Ready flag. **/
+            bt_atomic<bool> mSurfaceReady;
+
             // -----------------------------------------------------------
 
         protected:
@@ -125,9 +128,45 @@ namespace bt
             // GETTERS & SETTERS
             // ===========================================================
 
+            /**
+             * @brief
+             * Set Surface clear-color.
+             *
+             * @thread_safety - render thread-only.
+             * @param pColor - color. Value copied/moved.
+             * @throws - no exceptions.
+            **/
+            virtual void setSurfaceColor( const bt_Color4f& pColor ) BT_NOEXCEPT final;
+
+            // ===========================================================
+            // bt::core::IGraphicsListener
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called when Graphics prepared rendering surface.
+             *
+             * @thread_safety - render-thread only.
+             * @return - 'true' if OK, 'false' to stop engine.
+             * @throws - can throw exception.
+            **/
+            virtual bool onSurfaceReady() final;
+
+            /**
+             * @brief
+             * Called on every frame Draw.
+             *
+             * @thread_safety - render-thread only.
+             * @param elapsedTime - milliseconds, elapsed since previous draw-call.
+             * @throws - can throw exception.
+            **/
+            virtual void onSurfaceDraw( const bt_real_t elapsedTime ) final;
+
             // ===========================================================
             // METHODS
             // ===========================================================
+
+
 
             // -----------------------------------------------------------
 

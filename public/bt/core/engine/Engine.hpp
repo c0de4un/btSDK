@@ -38,10 +38,15 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::api
-#ifndef BT_CFG_API_HPP
-#include "../../cfg/bt_api.hpp"
-#endif // !BT_CFG_API_HPP
+// Include ecs::System
+#ifndef ECS_SYSTEM_HPP
+#include "../../ecs/system/System.hpp"
+#endif // !ECS_SYSTEM_HPP
+
+// Include bt::memory
+#ifndef BT_CFG_MEMORY_HPP
+#include "../../cfg/bt_memory.hpp"
+#endif // !BT_CFG_MEMORY_HPP
 
 // ===========================================================
 // TYPES
@@ -59,10 +64,144 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API Engine
+        class BT_API Engine : public ecs_System
         {
 
             // -----------------------------------------------------------
+
+            // ===========================================================
+            // META
+            // ===========================================================
+
+            BT_CLASS
+
+            // -----------------------------------------------------------
+
+        protected:
+
+            // -----------------------------------------------------------
+
+            // ===========================================================
+            // FIELDS
+            // ===========================================================
+
+            /** Engine instance. **/
+            static bt_sptr<Engine> mInstance;
+
+            // ===========================================================
+            // CONSTRUCTOR
+            // ===========================================================
+
+            /**
+             * @brief
+             * Engine constructor.
+             *
+             * @throws - can throw exception.
+            **/
+            explicit Engine();
+
+            // ===========================================================
+            // DELETED
+            // ===========================================================
+
+            Engine(const Engine&) = delete;
+            Engine& operator=(const Engine&) = delete;
+            Engine(Engine&&) = delete;
+            Engine& operator=(Engine&&) = delete;
+
+            // -----------------------------------------------------------
+
+        public:
+
+            // -----------------------------------------------------------
+
+            // ===========================================================
+            // DESTRUCTOR
+            // ===========================================================
+
+            /**
+             * @brief
+             * Engine destructor.
+             *
+             * @throws - can throw exception.
+            **/
+            virtual ~Engine();
+
+            // ===========================================================
+            // GETTERS & SETTERS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Returns Engine instance, or null.
+             *
+             * @thread_safety - not thread-safe.
+             * @throws - no exceptions.
+            **/
+            static bt_sptr<Engine> getInstance() BT_NOEXCEPT;
+
+            // ===========================================================
+            // ecs::System
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called when System starting.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual bool onStart() override;
+
+            /**
+             * @brief
+             * Called whe System resuming from pause.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual bool onResume() override;
+
+            /**
+             * @brief
+             * Called whe System pausing.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual void onPause() override;
+
+            /**
+             * @brief
+             * Called whe System stopping.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual void onStop() override;
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Initialize GraphicsManager.
+             *
+             * @thread_safety - main thread only.
+             * @param pInstance - isntance to use.
+             * @throws - can throw exceptions
+            **/
+            static void Initialize( bt_sptr<Engine> pInstance );
+
+            /**
+             * @brief
+             * Terminate Graphics Manager.
+             *
+             * @thread_safety - main thread only.
+             * @throws - can throw exception.
+            **/
+            static void Terminate();
 
             // -----------------------------------------------------------
 

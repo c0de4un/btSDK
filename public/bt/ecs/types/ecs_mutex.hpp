@@ -38,6 +38,11 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "ecs_api.hpp"
+#endif // !ECS_API_HPP
+
 // Include bt::mutex
 #ifndef BT_CFG_MUTEX_HPP
 #include "../../cfg/bt_mutex.hpp"

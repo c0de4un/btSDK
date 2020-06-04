@@ -120,13 +120,13 @@ namespace ecs
         using ecs_comp_ptr = ecs_sptr<ecs_Component>;
 
         /** Components map by Object-ID. **/
-        using ecs_comps_objects_map = ecs_async_map<ecs_ObjectID, ecs_comp_ptr>;
+        using ecs_comps_objects_map = ecs_AsyncMap<ecs_ObjectID, ecs_comp_ptr>;
 
         /** Components map by Object-ID pointer. **/
         using ecs_comp_objects_map_ptr = ecs_sptr<ecs_comps_objects_map>;
 
         /** Components map by Type-ID. **/
-        using ecs_comps_types_map = ecs_async_map<ecs_TypeID, ecs_comp_objects_map_ptr>;
+        using ecs_comps_types_map = ecs_AsyncMap<ecs_TypeID, ecs_comp_objects_map_ptr>;
 
         // -----------------------------------------------------------
 

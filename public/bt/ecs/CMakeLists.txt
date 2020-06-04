@@ -35,6 +35,8 @@ set ( BT_ECS_HEADERS
         "ecs.hpp"
         "types/ecs_ids.hpp"
         "types/ecs_api.hpp"
+        "types/ecs_assert.hpp"
+        "types/ecs_log.hpp"
         "types/ecs_atomic.hpp"
         "types/ecs_numeric.hpp"
         "types/ecs_mutex.hpp"
@@ -42,24 +44,22 @@ set ( BT_ECS_HEADERS
         "types/ecs_vector.hpp"
         "types/ecs_map.hpp"
         "types/ecs_queue.hpp"
+        "types/ecs_string.hpp"
         # ENTITY
         "entity/IEntity.hxx"
         "entity/Entity.hpp"
-        "entity/IEntitiesManager.hxx"
         "entity/EntitiesManager.hpp"
         # COMPONENT
         "component/Component.hpp"
-        "component/IComponentsManager.hxx"
         "component/ComponentsManager.hpp"
         # SYSTEM
         "system/ISystem.hxx"
         "system/System.hpp"
-        "system/ISystemsManager.hxx"
         "system/SystemsManager"
         # EVENT
         "event/IEvent.hxx"
+        "event/IEventListener.hxx"
         "event/Event.hpp"
-        "event/IEventsManager.hxx"
         "event/EventsManager.hpp" )
 
 # =================================================================================

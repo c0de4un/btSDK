@@ -53,6 +53,17 @@
 #include "../../cfg/bt_mutex.hpp"
 #endif // !BT_CFG_MUTEX_HPP
 
+// DEBUG
+#if defined(DEBUG) || defined( BT_DEBUG )
+
+// Include bt::assert
+#ifndef BT_CFG_ASSERT_HPP
+#include "../../cfg/bt_assert.hpp"
+#endif // !BT_CFG_ASSERT_HPP
+
+#endif
+// DEBUG
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -153,6 +164,19 @@ namespace bt
 
             /**
              * @brief
+             * Returns elements count.
+             *
+             * @thread_safety - thread-lcok used.
+             * @throws - can throw exception.
+            **/
+            bt_size_t Count()
+            {
+                bt_SpinLock lock(&mMutex);
+                return mVector.size();
+            }
+
+            /**
+             * @brief
              * Reserve
              *
              * @thread_safety - thread-lock used.
@@ -200,7 +224,7 @@ namespace bt
              * @return - true if found.
              * @throws - can throw exception.
             **/
-            bool Find( const T& pItem, bt_size_t *const pOutput)
+            bool Find( T& pItem, bt_size_t *const pOutput)
             { return bt_VectorUtil<T>::Find( mVector, pItem, pOutput ); }
 
             /**
@@ -213,7 +237,7 @@ namespace bt
             **/
             T& Get(const bt_size_t pIdx)
             {
-#if defined( BT_DEBUG ) // DEBUG
+#if defined(DEBUG) || defined( BT_DEBUG ) // DEBUG
                 bt_assert( pIdx < mVector.size() && "AsyncVector::Get - Out-of-range." );
 #endif // DEBUG
 
@@ -231,7 +255,7 @@ namespace bt
             **/
             void Erase(const bt_size_t pIdx, const bool pSwap = false)
             {
-#if defined( BT_DEBUG ) // DEBUG
+#if defined(DEBUG) || defined( BT_DEBUG ) // DEBUG
                 bt_assert(pIdx < mVector.size() && "AsyncVector::Erase - Out-of-range.");
 #endif // DEBUG
 
@@ -250,17 +274,23 @@ namespace bt
              * @param pSwap - true to avoid reallocation, but break elements order.
              * @throws - can throw exception.
             **/
-            void Erase( const T& pItem, const bool pSwap = false)
+            void Erase( T& pItem, const bool pSwap = false)
             {
                 if ( pSwap )
-                    bt_VectorUtil<T>::SwapPopBy(mVector, pItem);
+                    bt_VectorUtil<T>::SwapPop(mVector, pItem);
                 else
-                    mVector.erase(pItem);
+                {
+                    bt_size_t posIdx = 0;
+                    if ( bt_VectorUtil<T>::Find( mVector, pItem, &posIdx ) )
+                    {
+                        mVector.erase( mVector.begin() + posIdx );
+                    }
+                }
             }
 
             T& operator[](const bt_size_t pIdx)
             {
-#if defined( BT_DEBUG ) // DEBUG
+#if defined(DEBUG) || defined( BT_DEBUG ) // DEBUG
                 bt_assert(pIdx < mVector.size() && "AsyncVector::[] - Out-of-range.");
 #endif // DEBUG
 

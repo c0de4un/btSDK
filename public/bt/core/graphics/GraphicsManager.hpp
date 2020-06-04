@@ -54,6 +54,22 @@
 #include "../../cfg/bt_memory.hpp"
 #endif // !BT_CFG_MEMORY_HPP
 
+// Include bt::core::AsyncVector
+#ifndef BT_CORE_ASYNC_VECTOR_HPP
+#include "../containers/AsyncVector.hpp"
+#endif // !BT_CORE_ASYNC_VECTOR_HPP
+
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+// Forward-Declare bt::core::IGraphicsListener
+#ifndef BT_CORE_I_GRAPHICS_LISTENER_DECL
+#define BT_CORE_I_GRAPHICS_LISTENER_DECL
+namespace bt { namespace core { class IGraphicsListener; } }
+using bt_IGraphicsListener = bt::core::IGraphicsListener;
+#endif // !BT_CORE_I_GRAPHICS_LISTENER_DECL
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -73,10 +89,12 @@ namespace bt
          *
          * @version 0.1
         **/
-        struct GraphicsSettings
+        struct BT_API GraphicsSettings
         {
 
             // -----------------------------------------------------------
+
+            BT_STRUCT
 
             // ===========================================================
             // FIELDS
@@ -127,6 +145,12 @@ namespace bt
             // -----------------------------------------------------------
 
             // ===========================================================
+            // TYPES
+            // ===========================================================
+
+            using graphics_listener = bt_sptr<bt_IGraphicsListener>;
+
+            // ===========================================================
             // FIELDS
             // ===========================================================
 
@@ -135,6 +159,9 @@ namespace bt
 
             /** Current Graphics Settings. **/
             GraphicsSettings mSettings;
+
+            /** Graphics Listeners. **/
+            bt_AsyncVector<graphics_listener> mGraphicsListeners;
 
             // ===========================================================
             // CONSTRUCTOR
@@ -148,6 +175,30 @@ namespace bt
              * @throws - can throw exception.
             **/
             explicit GraphicsManager( const GraphicsSettings& pSettings );
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called by Graphics Manager implementation, when Render Surface
+             * is ready.
+             *
+             * @thread_safety - render-thread.
+             * @return - 'true' if OK
+            **/
+            virtual bool onSurfaceReady();
+
+            /**
+             * @brief
+             * Called on every frame Draw.
+             *
+             * @thread_safety - render-thread only.
+             * @param elapsedTime - milliseconds, elapsed since previous draw-call.
+             * @throws - can throw exception.
+            **/
+            virtual void onSurfaceDraw( const bt_real_t elapsedTime );
 
             // ===========================================================
             // DELETED
@@ -189,6 +240,15 @@ namespace bt
              * @throws - no exceptions.
             **/
             GraphicsSettings getSettings() const BT_NOEXCEPT;
+
+            /**
+             * @brief
+             * Returns Graphics Manager instance, or null.
+             *
+             * @thread_safety - not thread-safe.
+             * @throws - no exceptions.
+            **/
+            static bt_sptr<GraphicsManager> getInstance() BT_NOEXCEPT;
 
             // ===========================================================
             // ecs::System
@@ -233,6 +293,26 @@ namespace bt
             // ===========================================================
             // METHODS
             // ===========================================================
+
+            /**
+             * @brief
+             * Adds Graphics listener.
+             *
+             * @thread_safety - thread-lock used.
+             * @param pListener - IGraphicsListener implementation.
+             * @throws - can throw exception.
+            **/
+            void registerGraphicsListener( graphics_listener pListener );
+
+            /**
+             * @brief
+             * Removes Graphics listener.
+             *
+             * @thread_safety - thread-lock used.
+             * @param pListener - IGraphicsListener.
+             * @throws - can throw exception.
+            **/
+            void unregisterGraphicsListener( graphics_listener& pListener );
 
             /**
              * @brief

@@ -46,6 +46,11 @@
 #include "../../../../public/bt/cfg/bt_systems.hpp"
 #endif // !BT_CFG_SYSTEMS_HPP
 
+// Include bt::core::IGraphicsListener
+#ifndef BT_CORE_I_GRAPHICS_LISTENER_HXX
+#include "../../../../public/bt/core/graphics/IGraphicsListener.hxx"
+#endif // !BT_CORE_I_GRAPHICS_LISTENER_HXX
+
 // ===========================================================
 // bt::core::GraphicsManager
 // ===========================================================
@@ -70,7 +75,8 @@ namespace bt
 
         GraphicsManager::GraphicsManager( const GraphicsSettings& pSettings )
             : System(bt_SystemTypes::GRAPHICS),
-            mSettings( pSettings )
+            mSettings( pSettings ),
+              mGraphicsListeners()
         {
         }
 
@@ -85,6 +91,11 @@ namespace bt
 
         GraphicsSettings GraphicsManager::getSettings() const BT_NOEXCEPT
         { return mSettings; }
+
+        bt_sptr<GraphicsManager> GraphicsManager::getInstance() BT_NOEXCEPT
+        { return mInstance; }
+
+
 
         // ===========================================================
         // ecs::System
@@ -114,6 +125,41 @@ namespace bt
         // METHODS
         // ===========================================================
 
+        bool GraphicsManager::onSurfaceReady()
+        {
+            bt_size_t listenersCount = mGraphicsListeners.Count();
+
+            for( bt_size_t i = 0; i < listenersCount; i++)
+            {
+                if ( mGraphicsListeners.Count() < i || !mGraphicsListeners[i]->onSurfaceReady() )
+                    return false;
+            }
+
+            return true;
+        }
+
+        void GraphicsManager::onSurfaceDraw( const bt_real_t elapsedTime )
+        {
+            bt_size_t listenersCount = mGraphicsListeners.Count();
+
+            for( bt_size_t i = 0; i < listenersCount; i++)
+            {
+                if ( mGraphicsListeners.Count() < i )
+                    break;
+
+                mGraphicsListeners[i]->onSurfaceDraw( elapsedTime );
+            }
+        }
+
+        void GraphicsManager::registerGraphicsListener( graphics_listener pListener )
+        {
+            if ( !mGraphicsListeners.Find(pListener, nullptr) )
+                mGraphicsListeners.Push( pListener );
+        }
+
+        void GraphicsManager::unregisterGraphicsListener( graphics_listener& pListener )
+        { mGraphicsListeners.Erase( pListener, true ); }
+
         void GraphicsManager::Initialize( bt_sptr<GraphicsManager> pInstance )
         {
             if ( mInstance != nullptr )
@@ -124,7 +170,7 @@ namespace bt
 
         void GraphicsManager::Terminate()
         {
-
+            mInstance = nullptr;
         }
 
         // -----------------------------------------------------------

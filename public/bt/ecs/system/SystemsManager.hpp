@@ -125,9 +125,6 @@ namespace ecs
          * @brief
          * Returns weak-pointer to ComponentsManager isntance.
          *
-         * (?) To support thread-safe isntance sharing without locking.
-         * shared-pointer stored, and all accesses gained through weak-pointer.
-         *
          * @thread_safety - thread-safe due to atomic nature.
          * @throws - can throw exception.
         **/

@@ -39,10 +39,309 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::ids
+#ifndef ECS_IDS_HPP
+#include "../types/ecs_ids.hpp"
+#endif // !ECS_IDS_HPP
+
+// Include ecs::mutex
+#ifndef ECS_MUTEX_HPP
+#include "../types/ecs_mutex.hpp"
+#endif // ECS_MUTEX_HPP
+
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
+
+// Include ecs::memory
+#ifndef ECS_MEMORY_HPP
+#include "../types/ecs_memory.hpp"
+#endif // !ECS_MEMORY_HPP
+
+// Include ecs::map
+#ifndef ECS_MAP_HPP
+#include "../types/ecs_map.hpp"
+#endif // !ECS_MAP_HPP
+
+// Include ecs::deque
+#ifndef ECS_DEQUE_HPP
+#include "../types/ecs_queue.hpp"
+#endif // !ECS_DEQUE_HPP
+
+// Include ecs::vector
+#ifndef ECS_VECTOR_HPP
+#include "../types/ecs_vector.hpp"
+#endif // !ECS_VECTOR_HPP
+
 // ===========================================================
-//
+// FORWARD-DECLARATION
 // ===========================================================
 
+// Forward-Declare ecs::IEvent
+#ifndef ECS_I_EVENT_DECL
+#define ECS_I_EVENT_DECL
+namespace ecs { class IEvent; }
+using ecs_IEvent = ecs::IEvent;
+#endif // !ECS_I_SYSTEM_DECL
+
+// Forward-Declare ecs::IEventListener
+#ifndef ECS_I_EVENT_LISTENER_DECL
+#define ECS_I_EVENT_LISTENER_DECL
+namespace ecs { class IEventListener; }
+using ecs_IEventListener = ecs::IEventListener;
+#endif // !ECS_I_EVENT_LISTENER_DECL
+
+// ===========================================================
+// TYPES
+// ===========================================================
+
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    /**
+     * @brief
+     * EventsManager - Events Manager.
+     *
+     * @version 0.1
+    **/
+    class ECS_API EventsManager
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_CLASS
+
+        // -----------------------------------------------------------
+
+    private:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // TYPES
+        // ===========================================================
+
+        using event_t = ecs_sptr<ecs_IEvent>;
+
+        using events_deque = ecs_AsyncDeque<event_t>;
+
+        using events_map = ecs_AsyncMap<unsigned char, events_deque>;
+
+        using event_listener = ecs_sptr<ecs_IEventListener>;
+
+        using event_listeners_list = ecs_AsyncVector<event_listener>;
+
+        using event_listeners_typed_map = ecs_AsyncMap<ecs_TypeID, event_listeners_list>;
+
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        /** EventsManager instance. **/
+        static ecs_sptr<EventsManager> mInstance;
+
+        /** IDStorage **/
+        ecs_IDMap<ecs_TypeID, ecs_ObjectID> mIDStorage;
+
+        /** Events queue. **/
+        events_map mEventsByThread;
+
+        /** Event Listeners. **/
+        event_listeners_typed_map mEventListeners;
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns weak-pointer to EventsManager isntance.
+         *
+         * @thread_safety - thread-safe due to atomic nature.
+         * @throws - can throw exception.
+        **/
+        static ECS_API ecs_sptr<EventsManager> getInstance();
+
+        /**
+         * @brief
+         * Returns Events queue for thread.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pThread - Thread-Type. 0 for default.
+         * @return - Events queue.
+         * @throws - can throw exception.
+        **/
+        events_deque& getEventsQueue( const unsigned char pThread );
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Handle Event.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pEvent - Event to send.
+         * @param pThread - thread-type, default is 0 to via update-thread.
+         * @throws - can throw exception. Errors collected & reported.
+        **/
+        void handleEvent( ecs_sptr<ecs_IEvent>& pEvent, const ecs_uint8_t pThread );
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        EventsManager(const EventsManager&) = delete;
+        EventsManager& operator=(const EventsManager&) = delete;
+        EventsManager(EventsManager&&) = delete;
+        EventsManager& operator=(EventsManager&&) = delete;
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * EventsManager constructor.
+         *
+         * @throws - can throw exception.
+        **/
+        explicit EventsManager();
+
+        /**
+         * @brief
+         * EventsManager destructor.
+         *
+         * @throws - can throw exception.
+        **/
+        ~EventsManager();
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Subscribes Event Listener for specific Event-Type.
+         *
+         * @thread_safety - thread-locks used.
+         * @param eventType - Event Type-ID.
+         * @param pListener - IEventListener implementation.
+         * @throws - can throw exception.
+        **/
+        static void Subscribe( const ecs_TypeID eventType, ecs_sptr<ecs_IEventListener> pListener );
+
+        /**
+         * @brief
+         * Unsubscribe Event Listener from Event-Type.
+         *
+         * @thread_safety - thread-locks used.
+         * @param eventType - Event Type-ID.
+         * @param pListener - IEventListener implementation.
+         * @throws - can throw exception.
+        **/
+        static void Unsubscribe( const ecs_TypeID eventType, ecs_sptr<ecs_IEventListener>& pListener );
+
+        /**
+         * @brief
+         * Send Event now.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pEvent - Event to send.
+         * @param pThread - thread-type, default is 0 to via update-thread.
+         * @throws - can throw exception. Errors collected & reported.
+        **/
+        static void sendEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread = 0 );
+
+        /**
+         * @brief
+         * Send delayed Event.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pEvent - Event to queue.
+         * @param pThread - thread-type, default is 0 to via update-thread.
+         * @throws - can throw exception.
+        **/
+        static void queueEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread = 0 );
+
+        /**
+         * @brief
+         * Send all queued Events.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception. All errors collected & reported.
+        **/
+        static void Update( const ecs_uint8_t pThread );
+
+        /**
+         * @brief
+         * Returns Event ID.
+         *
+         * @thread_safety - thread-lock used.
+         * @param pType - Type-ID.
+         * @throws - can throw exception.
+        **/
+        static ecs_ObjectID generateEventID(const ecs_TypeID pType) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Returns Event ID for re-usage.
+         *
+         * @thread_safety - thread-lock used.
+         * @param pType - Type-ID.
+         * @param pID - ID to return for reuse.
+         * @throws - can throw exception.
+        **/
+        static void releaseEventID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Initialize EventsManager instance.
+         *
+         * @thread_safety - main thread only.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void Initialize();
+
+        /**
+         * @brief
+         * Terminate EventsManager instance.
+         *
+         * @thread_safety - main thread only.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void Terminate();
+
+        // -----------------------------------------------------------
+
+    }; /// ecs::EventsManager
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using ecs_EventsManager = ecs::EventsManager;
 #define ECS_EVENTS_MANAGER_DECL
 
 // -----------------------------------------------------------

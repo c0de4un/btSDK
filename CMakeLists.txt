@@ -114,6 +114,11 @@ if ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
 
     target_link_libraries ( btEngine btEngine_Core btEngine_ECS )
 
+    # OpenGL
+    if ( BT_OPEN_GL )
+        target_link_libraries ( btEngine btEngine_GL )
+    endif ( BT_OPEN_GL )
+
     # ANDROID
     if ( ANDROID OR BT_ANDROID )
         target_link_libraries ( btEngine btEngine_Android )

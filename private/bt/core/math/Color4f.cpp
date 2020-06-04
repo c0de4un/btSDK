@@ -36,72 +36,136 @@
 // ===========================================================
 
 // HEADER
-#ifndef BT_GL_RENDER_MANAGER_HPP
-#include "../../../../public/bt/gl/render/GLRendererManager.hpp"
-#endif // !BT_GL_RENDER_MANAGER_HPP
-
-// Include OpenGL API
-#ifndef BT_CFG_OPEN_GL_HPP
-#include "../../../../public/bt/cfg/bt_open_gl.hpp"
-#endif // !BT_CFG_OPEN_GL_HPP
+#ifndef BT_CORE_COLOR_4F_HPP
+#include "../../../../public/bt/core/math/Color4f.hpp"
+#endif // !BT_CORE_COLOR_4F_HPP
 
 // ===========================================================
-// bt::gl::GLRenderManager
+// bt::core::Color4f
 // ===========================================================
 
 namespace bt
 {
 
-    namespace gl
+    namespace core
     {
 
         // -----------------------------------------------------------
 
         // ===========================================================
-        // CONSTRUCTOR & DESTRUCTOR
+        // CONSTRUCTORS & DESTRUCTOR
         // ===========================================================
 
-        GLRenderManager::GLRenderManager() BT_NOEXCEPT
-            : RenderManager(),
-            mSurfaceReady( false )
+        Color4f::Color4f()
+            : r(0),
+            g(0),
+            b(0),
+            a(0)
         {
         }
 
-        GLRenderManager::~GLRenderManager() BT_NOEXCEPT = default;
-
-        // ===========================================================
-        // GETTERS & SETTERS
-        // ===========================================================
-
-        void GLRenderManager::setSurfaceColor( const bt_Color4f& pColor ) BT_NOEXCEPT
+        /**
+         * @brief
+         * Color4f constructor.
+         *
+         * @param r - Red.
+         * @param g - Green.
+         * @param b - Blue.
+         * @param a - Alpha.
+         * @throws - no exceptions.
+        **/
+        Color4f::Color4f( const bt_float_t pRed, const bt_float_t pGreen, const bt_float_t pBlue, const bt_float_t pAlpha) BT_NOEXCEPT
+            : r(pRed),
+            g(pGreen),
+            b(pBlue),
+            a(pAlpha)
         {
-            RenderManager::setSurfaceColor( pColor );
-            glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
         }
 
+        /**
+         * @brief
+         * Color4f destructor.
+        **/
+        Color4f::~Color4f() BT_NOEXCEPT = default;
+
         // ===========================================================
-        // bt::core::IGraphicsListener
+        // METHODS & OPERATORS
         // ===========================================================
 
-        bool GLRenderManager::onSurfaceReady()
+        void Color4f::add( const Color4f& pOther ) BT_NOEXCEPT
         {
-
-            mSurfaceReady = true;
-            return true;
+            r += pOther.r;
+            g += pOther.g;
+            b += pOther.b;
+            a += pOther.a;
+            this->norm();
         }
 
-        void GLRenderManager::onSurfaceDraw( const bt_real_t elapsedTime )
+        void Color4f::sub( const Color4f& pOther ) BT_NOEXCEPT
         {
-
+            r -= pOther.r;
+            g -= pOther.g;
+            b -= pOther.b;
+            a -= pOther.a;
+            this->norm();
         }
 
-        // ===========================================================
-        // METHODS
-        // ===========================================================
+        void Color4f::div( const Color4f& pOther ) BT_NOEXCEPT
+        {
+            r /= pOther.r;
+            g /= pOther.g;
+            b /= pOther.b;
+            a /= pOther.a;
+            this->norm();
+        }
+
+        void Color4f::mul( const Color4f& pOther ) BT_NOEXCEPT
+        {
+            r *= pOther.r;
+            g *= pOther.g;
+            b *= pOther.b;
+            a *= pOther.a;
+            this->norm();
+        }
+
+        void Color4f::operator-( const Color4f& pOther ) BT_NOEXCEPT
+        { this->sub(pOther); }
+
+        void Color4f::operator*( const Color4f& pOther ) BT_NOEXCEPT
+        { this->mul( pOther ); }
+
+        void Color4f::operator/( const Color4f& pOther ) BT_NOEXCEPT
+        { this->div(pOther); }
+
+        void Color4f::operator+( const Color4f& pOther ) BT_NOEXCEPT
+        { this->add(pOther); }
+
+        void Color4f::norm() BT_NOEXCEPT
+        {
+            if ( r < 0 )
+                r = 0;
+            else if ( r > 1 )
+                r = 1;
+
+            if ( g < 0 )
+                g = 0;
+            else if ( g > 1 )
+                g = 1;
+
+            if ( b < 0 )
+                b = 0;
+            else if ( b > 1 )
+                b = 1;
+
+            if ( a < 0 )
+                a = 0;
+            else if ( a > 1 )
+                a = 1;
+        }
 
         // -----------------------------------------------------------
 
-    } /// bt::gl
+    } /// bt::core
 
 } /// bt
 
