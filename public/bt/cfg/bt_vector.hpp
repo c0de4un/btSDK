@@ -39,11 +39,6 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::api
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
-
 // Include bt::numeric
 #ifndef BT_CFG_NUMERIC_HPP
 #include "bt_numeric.hpp"

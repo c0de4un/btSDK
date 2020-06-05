@@ -29,77 +29,46 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CFG_SYSTEMS_HPP
-#define BT_CFG_SYSTEMS_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include bt::api
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
+// HEADER
+#ifndef BT_CORE_LOAD_EVENT_HPP
+#include "../../../../public/bt/core/render/LoadEvent.hpp"
+#endif // !BT_CORE_LOAD_EVENT_HPP
 
-// Include ecs::numeric
-#ifndef ECS_NUMERIC_HPP
-#include "../ecs/types/ecs_numeric.hpp"
-#endif // !ECS_NUMERIC_HPP
+// Include bt::events
+#ifndef BT_CFG_EVENTS_HPP
+#include "../../../../public/bt/cfg/bt_events.hpp"
+#endif // !BT_CFG_EVENTS_HPP
 
 // ===========================================================
-// TYPES
+// bt::core::LoadEvent
 // ===========================================================
 
 namespace bt
 {
 
-    // -----------------------------------------------------------
+    namespace core
+    {
 
-        /**
-         * @brief
-         * SystemTypes - basic Systems Type-IDs.
-         * Designed to support extending by other list, with start from this.MAX.
-         *
-         * @version 0.1
-        **/
-        enum BT_API SystemTypes : ecs_TypeID
+        // -----------------------------------------------------------
+
+        LoadEvent::LoadEvent( const bool pReloading, ecs_wptr<ecs_IEventInvoker> pCaller )
+            : Event( bt_EEventTypes::AssetsLoading, pCaller ),
+            mReload( pReloading )
         {
+        }
 
-            // -----------------------------------------------------------
+        LoadEvent::~LoadEvent() = default;
 
-            // ===========================================================
-            // META
-            // ===========================================================
+        // -----------------------------------------------------------
 
-            BT_ENUM
-
-            // -----------------------------------------------------------
-
-            MIN = 0,
-            ENGINE,
-            GRAPHICS,
-            RENDER,
-            BATCHING,
-            PARTICLES,
-            AI,
-            AUDIO,
-            THREAD,
-            TASKS,
-            INPUT,
-            MAX = 99
-
-            // -----------------------------------------------------------
-
-        }; /// bt::core::Systems
-
-    // -----------------------------------------------------------
+    } /// bt::core
 
 } /// bt
 
-using bt_SystemTypes = bt::SystemTypes;
-
 // -----------------------------------------------------------
-
-#endif // !BT_CFG_SYSTEMS_HPP

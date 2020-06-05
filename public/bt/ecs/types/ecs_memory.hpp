@@ -55,6 +55,9 @@
 template <typename T>
 using ecs_sptr = bt_sptr<T>;
 
+template <typename T>
+using ecs_wptr = bt_wptr<T>;
+
 using ecs_Memory = bt_Memory;
 
 #define ecs_new New

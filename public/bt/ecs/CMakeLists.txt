@@ -45,6 +45,7 @@ set ( BT_ECS_HEADERS
         "types/ecs_map.hpp"
         "types/ecs_queue.hpp"
         "types/ecs_string.hpp"
+        "types/ecs_exceptions.hpp"
         # ENTITY
         "entity/IEntity.hxx"
         "entity/Entity.hpp"
@@ -58,6 +59,7 @@ set ( BT_ECS_HEADERS
         "system/SystemsManager"
         # EVENT
         "event/IEvent.hxx"
+        "event/IEventInvoker.hxx"
         "event/IEventListener.hxx"
         "event/Event.hpp"
         "event/EventsManager.hpp" )

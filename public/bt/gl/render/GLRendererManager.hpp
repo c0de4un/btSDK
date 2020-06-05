@@ -43,6 +43,16 @@
 #include "../../core/render/RenderManager.hpp"
 #endif // !BT_CORE_RENDER_MANAGER_HPP
 
+// Include ecs::IEventInvoker
+#ifndef BT_CORE_I_EVENT_INVOKER_HXX
+#include "../../ecs/event/IEventInvoker.hxx"
+#endif // !BT_CORE_I_EVENT_INVOKER_HXX
+
+// Include ecs::IEventListener
+#ifndef ECS_I_EVENT_LISTENER_HXX
+#include "../../ecs/event/IEventListener.hxx"
+#endif // !ECS_I_EVENT_LISTENER_HXX
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -59,7 +69,8 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API GLRenderManager final : public bt_RenderManager
+        class BT_API GLRenderManager final : public bt_RenderManager, public ecs_IEventListener,
+                public ecs_IEventInvoker
         {
 
             // -----------------------------------------------------------
@@ -137,6 +148,48 @@ namespace bt
              * @throws - no exceptions.
             **/
             virtual void setSurfaceColor( const bt_Color4f& pColor ) BT_NOEXCEPT final;
+
+            // ===========================================================
+            // IEventListener
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called on Event.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pEvent - Event to handle.
+             * @param pThread - Thread-Type.
+             * @return - 'true' if handled, to stop further polling.
+             * @throws - can throw exception. Exceptions collected & reported.
+            **/
+            virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread ) final;
+
+            // ===========================================================
+            // IEventInvoker
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called when Event sent.
+             *
+             * @thread_safety - not required.
+             * @param pEvent - Event.
+             * @param pThread - Thread-Type.
+             * @throws - can throw exception. Errors collected & reported.
+            **/
+            virtual void onEventSent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread ) final;
+
+            /**
+             * @brief
+             * Called when Event caught error.
+             *
+             * @thread_safety - not thread-safe.
+             * @param pEvent - Event.
+             * @param pException - Exception.
+             * @throws - can throw exception. Errors collected & reported.
+            **/
+            virtual void onEventError( ecs_IEvent* const pEvent, const std::exception& pException ) final;
 
             // ===========================================================
             // bt::core::IGraphicsListener

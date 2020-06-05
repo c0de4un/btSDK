@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CFG_SYSTEMS_HPP
-#define BT_CFG_SYSTEMS_HPP
+#ifndef BT_CORE_LOAD_EVENT_HPP
+#define BT_CORE_LOAD_EVENT_HPP
 
 // -----------------------------------------------------------
 
@@ -38,15 +38,10 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::api
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
-
-// Include ecs::numeric
-#ifndef ECS_NUMERIC_HPP
-#include "../ecs/types/ecs_numeric.hpp"
-#endif // !ECS_NUMERIC_HPP
+// Include ecs::Event
+#ifndef ECS_COMPONENT_HPP
+#include "../../ecs/event/Event.hpp"
+#endif // !ECS_COMPONENT_HPP
 
 // ===========================================================
 // TYPES
@@ -55,16 +50,19 @@
 namespace bt
 {
 
-    // -----------------------------------------------------------
+    namespace core
+    {
+
+        // -----------------------------------------------------------
 
         /**
          * @brief
-         * SystemTypes - basic Systems Type-IDs.
-         * Designed to support extending by other list, with start from this.MAX.
+         * LoadEvent - allows to notify Graphics/Render API users,
+         * that assets (textures, shared, meshes, math) can be loaded & used.
          *
          * @version 0.1
         **/
-        enum BT_API SystemTypes : ecs_TypeID
+        class BT_API LoadEvent final : public ecs_Event
         {
 
             // -----------------------------------------------------------
@@ -73,33 +71,70 @@ namespace bt
             // META
             // ===========================================================
 
-            BT_ENUM
+            BT_CLASS
 
             // -----------------------------------------------------------
 
-            MIN = 0,
-            ENGINE,
-            GRAPHICS,
-            RENDER,
-            BATCHING,
-            PARTICLES,
-            AI,
-            AUDIO,
-            THREAD,
-            TASKS,
-            INPUT,
-            MAX = 99
+        private:
 
             // -----------------------------------------------------------
 
-        }; /// bt::core::Systems
+            // ===========================================================
+            // DELETED
+            // ===========================================================
 
-    // -----------------------------------------------------------
+            LoadEvent(const LoadEvent&) = delete;
+            LoadEvent& operator=(const LoadEvent&) = delete;
+            LoadEvent(LoadEvent&&) = delete;
+            LoadEvent& operator=(LoadEvent&&) = delete;
+
+            // -----------------------------------------------------------
+
+        public:
+
+            // -----------------------------------------------------------
+
+            // ===========================================================
+            // CONSTANTS
+            // ===========================================================
+
+            /** Reloading flag. Used to detect, that surface restored (lost of context, GC, device orientation change, etc). **/
+            const bool mReload;
+
+            // ===========================================================
+            // CONSTRUCTOR & DESTRUCTOR
+            // ===========================================================
+
+            /**
+             * @brief
+             * LoadEvent constructor.
+             *
+             * @param pReloading - reloading (restore) flag. 'true', if Rendering Surface restored.
+             * @param pCaller - Event Invoker. Can be null.
+             * @throws - can throw exception.
+            **/
+            explicit LoadEvent( const bool pReloading, ecs_wptr<ecs_IEventInvoker> pCaller = ecs_sptr<ecs_IEventInvoker>( nullptr ) );
+
+            /**
+             * @brief
+             * LoadEvent destructor.
+             *
+             * @throws - can throw exception.
+            **/
+            virtual ~LoadEvent();
+
+            // -----------------------------------------------------------
+
+        }; /// bt::core::LoadEvent
+
+        // -----------------------------------------------------------
+
+    } /// bt::core
 
 } /// bt
 
-using bt_SystemTypes = bt::SystemTypes;
+using bt_LoadEvent = bt::core::LoadEvent;
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_SYSTEMS_HPP
+#endif // !BT_CORE_LOAD_EVENT_HPP

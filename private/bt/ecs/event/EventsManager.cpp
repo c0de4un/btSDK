@@ -114,12 +114,13 @@ namespace ecs
     // METHODS
     // ===========================================================
 
-    void EventsManager::handleEvent( ecs_sptr<ecs_IEvent>& pEvent, const ecs_uint8_t pThread )
+    char EventsManager::handleEvent( ecs_sptr<ecs_IEvent>& pEvent, const ecs_uint8_t pThread )
     {
         event_listeners_list& listeners = mEventListeners[pEvent->getTypeID()];
 
         event_listener eventListener;
         const ecs_size_t listenersCount = listeners.Count();
+        unsigned char result = 0;
 
         for( ecs_size_t i = 0; i < listenersCount; i++ )
         {
@@ -130,8 +131,9 @@ namespace ecs
 
             try
             {
-                if ( eventListener->OnEvent( pEvent, pThread ) )
-                    return;
+                result = eventListener->OnEvent( pEvent, pThread );
+                if ( result != 0 )
+                    return result;
             }
             catch( const std::exception& pException )
             {
@@ -140,9 +142,12 @@ namespace ecs
                 logMsg += pException.what();
                 ecs_log::Print( logMsg.c_str(), ecs_log_level::Error );
 #endif // DEBUG
-                return;
+                pEvent->onError( pException );
+                return -1;
             }
         }
+
+        return 0;
     }
 
     void EventsManager::Subscribe( const ecs_TypeID eventType, ecs_sptr<ecs_IEventListener> pListener )
@@ -173,14 +178,14 @@ namespace ecs
         listeners.Erase( pListener, true );
     }
 
-    void EventsManager::sendEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )
+    char EventsManager::sendEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )
     {
         auto instance = getInstance();
 
         if ( instance == nullptr )
-            return;
+            return 0;
 
-        instance->handleEvent( pEvent, pThread );
+        return instance->handleEvent( pEvent, pThread );
     }
 
     void EventsManager::queueEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )

@@ -45,6 +45,32 @@
 #include "../../../../public/bt/cfg/bt_open_gl.hpp"
 #endif // !BT_CFG_OPEN_GL_HPP
 
+// Include bt::core::LoadEvent
+#ifndef BT_CORE_LOAD_EVENT_HPP
+#include "../../../../public/bt/core/render/LoadEvent.hpp"
+#endif // !BT_CORE_LOAD_EVENT_HPP
+
+// Include bt::core::EThreadTypes
+#ifndef BT_CFG_THREADS_HPP
+#include "../../../../public/bt/cfg/bt_threads.hpp"
+#endif // !BT_CFG_THREADS_HPP
+
+// DEBUG
+#if defined( DEBUG ) || defined( BT_DEBUG )
+
+// Include bt::asserts
+#ifndef BT_CFG_ASSERT_HPP
+#include "../../../../public/bt/cfg/bt_assert.hpp"
+#endif // !BT_CFG_ASSERT_HPP
+
+// Include bt::log
+#ifndef BT_CFG_LOG_HPP
+#include "../../../../public/bt/cfg/bt_log.hpp"
+#endif // !BT_CFG_LOG_HPP
+
+#endif
+// DEBUG
+
 // ===========================================================
 // bt::gl::GLRenderManager
 // ===========================================================
@@ -85,12 +111,46 @@ namespace bt
 
         bool GLRenderManager::onSurfaceReady()
         {
+            // Update Surface-Color.
+            glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
 
+            // Notify
+            bt_sptr<bt_LoadEvent> loadEvent = New<bt_LoadEvent>( mSurfaceReady );
+            if ( ecs_Event::Send( loadEvent, false, bt_EThreadTypes::Render ) < 0 )
+                return false;
+
+            // Set Surface-Ready flag.
             mSurfaceReady = true;
+
+            // OK
             return true;
         }
 
         void GLRenderManager::onSurfaceDraw( const bt_real_t elapsedTime )
+        {
+            // Clear Surface.
+            glClear( GL_COLOR_BUFFER_BIT );
+        }
+
+        // ===========================================================
+        // IEventListener
+        // ===========================================================
+
+        char GLRenderManager::OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread )
+        {
+            return 0;
+        }
+
+        // ===========================================================
+        // IEventInvoker
+        // ===========================================================
+
+        void GLRenderManager::onEventSent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )
+        {
+
+        }
+
+        void GLRenderManager::onEventError( ecs_IEvent* const pEvent, const std::exception& pException )
         {
 
         }

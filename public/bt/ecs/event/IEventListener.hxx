@@ -111,10 +111,10 @@ namespace ecs
          * @thread_safety - depends on implementation.
          * @param pEvent - Event to handle.
          * @param pThread - Thread-Type.
-         * @return - 'true' if handled, to stop further polling.
+         * @return - 0 to continue, 1 if handled to stop, -1 if error.
          * @throws - can throw exception. Exceptions collected & reported.
         **/
-        virtual bool OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread ) = 0;
+        virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread ) = 0;
 
         // -----------------------------------------------------------
 

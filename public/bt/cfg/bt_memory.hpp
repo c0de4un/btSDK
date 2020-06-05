@@ -122,6 +122,10 @@ namespace bt
         static typename std::remove_reference<_Tp>::type&& MoveShared(_Tp&& __t)
         { return std::move<_Tp>(__t); }
 
+        template <class _Tp>
+        static typename std::remove_reference<_Tp>::type&& MoveWeak(_Tp&& __t)
+        { return std::move<_Tp>(__t); }
+
         // -----------------------------------------------------------
 
     }; /// bt::memory

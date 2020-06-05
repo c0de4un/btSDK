@@ -62,6 +62,7 @@ set ( BT_CORE_HEADERS
         "../cfg/bt_events.hpp"
         "../cfg/bt_components.hpp"
         "../cfg/bt_entities.hpp"
+        "../cfg/bt_threads.hpp"
         # CONTAINERS
         "containers/AsyncVector.hpp"
         "containers/AsyncArray.hpp"
@@ -87,6 +88,7 @@ set ( BT_CORE_HEADERS
         "graphics/GraphicsManager.hpp"
         # RENDER
         "render/RenderManager.hpp"
+        "render/LoadEvent.hpp"
         # ENGINE
         "engine/ArcadeEngine.hpp"
         "engine/Engine.hpp" )
@@ -108,6 +110,7 @@ set ( BT_CORE_SOURCES
         "../../../private/bt/core/graphics/GraphicsManager.cpp"
         # RENDER
         "../../../private/bt/core/render/RenderManager.cpp"
+        "../../../private/bt/core/render/LoadEvent.cpp"
         # ENGINE
         "../../../private/bt/core/engine/ArcadeEngine.cpp"
         "../../../private/bt/core/engine/Engine.cpp" )

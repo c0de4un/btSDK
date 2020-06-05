@@ -44,10 +44,26 @@
 #include "IEvent.hxx"
 #endif // !ECS_I_EVENT_HXX
 
+// Include ecs::memory
+#ifndef ECS_MEMORY_HPP
+#include "../types/ecs_memory.hpp"
+#endif // !ECS_MEMORY_HPP
+
 // Include ecs::atomic
 #ifndef ECS_ATOMIC_HPP
 #include "../types/ecs_atomic.hpp"
 #endif // !ECS_ATOMIC_HPP
+
+// ===========================================================
+// FORWARD-DECLARATION
+// ===========================================================
+
+// Forward-Declare ecs::IEventInvoker
+#ifndef BT_CORE_I_EVENT_INVOKER_DECL
+#define BT_CORE_I_EVENT_INVOKER_DECL
+namespace ecs { class IEventInvoker; }
+using ecs_IEventInvoker = ecs::IEventInvoker;
+#endif // !BT_CORE_I_EVENT_INVOKER_DECL
 
 // ===========================================================
 // TYPES
@@ -92,6 +108,13 @@ namespace ecs
         const ecs_ObjectID mID;
 
         // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        /** Event Invoker (caller). **/
+        ecs_wptr<ecs_IEventInvoker> mInvoker;
+
+        // ===========================================================
         // CONSTRUCTOR
         // ===========================================================
 
@@ -100,9 +123,10 @@ namespace ecs
          * Event constructor.
          *
          * @param pType - Event-Type.
+         * @param pCaller - Event Invoker.
          * @throws - can throw exception.
         **/
-        explicit Event( const ecs_TypeID pType );
+        explicit Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller );
 
         // ===========================================================
         // DELETED
@@ -144,7 +168,7 @@ namespace ecs
          * @thread_safety - no required.
          * @throws - no exception.
         **/
-        virtual ecs_TypeID getTypeID() const ECS_NOEXCEPT = 0;
+        virtual ecs_TypeID getTypeID() const ECS_NOEXCEPT final;
 
         /**
          * @brief
@@ -153,7 +177,17 @@ namespace ecs
          * @thread_safety - atomics used.
          * @throws - no exceptions.
         **/
-        virtual bool isHandled() const BT_NOEXCEPT = 0;
+        virtual bool isHandled() const BT_NOEXCEPT final;
+
+        /**
+         * @brief
+         * Called when Event caught error.
+         *
+         * @thread_safety - not thread-safe.
+         * @param pException - exception.
+         * @throws - can throw exception.
+        **/
+        virtual void onError( const std::exception& pException ) final;
 
         /**
          * @brief
@@ -162,10 +196,11 @@ namespace ecs
          * (?) Wrapper/utility method.
          *
          * @thread_safety - not required.
+         * @param pEvent - Event to send.
          * @param pAsync - 'true' to queue Event sending, 'false' to handle right now with thread-locks.
          * @throws - unlikely, but can throw unhandled exception, error though collected & reported.
         **/
-        virtual void Send( const bool pAsync, const ecs_uint8_t pThread ) final;
+        static char Send( ecs_sptr<IEvent> pEvent, const bool pAsync = true, const ecs_uint8_t pThread = 0 );
 
         // -----------------------------------------------------------
 

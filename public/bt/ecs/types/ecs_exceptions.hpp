@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CFG_SYSTEMS_HPP
-#define BT_CFG_SYSTEMS_HPP
+#ifndef ECS_EXCEPTIONS_HPP
+#define ECS_EXCEPTIONS_HPP
 
 // -----------------------------------------------------------
 
@@ -38,68 +38,15 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::api
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
-
-// Include ecs::numeric
-#ifndef ECS_NUMERIC_HPP
-#include "../ecs/types/ecs_numeric.hpp"
-#endif // !ECS_NUMERIC_HPP
+// Include C++ exception.
+#include <exception>
 
 // ===========================================================
 // TYPES
 // ===========================================================
 
-namespace bt
-{
-
-    // -----------------------------------------------------------
-
-        /**
-         * @brief
-         * SystemTypes - basic Systems Type-IDs.
-         * Designed to support extending by other list, with start from this.MAX.
-         *
-         * @version 0.1
-        **/
-        enum BT_API SystemTypes : ecs_TypeID
-        {
-
-            // -----------------------------------------------------------
-
-            // ===========================================================
-            // META
-            // ===========================================================
-
-            BT_ENUM
-
-            // -----------------------------------------------------------
-
-            MIN = 0,
-            ENGINE,
-            GRAPHICS,
-            RENDER,
-            BATCHING,
-            PARTICLES,
-            AI,
-            AUDIO,
-            THREAD,
-            TASKS,
-            INPUT,
-            MAX = 99
-
-            // -----------------------------------------------------------
-
-        }; /// bt::core::Systems
-
-    // -----------------------------------------------------------
-
-} /// bt
-
-using bt_SystemTypes = bt::SystemTypes;
+using ecs_exception = std::exception;
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_SYSTEMS_HPP
+#endif // !ECS_EXCEPTIONS_HPP

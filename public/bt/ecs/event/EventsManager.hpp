@@ -191,9 +191,10 @@ namespace ecs
          * @thread_safety - thread-locks used.
          * @param pEvent - Event to send.
          * @param pThread - thread-type, default is 0 to via update-thread.
+         * @return 0 to continue, 1 if handled to stop, -1 if error.
          * @throws - can throw exception. Errors collected & reported.
         **/
-        void handleEvent( ecs_sptr<ecs_IEvent>& pEvent, const ecs_uint8_t pThread );
+        char handleEvent( ecs_sptr<ecs_IEvent>& pEvent, const ecs_uint8_t pThread );
 
         // ===========================================================
         // DELETED
@@ -269,9 +270,10 @@ namespace ecs
          * @thread_safety - thread-locks used.
          * @param pEvent - Event to send.
          * @param pThread - thread-type, default is 0 to via update-thread.
+         * @return 0 to continue, 1 if handled to stop, -1 if error.
          * @throws - can throw exception. Errors collected & reported.
         **/
-        static void sendEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread = 0 );
+        static char sendEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread = 0 );
 
         /**
          * @brief

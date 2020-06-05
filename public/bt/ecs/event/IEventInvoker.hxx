@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_I_EVENT_HXX
-#define ECS_I_EVENT_HXX
+#ifndef BT_CORE_I_EVENT_INVOKER_HXX
+#define BT_CORE_I_EVENT_INVOKER_HXX
 
 // -----------------------------------------------------------
 
@@ -49,10 +49,16 @@
 #include "../types/ecs_memory.hpp"
 #endif // !ECS_MEMORY_HPP
 
-// Include ecs::exception
-#ifndef ECS_EXCEPTIONS_HPP
-#include "../types/ecs_exceptions.hpp"
-#endif // !ECS_EXCEPTIONS_HPP
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+// Forward-Declare ecs::IEvent
+#ifndef ECS_I_EVENT_DECL
+#define ECS_I_EVENT_DECL
+namespace ecs { class IEvent; }
+using ecs_IEvent = ecs::IEvent;
+#endif // !ECS_I_SYSTEM_DECL
 
 // ===========================================================
 // TYPES
@@ -65,11 +71,11 @@ namespace ecs
 
     /**
      * @brief
-     * IEvent - Event interface.
+     * IEventInvoker - allows to notify Event sender about completion.
      *
      * @version 0.1
     **/
-    class ECS_API IEvent
+    class ECS_API IEventInvoker
     {
 
         // -----------------------------------------------------------
@@ -92,35 +98,9 @@ namespace ecs
 
         /**
          * @brief
-         * IEvent destructor.
-         *
-         * @throws - can throw exceptions.
+         * IEventInvoker destructor.
         **/
-        virtual ~IEvent()
-        {
-        }
-
-        // ===========================================================
-        // GETTERS & SETTERS
-        // ===========================================================
-
-        /**
-         * @brief
-         * Returns Event Type-ID.
-         *
-         * @thread_safety - no required.
-         * @throws - no exception.
-        **/
-        virtual ecs_TypeID getTypeID() const ECS_NOEXCEPT = 0;
-
-        /**
-         * @brief
-         * Returns 'true' if Event already handled.
-         *
-         * @thread_safety - atomics used.
-         * @throws - no exceptions.
-        **/
-        virtual bool isHandled() const BT_NOEXCEPT = 0;
+        virtual ~IEventInvoker() = default;
 
         // ===========================================================
         // METHODS
@@ -128,25 +108,37 @@ namespace ecs
 
         /**
          * @brief
+         * Called when Event sent.
+         *
+         * @thread_safety - not required.
+         * @param pEvent - Event.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception. Errors collected & reported.
+        **/
+        virtual void onEventSent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread ) = 0;
+
+        /**
+         * @brief
          * Called when Event caught error.
          *
          * @thread_safety - not thread-safe.
-         * @param pException - exception.
-         * @throws - can throw exception.
+         * @param pEvent - Event.
+         * @param pException - Exception.
+         * @throws - can throw exception. Errors collected & reported.
         **/
-        virtual void onError( const std::exception& pException ) = 0;
+        virtual void onEventError( ecs_IEvent* const pEvent, const std::exception& pException ) = 0;
 
         // -----------------------------------------------------------
 
-    }; /// bt::IEvent
+    }; /// ecs::IEventInvoker
 
     // -----------------------------------------------------------
 
 } /// ecs
 
-using ecs_IEvent = ecs::IEvent;
-#define ECS_I_EVENT_DECL
+using ecs_IEventInvoker = ecs::IEventInvoker;
+#define BT_CORE_I_EVENT_INVOKER_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_I_EVENT_HXX
+#endif // !BT_CORE_I_EVENT_INVOKER_HXX

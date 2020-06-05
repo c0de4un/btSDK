@@ -46,6 +46,11 @@
 #include "../../../../public/bt/ecs/event/EventsManager.hpp"
 #endif // !ECS_EVENTS_MANAGER_HPP
 
+// Include ecs::IEventInvoker
+#ifndef BT_CORE_I_EVENT_INVOKER_HXX
+#include "../../../../public/bt/ecs/event/IEventInvoker.hxx"
+#endif // !BT_CORE_I_EVENT_INVOKER_HXX
+
 // ===========================================================
 // ecs::Event
 // ===========================================================
@@ -59,9 +64,10 @@ namespace ecs
     // CONSTRUCTOR & DESTRUCTOR
     // ===========================================================
 
-    Event::Event( const ecs_TypeID pType )
+    Event::Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller )
         : mTypeID( pType ),
         mID( ecs_EventsManager::generateEventID( pType ) ),
+        mInvoker( pCaller ),
         mHandled( false )
     {
     }
@@ -82,12 +88,30 @@ namespace ecs
     // METHODS
     // ===========================================================
 
-    void Event::Send( const bool pAsync, const ecs_uint8_t pThread )
+    void Event::onError( const std::exception& pException )
     {
+        ecs_sptr<ecs_IEventInvoker> caller = mInvoker.lock();
+
+        if ( caller )
+            caller->onEventError( this, pException );
+    }
+
+    char Event::Send( ecs_sptr<IEvent> pEvent, const bool pAsync, const ecs_uint8_t pThread )
+    {
+        char result = 0;
+
         if ( !pAsync )
-            ecs_EventsManager::sendEvent( ecs_sptr<IEvent>( this ), pThread );
+            result = ecs_EventsManager::sendEvent( pEvent, pThread );
         else
-            ecs_EventsManager::queueEvent( ecs_sptr<IEvent>( this ), pThread );
+            ecs_EventsManager::queueEvent( pEvent, pThread );
+
+        auto* const event = dynamic_cast<Event*>( pEvent.get() );
+        ecs_sptr<ecs_IEventInvoker> caller = event->mInvoker.lock();
+
+        if ( caller )
+            caller->onEventSent( pEvent, pThread );
+
+        return result;
     }
 
     // -----------------------------------------------------------
