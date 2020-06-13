@@ -52,7 +52,7 @@
 #endif // !ECS_I_EVENT_LISTENER_HXX
 
 // DEBUG
-#if defined( DEBUG )
+#if defined( BT_DEBUG ) || defined( DEBUG )
 
 // Include ecs::assert
 #ifndef ECS_ASSERT_HPP
@@ -92,9 +92,13 @@ namespace ecs
     // ===========================================================
 
     EventsManager::EventsManager()
-            : mIDStorage(),
+            : mEnabled(true),
+              mIDStorage(),
+              mIDMutex(),
               mEventsByThread(),
-              mEventListeners()
+              mEventsMutex(),
+              mEventListeners(),
+              mEventListenersMutex()
     {
     }
 
@@ -107,33 +111,62 @@ namespace ecs
     ecs_sptr<EventsManager> EventsManager::getInstance()
     { return mInstance; }
 
-    EventsManager::events_deque& EventsManager::getEventsQueue( const unsigned char pThread )
-    { return mEventsByThread[pThread]; }
+    EventsManager::events_queues_storage& EventsManager::getEventsQueue( const unsigned char pThread )
+    {
+        ecs_SpinLock lock( &mEventsMutex );
+        return mEventsByThread[pThread];
+    }
+
+    EventsManager::event_listeners_storage& EventsManager::getEventListeners( const ecs_TypeID pType )
+    {
+        ecs_SpinLock lock( &mEventListenersMutex );
+        return mEventListeners[pType];
+    }
+
+    ECS_API EventsManager::event_ptr EventsManager::getNextEvent( events_queues_storage& eventsStorage )
+    {
+        ecs_SpinLock  lock( &eventsStorage.mMutex );
+
+        if ( !eventsStorage.mItem.empty() )
+        {
+            event_ptr result = eventsStorage.mItem.front();
+            eventsStorage.mItem.pop_front();
+            return result;
+        }
+
+        return event_ptr( nullptr );
+    }
+
+    ECS_API EventsManager::event_listener EventsManager::getNextEventListener( ecs_size_t& pIdx, event_listeners_storage& listenersStorage )
+    {
+        ecs_SpinLock lock( &listenersStorage.mMutex );
+
+        if ( !listenersStorage.mItem.empty() && listenersStorage.mItem.size() < pIdx + 1 )
+        {
+            pIdx++;
+            return listenersStorage.mItem[pIdx];
+        }
+
+        return event_listener( nullptr );
+    }
 
     // ===========================================================
     // METHODS
     // ===========================================================
 
-    char EventsManager::handleEvent( ecs_sptr<ecs_IEvent>& pEvent, const ecs_uint8_t pThread )
+    char EventsManager::handleEvent( event_ptr& pEvent, const bool pAsync, const ecs_uint8_t pThread )
     {
-        event_listeners_list& listeners = mEventListeners[pEvent->getTypeID()];
+        event_listeners_storage& listenersStorage = getEventListeners( pEvent->getTypeID() );
 
+        char result = 0;
+        ecs_size_t listenerIdx = 0;
         event_listener eventListener;
-        const ecs_size_t listenersCount = listeners.Count();
-        unsigned char result = 0;
-
-        for( ecs_size_t i = 0; i < listenersCount; i++ )
+        while( (eventListener = getNextEventListener( listenerIdx, listenersStorage )) != nullptr && mEnabled )
         {
-            if ( listeners.Count() < listenersCount )
-                break;
-
-            eventListener = listeners[i];
-
             try
             {
-                result = eventListener->OnEvent( pEvent, pThread );
-                if ( result != 0 )
-                    return result;
+                if ( (result = eventListener->OnEvent( pEvent, pAsync, pThread )) != 0 )
+                    break;
             }
             catch( const std::exception& pException )
             {
@@ -142,61 +175,79 @@ namespace ecs
                 logMsg += pException.what();
                 ecs_log::Print( logMsg.c_str(), ecs_log_level::Error );
 #endif // DEBUG
-                pEvent->onError( pException );
-                return -1;
+                pEvent->onError( pEvent, pException, pAsync, pThread );
+                result = -1;
             }
         }
+
+        pEvent->onSend( pEvent, pAsync, pThread );
+
+        return result;
+    }
+
+    void EventsManager::Subscribe( const ecs_TypeID eventType, event_listener& pListener )
+    {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+        ecs_assert( pListener != nullptr && "EventsManager::Subscribe: listener argument is null." );
+        ecs_assert( eventType > 0 && eventType < ECS_INVALID_TYPE_ID && "EventsManager::Subscribe: Invalid Type-ID." );
+#endif // DEBUG
+
+        auto instance = getInstance();
+
+        if ( instance == nullptr )
+            return;
+
+        event_listeners_storage& listeners = instance->getEventListeners( eventType );
+        ecs_SpinLock lock( &listeners.mMutex );
+
+#if defined( DEBUG ) // DEBUG
+        ecs_assert( !ecs_VectorUtil<event_listener>::Find( listeners.mItem, pListener, nullptr ) && "EventsManager::Subscribe - already stored." );
+#else // !DEBUG
+        if ( ecs_VectorUtil<event_listener>::Find(listeners.mItem, pListener, nullptr) )
+            return;
+#endif // DEBUG
+
+        listeners.mItem.push_back( pListener );
+    }
+
+    void EventsManager::Unsubscribe( const ecs_TypeID eventType, event_listener& pListener )
+    {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+        ecs_assert( pListener != nullptr && "EventsManager::Unsubscribe: listener argument is null." );
+        ecs_assert( eventType > 0 && eventType < ECS_INVALID_TYPE_ID && "EventsManager::Unsubscribe: Invalid Type-ID." );
+#endif // DEBUG
+
+        auto instance = getInstance();
+
+        if ( instance == nullptr )
+            return;
+
+        event_listeners_storage& listeners = instance->getEventListeners( eventType );
+        ecs_SpinLock lock( &listeners.mMutex );
+
+        ecs_VectorUtil<event_listener>::SwapPop( listeners.mItem, pListener );
+    }
+
+    char EventsManager::sendEvent( event_ptr& pEvent, const ecs_uint8_t pThread )
+    {
+        auto instance = getInstance();
+
+        if ( instance != nullptr )
+            return instance->handleEvent( pEvent, false, pThread );
 
         return 0;
     }
 
-    void EventsManager::Subscribe( const ecs_TypeID eventType, ecs_sptr<ecs_IEventListener> pListener )
+    void EventsManager::queueEvent( event_ptr& pEvent, const ecs_uint8_t pThread )
     {
         auto instance = getInstance();
 
         if ( instance == nullptr )
             return;
 
-        event_listeners_list& listeners = instance->mEventListeners[eventType];
-
-#if defined( DEBUG ) // DEBUG
-        ecs_assert( !listeners.Find(pListener, nullptr) && "EventsManager::subListener - already stored." );
-#endif // DEBUG
-
-        listeners.Push( pListener );
-    }
-
-    void EventsManager::Unsubscribe( const ecs_TypeID eventType, ecs_sptr<ecs_IEventListener>& pListener )
-    {
-        auto instance = getInstance();
-
-        if ( instance == nullptr )
-            return;
-
-        event_listeners_list& listeners = instance->mEventListeners[eventType];
-
-        listeners.Erase( pListener, true );
-    }
-
-    char EventsManager::sendEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )
-    {
-        auto instance = getInstance();
-
-        if ( instance == nullptr )
-            return 0;
-
-        return instance->handleEvent( pEvent, pThread );
-    }
-
-    void EventsManager::queueEvent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )
-    {
-        auto instance = getInstance();
-
-        if ( instance == nullptr )
-            return;
-
-        events_deque& eventsQueue = instance->mEventsByThread[pThread];
-        eventsQueue.PushBack( pEvent );
+        events_queues_storage& eventsStorage = instance->getEventsQueue( pThread );
+        ecs_SpinLock lock( &eventsStorage.mMutex );
+        eventsStorage.mItem.push_back( pEvent );
     }
 
     void EventsManager::Update( const ecs_uint8_t pThread )
@@ -206,17 +257,24 @@ namespace ecs
         if ( instance == nullptr )
             return;
 
-        events_deque& eventsDeque = instance->mEventsByThread[pThread];
+        events_queues_storage& eventsStorage = instance->getEventsQueue( pThread );
+        event_ptr event;
 
-        event_t event = eventsDeque.Front();
-        while( event != nullptr )
-        { instance->handleEvent( event, pThread ); }
+        while( ( event = getNextEvent(eventsStorage) ) != nullptr && instance->mEnabled )
+            instance->handleEvent( event, true, pThread );
     }
 
     ecs_ObjectID EventsManager::generateEventID(const ecs_TypeID pType) ECS_NOEXCEPT
     {
         ecs_sptr<EventsManager> instance = getInstance();
-        return instance != nullptr ? instance->mIDStorage.getAvailableID(pType) : ECS_INVALID_OBJECT_ID;
+
+        if ( instance != nullptr )
+        {
+            ecs_SpinLock lock( &instance->mIDMutex );
+            return instance->mIDStorage.getAvailableID(pType);
+        }
+
+        return ECS_INVALID_OBJECT_ID;
     }
 
     void EventsManager::releaseEventID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
@@ -224,19 +282,23 @@ namespace ecs
         ecs_sptr<EventsManager> instance = getInstance();
 
         if ( instance != nullptr )
+        {
+            ecs_SpinLock lock( &instance->mIDMutex );
             instance->mIDStorage.releaseID(pType, pID);
+        }
     }
 
     ECS_API void EventsManager::Initialize()
     {
-        if ( mInstance != nullptr )
-            return;
-
-        mInstance = ecs_new<EventsManager>();
+        if ( mInstance == nullptr )
+            mInstance = ecs_new<EventsManager>();
     }
 
     ECS_API void EventsManager::Terminate()
     {
+        if ( mInstance != nullptr )
+            mInstance->mEnabled = false;
+
         mInstance = nullptr;
     }
 

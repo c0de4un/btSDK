@@ -60,7 +60,7 @@ namespace ecs
     // ===========================================================
 
     Component::Component( const ecs_TypeID pType, ecs_Mutex* const pMutex )
-        : mID( ecs_ComponentsManager::generateComponentID(pType) ),
+        : mID( ecs_Components::generateComponentID(pType) ),
         mTypeID( pType ),
         mMutex( pMutex )
     {
@@ -68,8 +68,8 @@ namespace ecs
 
     Component::~Component() ECS_NOEXCEPT
     {
+        ecs_Components::releaseComponentID( mTypeID, mID );
         delete mMutex;
-        ecs_ComponentsManager::releaseComponentID( mTypeID, mID );
     }
 
     // -----------------------------------------------------------

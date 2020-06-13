@@ -66,13 +66,16 @@ namespace ecs
 
     Event::Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller )
         : mTypeID( pType ),
-        mID( ecs_EventsManager::generateEventID( pType ) ),
+        mID(ecs_Events::generateEventID(pType ) ),
         mInvoker( pCaller ),
         mHandled( false )
     {
     }
 
-    Event::~Event() = default;
+    Event::~Event()
+    {
+        ecs_Events::releaseEventID(mTypeID, mID );
+    }
 
     // ===========================================================
     // GETTERS & SETTERS
@@ -81,6 +84,9 @@ namespace ecs
     ecs_TypeID Event::getTypeID() const ECS_NOEXCEPT
     { return mTypeID; }
 
+    ecs_ObjectID Event::getID() const ECS_NOEXCEPT
+    { return mID; }
+
     bool Event::isHandled() const BT_NOEXCEPT
     { return mHandled; }
 
@@ -88,28 +94,31 @@ namespace ecs
     // METHODS
     // ===========================================================
 
-    void Event::onError( const std::exception& pException )
+    void Event::onError( ecs_sptr<IEvent>& pEvent, const std::exception& pException, const bool pAsync, const unsigned pThread )
     {
-        ecs_sptr<ecs_IEventInvoker> caller = mInvoker.lock();
+        ecs_sptr<ecs_IEventInvoker> invoker = mInvoker.lock();
 
-        if ( caller )
-            caller->onEventError( this, pException );
+        if ( invoker != nullptr )
+            invoker->onEventSentError( pEvent, pException, pAsync, pThread );
     }
 
-    char Event::Send( ecs_sptr<IEvent> pEvent, const bool pAsync, const ecs_uint8_t pThread )
+    void Event::onSend( ecs_sptr<IEvent>& pEvent, const bool pAsync, const unsigned pThread )
+    {
+        ecs_sptr<ecs_IEventInvoker> invoker = mInvoker.lock();
+
+        if ( invoker != nullptr )
+            invoker->onEventSent( pEvent, pAsync, pThread );
+    }
+
+    ECS_API char Event::Send( ecs_sptr<IEvent>& pEvent, const bool pAsync, const ecs_uint8_t pThread )
     {
         char result = 0;
 
+        // Send.
         if ( !pAsync )
-            result = ecs_EventsManager::sendEvent( pEvent, pThread );
+            result = ecs_Events::sendEvent(pEvent, pThread );
         else
-            ecs_EventsManager::queueEvent( pEvent, pThread );
-
-        auto* const event = dynamic_cast<Event*>( pEvent.get() );
-        ecs_sptr<ecs_IEventInvoker> caller = event->mInvoker.lock();
-
-        if ( caller )
-            caller->onEventSent( pEvent, pThread );
+            ecs_Events::queueEvent(pEvent, pThread );
 
         return result;
     }

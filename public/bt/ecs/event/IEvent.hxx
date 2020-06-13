@@ -115,6 +115,15 @@ namespace ecs
 
         /**
          * @brief
+         * Returns Event IEntity ID.
+         *
+         * @thread_safety - no required.
+         * @throws - no exception.
+        **/
+        virtual ecs_ObjectID getID() const ECS_NOEXCEPT = 0;
+
+        /**
+         * @brief
          * Returns 'true' if Event already handled.
          *
          * @thread_safety - atomics used.
@@ -131,10 +140,25 @@ namespace ecs
          * Called when Event caught error.
          *
          * @thread_safety - not thread-safe.
+         * @param pEvent - this.
          * @param pException - exception.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
          * @throws - can throw exception.
         **/
-        virtual void onError( const std::exception& pException ) = 0;
+        virtual void onError( ecs_sptr<IEvent>& pEvent, const std::exception& pException, const bool pAsync, const unsigned pThread ) = 0;
+
+        /**
+         * @brief
+         * Called when Event send.
+         *
+         * @thread_safety - not thread-safe.
+         * @param pEvent - this.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception.
+        **/
+        virtual void onSend( ecs_sptr<IEvent>& pEvent, const bool pAsync, const unsigned pThread ) = 0;
 
         // -----------------------------------------------------------
 

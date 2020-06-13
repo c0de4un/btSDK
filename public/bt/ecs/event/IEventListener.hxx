@@ -110,11 +110,26 @@ namespace ecs
          *
          * @thread_safety - depends on implementation.
          * @param pEvent - Event to handle.
+         * @param pAsync - 'true' if called in Async-mode.
          * @param pThread - Thread-Type.
          * @return - 0 to continue, 1 if handled to stop, -1 if error.
          * @throws - can throw exception. Exceptions collected & reported.
         **/
-        virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread ) = 0;
+        virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const bool pAsync, const unsigned char pThread ) = 0;
+
+        /**
+         * @brief
+         * Called on Event Error.
+         *
+         * @thread_safety - depends on implementation.
+         * @param pEvent - Event to handle.
+         * @param pException - Exception.
+         * @param pAsync - 'true' if called in Async-mode.
+         * @param pThread - Thread-Type.
+         * @return - 0 to continue, 1 if handled to stop, -1 if error.
+         * @throws - can throw exception. Exceptions collected & reported.
+        **/
+        virtual void onEventError( ecs_sptr<ecs_IEvent> pEvent, const std::exception& pException, const bool pAsync, const unsigned char pThread ) = 0;
 
         // -----------------------------------------------------------
 

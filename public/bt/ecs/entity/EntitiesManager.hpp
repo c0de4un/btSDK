@@ -39,11 +39,271 @@
 // INCLUDES
 // ===========================================================
 
+// Include ecs::api
+#ifndef ECS_API_HPP
+#include "../types/ecs_api.hpp"
+#endif // !ECS_API_HPP
+
+// Include ecs::ids
+#ifndef ECS_IDS_HPP
+#include "../types/ecs_ids.hpp"
+#endif // !ECS_IDS_HPP
+
+// Include ecs::mutex
+#ifndef ECS_MUTEX_HPP
+#include "../types/ecs_mutex.hpp"
+#endif // ECS_MUTEX_HPP
+
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
+
+// Include ecs::memory
+#ifndef ECS_MEMORY_HPP
+#include "../types/ecs_memory.hpp"
+#endif // !ECS_MEMORY_HPP
+
+// Include ecs::map
+#ifndef ECS_MAP_HPP
+#include "../types/ecs_map.hpp"
+#endif // !ECS_MAP_HPP
+
 // ===========================================================
-//
+// FORWARD-DECLARATION
 // ===========================================================
 
-#define ECS_ENTITIES_MANAGER_DECL
+// Forward-Declare ecs::IEntity
+#ifndef ECS_I_ENTITY_DECL
+#define ECS_I_ENTITY_DECL
+namespace ecs { class IEntity; }
+using ecs_IEntity = ecs::IEntity;
+#endif // !ECS_I_ENTITY_DECL
+
+// ===========================================================
+// TYPES
+// ===========================================================
+
+namespace ecs
+{
+
+    // -----------------------------------------------------------
+
+    class ECS_API EntitiesManager final
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        ECS_CLASS
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONFIGS
+        // ===========================================================
+
+        /** Entity Pointer. **/
+        using entity_ptr = ecs_sptr<ecs_IEntity>;
+
+        /** Entities map. **/
+        using etities_map = ecs_map<ecs_ObjectID, entity_ptr>;
+
+        /** Entities map container. **/
+        using ecs_entities_map_storage = ecs_AsyncStorage<etities_map>;
+
+        /** Entities types-map. **/
+        using entities_types_map = ecs_map<ecs_TypeID, ecs_entities_map_storage>;
+
+        // -----------------------------------------------------------
+
+    private:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        /** ComponentsManager instance. **/
+        static ecs_sptr<EntitiesManager> mInstance;
+
+        /** IDStorage **/
+        ecs_IDMap<ecs_TypeID, ecs_ObjectID> mIDStorage;
+
+        /** IDStorage Mutex. **/
+        ecs_Mutex mIDMutex;
+
+        /** Entities **/
+        entities_types_map mEntities;
+
+        /** Entities Mutex. **/
+        ecs_Mutex mEntitiesMutex;
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        EntitiesManager(const EntitiesManager&) = delete;
+        EntitiesManager& operator=(const EntitiesManager&) = delete;
+        EntitiesManager(EntitiesManager&&) = delete;
+        EntitiesManager& operator=(EntitiesManager&&) = delete;
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns weak-pointer to EntitiesManager isntance.
+         *
+         * @thread_safety - thread-safe due to atomic nature.
+         * @throws - can throw exception.
+        **/
+        static ECS_API ecs_sptr<EntitiesManager> getInstance();
+
+        /**
+         * @brief
+         * Returns Entities collection by Type-ID.
+         *
+         * @thread_safety - thread-lock used.
+         * @throws - can throw exception.
+        **/
+        ecs_entities_map_storage& getEntities( const ecs_TypeID pType );
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        /**
+         * @brief
+         * EntitiesManager constructor.
+         *
+         * @throws - cant throw exception.
+        **/
+        explicit EntitiesManager();
+
+        /**
+         * @brief
+         * EntitiesManager destructor.
+         *
+         * @throws - can throw exception.
+        **/
+        ~EntitiesManager();
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Search Entity by Type-ID.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Type-ID.
+         * @param pRemove - 'true' to remove Entity from the storage.
+         * @throws - can throw exception.
+        **/
+        static entity_ptr getEntityByType( const ecs_TypeID pType, const bool pRemove );
+
+        /**
+         * @brief
+         * Search Entity.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Type-ID.
+         * @param pID - ID.
+         * @param pRemove - 'true' to remove Entity from the storage.
+         * @throws - can throw exception.
+        **/
+        static entity_ptr getEntityByID( const ecs_TypeID pType, const ecs_ObjectID pID, const bool pRemove );
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Add Entity (store).
+         *
+         * @thread_safety - thread-locks used.
+         * @param pEntity - Entity instance to store.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void registerEntity( entity_ptr& pEntity );
+
+        /**
+         * @brief
+         * Remove Entity.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Type-ID.
+         * @param pID - ID.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void unregisterEntity( const ecs_TypeID pType, const ecs_ObjectID pID );
+
+        /**
+         * @brief
+         * Returns Entity ID.
+         *
+         * @thread_safety - thread-lock used.
+         * @param pType - Type-ID.
+         * @throws - can throw exception.
+        **/
+        static ECS_API ecs_ObjectID generateEntityID(const ecs_TypeID pType) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Returns EntitiesManager ID for reuse.
+         *
+         * @thread_safety - thread-lock used.
+         * @param pType - Type-ID.
+         * @param pID - ID to return for reuse.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void releaseEntityID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Initialize EntitiesManager instance.
+         *
+         * @thread_safety - main thread only.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void Initialize();
+
+        /**
+         * @brief
+         * Terminate EntitiesManager instance.
+         *
+         * @thread_safety - main thread only.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void Terminate();
+
+        // -----------------------------------------------------------
+
+    }; /// ecs::EntitiesManager
+
+    // -----------------------------------------------------------
+
+} /// ecs
+
+using ecs_Entities = ecs::EntitiesManager;
 
 // -----------------------------------------------------------
 

@@ -112,10 +112,11 @@ namespace ecs
          *
          * @thread_safety - not required.
          * @param pEvent - Event.
+         * @param pAsync - 'true' if Async-sending used.
          * @param pThread - Thread-Type.
          * @throws - can throw exception. Errors collected & reported.
         **/
-        virtual void onEventSent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread ) = 0;
+        virtual void onEventSent( ecs_sptr<ecs_IEvent>& pEvent, const bool pAsync, const ecs_uint8_t pThread ) = 0;
 
         /**
          * @brief
@@ -124,9 +125,11 @@ namespace ecs
          * @thread_safety - not thread-safe.
          * @param pEvent - Event.
          * @param pException - Exception.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
          * @throws - can throw exception. Errors collected & reported.
         **/
-        virtual void onEventError( ecs_IEvent* const pEvent, const std::exception& pException ) = 0;
+        virtual void onEventSentError( ecs_sptr<ecs_IEvent>& pEvent, const std::exception& pException, const bool pAsync, const ecs_uint8_t pThread ) = 0;
 
         // -----------------------------------------------------------
 

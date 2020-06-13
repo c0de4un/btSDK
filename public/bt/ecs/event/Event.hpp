@@ -126,11 +126,16 @@ namespace ecs
          * @param pCaller - Event Invoker.
          * @throws - can throw exception.
         **/
-        explicit Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller );
+        explicit Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller = ecs_wptr<ecs_IEventInvoker>() );
 
         // ===========================================================
         // DELETED
         // ===========================================================
+
+        Event(const Event&) = delete;
+        Event& operator=(const Event&) = delete;
+        Event(Event&&) = delete;
+        Event& operator=(Event&&) = delete;
 
         // -----------------------------------------------------------
 
@@ -172,6 +177,15 @@ namespace ecs
 
         /**
          * @brief
+         * Returns Event IEntity ID.
+         *
+         * @thread_safety - no required.
+         * @throws - no exception.
+        **/
+        virtual ecs_ObjectID getID() const ECS_NOEXCEPT final;
+
+        /**
+         * @brief
          * Returns 'true' if Event already handled.
          *
          * @thread_safety - atomics used.
@@ -184,10 +198,25 @@ namespace ecs
          * Called when Event caught error.
          *
          * @thread_safety - not thread-safe.
+         * @param pEvent - this.
          * @param pException - exception.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
          * @throws - can throw exception.
         **/
-        virtual void onError( const std::exception& pException ) final;
+        virtual void onError( ecs_sptr<IEvent>& pEvent, const std::exception& pException, const bool pAsync, const unsigned pThread ) override;
+
+        /**
+         * @brief
+         * Called when Event sent.
+         *
+         * @thread_safety - not thread-safe.
+         * @param pEvent - this.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception.
+        **/
+        virtual void onSend( ecs_sptr<IEvent>& pEvent, const bool pAsync, const unsigned pThread ) override;
 
         /**
          * @brief
@@ -200,7 +229,7 @@ namespace ecs
          * @param pAsync - 'true' to queue Event sending, 'false' to handle right now with thread-locks.
          * @throws - unlikely, but can throw unhandled exception, error though collected & reported.
         **/
-        static char Send( ecs_sptr<IEvent> pEvent, const bool pAsync = true, const ecs_uint8_t pThread = 0 );
+        static ECS_API char Send( ecs_sptr<IEvent>& pEvent, const bool pAsync = true, const ecs_uint8_t pThread = 0 );
 
         // -----------------------------------------------------------
 

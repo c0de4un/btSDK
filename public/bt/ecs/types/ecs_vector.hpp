@@ -48,6 +48,12 @@
 // ===========================================================
 
 template <typename T>
+using ecs_VectorUtil = bt_VectorUtil<T>;
+
+template <typename T>
+using ecs_vec = bt_vector<T>;
+
+template <typename T>
 using ecs_AsyncVector = bt::core::AsyncVector<T>;
 
 // -----------------------------------------------------------

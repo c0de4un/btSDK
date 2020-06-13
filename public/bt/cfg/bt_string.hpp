@@ -38,10 +38,10 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::platform
-#ifndef BT_CFG_PLATFORM_HPP
-#include "bt_platform.hpp"
-#endif // !BT_CFG_PLATFORM_HPP
+// Include bt::api
+#ifndef BT_CFG_API_HPP
+#include "bt_api.hpp"
+#endif // !BT_CFG_API_HPP
 
 // ===========================================================
 // INCLUDES
@@ -55,6 +55,75 @@
 
 // String
 using bt_String = std::string;
+
+namespace bt
+{
+
+    /**
+     * @brief
+     * StringUtil - strings utility class.
+     *
+     * @version 0.1
+    **/
+    class BT_API StringUtil
+    {
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // META
+        // ===========================================================
+
+        BT_CLASS
+
+        // -----------------------------------------------------------
+
+    private:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // CONSTRUCTOR
+        // ===========================================================
+
+        explicit StringUtil() = default;
+
+        // ===========================================================
+        // DELETED
+        // ===========================================================
+
+        StringUtil(const StringUtil&) = delete;
+        StringUtil& operator=(const StringUtil&) = delete;
+        StringUtil(StringUtil&&) = delete;
+        StringUtil& operator=(StringUtil&&) = delete;
+
+        // -----------------------------------------------------------
+
+    public:
+
+        // -----------------------------------------------------------
+
+        // ===========================================================
+        // DESTRUCTOR
+        // ===========================================================
+
+        ~StringUtil() = default;
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        template <typename T = int>
+        static BT_API bt_String toString( const T pItem )
+        { return std::to_string( pItem ); }
+
+        // -----------------------------------------------------------
+
+    }; /// bt::StringUtil
+
+} /// bt
+
+using bt_StringUtil = bt::StringUtil;
 
 #elif defined( WINDOWS ) // WINDOWS
 #error "bt_string - Windows configuration required."

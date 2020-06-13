@@ -48,6 +48,8 @@
 
 using ecs_String = bt_String;
 
+using ecs_StringUtil = bt_StringUtil;
+
 // -----------------------------------------------------------
 
 #endif // !ECS_STRING_HPP

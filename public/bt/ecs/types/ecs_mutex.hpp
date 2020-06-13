@@ -43,10 +43,10 @@
 #include "ecs_api.hpp"
 #endif // !ECS_API_HPP
 
-// Include bt::mutex
-#ifndef BT_CFG_MUTEX_HPP
-#include "../../cfg/bt_mutex.hpp"
-#endif // !BT_CFG_MUTEX_HPP
+// Include bt::core::AsyncStorage
+#ifndef BT_CORE_ASYNC_STORAGE_HPP
+#include "../../core/async/AsyncStorage.hpp"
+#endif // !BT_CORE_ASYNC_STORAGE_HPP
 
 // ===========================================================
 // CONFIGS
@@ -55,6 +55,9 @@
 using ecs_Mutex = bt_Mutex;
 
 using ecs_SpinLock = bt_SpinLock;
+
+template <typename T>
+using ecs_AsyncStorage = bt_AsyncStorage<T>;
 
 // -----------------------------------------------------------
 

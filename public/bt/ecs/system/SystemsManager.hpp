@@ -108,6 +108,16 @@ namespace ecs
         // -----------------------------------------------------------
 
         // ===========================================================
+        // TYPES
+        // ===========================================================
+
+        /** System pointer. **/
+        using system_ptr = ecs_sptr<ecs_ISystem>;
+
+        /** Systems map. **/
+        using systems_map = ecs_map<ecs_TypeID, system_ptr>;
+
+        // ===========================================================
         // FIELDS
         // ===========================================================
 
@@ -116,6 +126,15 @@ namespace ecs
 
         /** IDStorage **/
         ecs_IDMap<ecs_TypeID, ecs_ObjectID> mIDStorage;
+
+        /** Systems. **/
+        systems_map mSystems;
+
+        /** Systems Mutex. **/
+        ecs_Mutex mSystemsMutex;
+
+        /** Mutex. **/
+        ecs_Mutex mIDMutex;
 
         // ===========================================================
         // GETTERS & SETTERS
@@ -181,7 +200,7 @@ namespace ecs
          * @param pType - Type-ID.
          * @throws - can throw exception.
         **/
-        static ecs_ObjectID generateSystemID(const ecs_TypeID pType) ECS_NOEXCEPT;
+        static ECS_API ecs_ObjectID generateSystemID(const ecs_TypeID pType) ECS_NOEXCEPT;
 
         /**
          * @brief
@@ -192,7 +211,27 @@ namespace ecs
          * @param pID - ID to return for reusage.
          * @throws - can throw exception.
         **/
-        static void releaseSystemID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT;
+        static ECS_API void releaseSystemID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT;
+
+        /**
+         * @brief
+         * Store System instance.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pSystem - System instance.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void registerSystem( system_ptr& pSystem );
+
+        /**
+         * @brief
+         * Remove System.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - System Type-ID.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void unregisterSystem( const ecs_TypeID pType );
 
         /**
          * @brief
@@ -220,7 +259,7 @@ namespace ecs
 
 } /// ecs
 
-using ecs_SystemsManager = ecs::SystemsManager;
+using ecs_Systems = ecs::SystemsManager;
 #define ECS_SYSTEMS_MANAGER_DECL
 
 // -----------------------------------------------------------

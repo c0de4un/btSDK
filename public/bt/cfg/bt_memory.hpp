@@ -126,6 +126,18 @@ namespace bt
         static typename std::remove_reference<_Tp>::type&& MoveWeak(_Tp&& __t)
         { return std::move<_Tp>(__t); }
 
+        template <class T>
+        static std::weak_ptr<T> MakeWeak( bt_sptr<T>& pShared )
+        { return std::weak_ptr<T>( pShared ); }
+
+        template <typename T, typename U>
+        static bt_sptr<T> StaticCast( bt_sptr<U>& pSource )
+        { return std::static_pointer_cast<T, U>( pSource ); }
+
+        template <typename T, typename U>
+        static bt_sptr<T> DynamicCast( bt_sptr<U>& pSource )
+        { return std::dynamic_pointer_cast<T, U>( pSource ); }
+
         // -----------------------------------------------------------
 
     }; /// bt::memory

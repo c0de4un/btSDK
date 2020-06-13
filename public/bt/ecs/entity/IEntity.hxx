@@ -39,10 +39,31 @@
 // INCLUDES
 // ===========================================================
 
-// Include ecs::api
-#ifndef ECS_API_HPP
-#include "../types/ecs_api.hpp"
-#endif // !ECS_API_HPP
+// Include ecs::numeric
+#ifndef ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !ECS_NUMERIC_HPP
+
+// Include ecs::memory
+#ifndef ECS_MEMORY_HPP
+#include "../types/ecs_memory.hpp"
+#endif // !ECS_MEMORY_HPP
+
+// Include ecs::mutex
+#ifndef ECS_MUTEX_HPP
+#include "../types/ecs_mutex.hpp"
+#endif // !ECS_MUTEX_HPP
+
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+// Forward-Declare ecs::Component
+#ifndef ECS_COMPONENT_DECL
+#define ECS_COMPONENT_DECL
+namespace ecs { struct Component; }
+using ecs_Component = ecs::Component;
+#endif // !ECS_COMPONENT_DECL
 
 // ===========================================================
 // TYPES
@@ -90,6 +111,107 @@ namespace ecs
         {
         }
 
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Returns Entity Type-ID.
+         *
+         * @thread_safety - not required.
+         * @throws - no exceptions.
+        **/
+        virtual ecs_TypeID getTypeID() const noexcept = 0;
+
+        /**
+         * @brief
+         * Returns Entity ID.
+         *
+         * @thread_safety - not required.
+         * @throws - no exceptions.
+        **/
+        virtual ecs_TypeID getID() const noexcept = 0;
+
+        /**
+         * @brief
+         * Returns Component, or null.
+         *
+         * @thread_safety -thread-locks used.
+         * @param pType - Type-ID.
+         * @param pID - ID.
+         * @throws - can throw exception.
+        **/
+        virtual ecs_sptr<ecs_Component> getComponent( const ecs_TypeID pType, const ecs_ObjectID pID ) = 0;
+
+        /**
+         * @brief
+         * Search attached IEntity.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Type-ID.
+         * @param pID - ID.
+         * @return IEntity, or null.
+         * @throws - can throw exception.
+        **/
+        virtual ecs_sptr<IEntity> getChild( const ecs_TypeID pType, const ecs_ObjectID pID ) = 0;
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Attach Component.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pComponent - Component to attach.
+         * @throws - can throw exception.
+        **/
+        virtual void attachComponent( ecs_sptr<ecs_Component> pComponent ) = 0;
+
+        /**
+         * @brief
+         * Detach Component.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Type-ID.
+         * @param pID - ID.
+         * @throws - can throw exception.
+        **/
+        virtual void detachComponent( const ecs_TypeID pType, const ecs_ObjectID pID ) = 0;
+
+        /**
+         * @brief
+         * Attach Entity as Child.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pEntity - Child.
+         * @reutrn 'true' if attached.
+         * @throws - can throw exception.
+        **/
+        virtual bool attachEntity( ecs_sptr<IEntity> pEntity ) = 0;
+
+        /**
+         * @brief
+         * Detach Entity.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Type-ID.
+         * @param pID - ID.
+         * @throws - can throw exception.
+        **/
+        virtual void detachEntity( const ecs_TypeID pType, const ecs_ObjectID pID ) = 0;
+
+        /**
+         * @brief
+         * Queue this Entity for destruction.
+         *
+         * @thread_safety - thread-locks & atomics used.
+         * @throws - can throw exception.
+        **/
+        virtual void Destroy() = 0;
+
         // -----------------------------------------------------------
 
     }; /// bt::IEntity
@@ -98,7 +220,7 @@ namespace ecs
 
 } /// ecs
 
-using bt_IEntity = ecs::IEntity;
+using ecs_IEntity = ecs::IEntity;
 #define ECS_I_ENTITY_DECL
 
 // -----------------------------------------------------------

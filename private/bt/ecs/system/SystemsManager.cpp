@@ -66,7 +66,10 @@ namespace ecs
     // ===========================================================
 
     SystemsManager::SystemsManager()
-        : mIDStorage()
+        : mIDStorage(),
+        mSystems(),
+        mSystemsMutex(),
+        mIDMutex()
     {
     }
 
@@ -86,7 +89,15 @@ namespace ecs
     ecs_ObjectID SystemsManager::generateSystemID(const ecs_TypeID pType) ECS_NOEXCEPT
     {
         ecs_sptr<SystemsManager> instance = getInstance();
-        return instance != nullptr ? instance->mIDStorage.getAvailableID(pType) : ECS_INVALID_OBJECT_ID;
+
+        if ( instance != nullptr )
+        {
+            ecs_SpinLock lock(&instance->mIDMutex);
+
+            return instance->mIDStorage.getAvailableID(pType);
+        }
+
+        return ECS_INVALID_OBJECT_ID;
     }
 
     void SystemsManager::releaseSystemID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
@@ -94,15 +105,38 @@ namespace ecs
         ecs_sptr<SystemsManager> instance = getInstance();
 
         if ( instance != nullptr )
+        {
+            ecs_SpinLock lock( &instance->mIDMutex );
             instance->mIDStorage.releaseID(pType, pID);
+        }
+    }
+
+    ECS_API void SystemsManager::registerSystem( system_ptr& pSystem )
+    {
+        auto instance = getInstance();
+
+        if ( instance != nullptr )
+        {
+            ecs_SpinLock lock(&instance->mSystemsMutex);
+            instance->mSystems[pSystem->getTypeID()] = pSystem;
+        }
+    }
+
+    ECS_API void SystemsManager::unregisterSystem( const ecs_TypeID pType )
+    {
+        auto instance = getInstance();
+
+        if ( instance != nullptr )
+        {
+            ecs_SpinLock lock( &instance->mSystemsMutex );
+            instance->mSystems.erase( pType );
+        }
     }
 
     ECS_API void SystemsManager::Initialize()
     {
-        if ( mInstance != nullptr )
-            return;
-
-        mInstance = ecs_new<SystemsManager>();
+        if ( mInstance == nullptr )
+            mInstance = ecs_new<SystemsManager>();
     }
 
     ECS_API void SystemsManager::Terminate()

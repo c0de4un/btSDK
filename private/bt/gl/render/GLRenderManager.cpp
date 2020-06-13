@@ -115,7 +115,7 @@ namespace bt
             glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
 
             // Notify
-            bt_sptr<bt_LoadEvent> loadEvent = New<bt_LoadEvent>( mSurfaceReady );
+            bt_sptr<ecs_IEvent> loadEvent = New<bt_LoadEvent>( mSurfaceReady );
             if ( ecs_Event::Send( loadEvent, false, bt_EThreadTypes::Render ) < 0 )
                 return false;
 
@@ -130,29 +130,6 @@ namespace bt
         {
             // Clear Surface.
             glClear( GL_COLOR_BUFFER_BIT );
-        }
-
-        // ===========================================================
-        // IEventListener
-        // ===========================================================
-
-        char GLRenderManager::OnEvent( ecs_sptr<ecs_IEvent> pEvent, const unsigned char pThread )
-        {
-            return 0;
-        }
-
-        // ===========================================================
-        // IEventInvoker
-        // ===========================================================
-
-        void GLRenderManager::onEventSent( ecs_sptr<ecs_IEvent> pEvent, const ecs_uint8_t pThread )
-        {
-
-        }
-
-        void GLRenderManager::onEventError( ecs_IEvent* const pEvent, const std::exception& pException )
-        {
-
         }
 
         // ===========================================================

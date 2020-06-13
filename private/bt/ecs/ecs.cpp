@@ -83,16 +83,18 @@ namespace ecs
 
     void ECSEngine::Initialize()
     {
-        ecs_ComponentsManager::Initialize();
-        ecs_EventsManager::Initialize();
-        ecs_SystemsManager::Initialize();
+        ecs_Components::Initialize();
+        ecs_Events::Initialize();
+        ecs_Entities::Initialize();
+        ecs_Systems::Initialize();
     }
 
     void ECSEngine::Terminate()
     {
-        ecs_ComponentsManager::Terminate();
-        ecs_EventsManager::Terminate();
-        ecs_SystemsManager::Terminate();
+        ecs_Components::Terminate();
+        ecs_Events::Terminate();
+        ecs_Entities::Terminate();
+        ecs_Systems::Terminate();
     }
 
     // -----------------------------------------------------------

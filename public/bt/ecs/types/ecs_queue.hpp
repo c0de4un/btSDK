@@ -48,6 +48,9 @@
 // ===========================================================
 
 template <typename T>
+using ecs_deque = bt_deque<T>;
+
+template <typename T>
 using ecs_AsyncDeque = bt::core::AsyncDeque<T>;
 
 // -----------------------------------------------------------

@@ -67,7 +67,9 @@ namespace ecs
 
     ComponentsManager::ComponentsManager()
         : mTypedComponents(),
-        mIDStorage()
+          mComponentsMutex(),
+          mIDStorage(),
+          mIDMutex()
     {
     }
 
@@ -78,117 +80,115 @@ namespace ecs
     // ===========================================================
 
     ecs_sptr<ComponentsManager> ComponentsManager::getInstance()
+    { return mInstance; }
+
+    ComponentsManager::components_map_storage& ComponentsManager::getComponents(const ecs_TypeID pType)
     {
-        return mInstance; // Copy-Construct
-    }
-
-    ComponentsManager::ecs_comp_objects_map_ptr ComponentsManager::getComponents(const ecs_TypeID pType, ecs_sptr<ComponentsManager>& componentsManager, const bool pAllocate)
-    {
-        ecs_comp_objects_map_ptr result = nullptr;
-        if ( componentsManager != nullptr )
-        {
-            ecs_comps_types_map& typesMap = componentsManager->mTypedComponents;
-
-            if ( typesMap.Contains(pType) )
-                result = typesMap[pType];
-            else if ( pAllocate )
-            {
-                typesMap.Insert( pType, ecs_comp_objects_map_ptr( ecs_Memory::MakeShared<ecs_comps_objects_map>() ) );
-                result = typesMap[pType];
-            }
-        }
-
-        return result;
+        ecs_SpinLock lock( &mComponentsMutex );
+        return mTypedComponents[pType];
     }
 
     ComponentsManager::ecs_comp_ptr ComponentsManager::getComponent(const ecs_TypeID pType, const ecs_ObjectID pID, const bool pRemove) ECS_NOEXCEPT
     {
-        ecs_sptr<ComponentsManager> componentsManager = getInstance();
-        ecs_comp_objects_map_ptr objectsMap = getComponents(pType, componentsManager);
+        auto instance = getInstance();
 
-        if ( !pRemove )
-            return ( objectsMap && objectsMap->Contains(pID) ? objectsMap->Get(pID) : ecs_comp_ptr() );
+        if ( instance == nullptr )
+            return ecs_comp_ptr( nullptr );
 
-        ecs_comp_ptr result = nullptr;
-        if ( objectsMap != nullptr && objectsMap->Contains(pID) )
-        {
-            ecs_comp_ptr result = objectsMap->Get(pID);
-            objectsMap->Erase(pID);
-        }
+        components_map_storage& componentsStorage = instance->getComponents( pType );
+        ecs_SpinLock lock( &componentsStorage.mMutex );
+
+        ecs_comp_ptr result = componentsStorage.mItem[pID];
+
+        if ( result != nullptr && pRemove )
+            componentsStorage.mItem.erase(pID);
 
         return result;
     }
 
     ComponentsManager::ecs_comp_ptr ComponentsManager::getAnyComponent(const ecs_TypeID pType, const bool pRemove) ECS_NOEXCEPT
     {
-        ecs_sptr<ComponentsManager> componentsManager = getInstance();
-        ecs_comp_objects_map_ptr objectsMap = getComponents(pType, componentsManager);
-        ecs_comp_ptr result;
+        auto instance = getInstance();
 
-        if ( objectsMap != nullptr )
+        if ( instance == nullptr )
+            return ecs_comp_ptr( nullptr );
+
+        components_map_storage& componentsStorage = instance->getComponents( pType );
+        ecs_SpinLock lock( &componentsStorage.mMutex );
+
+        auto pos = componentsStorage.mItem.begin();
+        auto end = componentsStorage.mItem.cend();
+
+        ecs_comp_ptr result = nullptr;
+        while( pos != end )
         {
-            ComponentsManager* const componentsManager_raw = ecs_Memory::GetRawPointer<ComponentsManager>(componentsManager);
-            const ecs_ObjectID* componentId = 0;
-            while ( !objectsMap->isEmpty() && !componentId )
+            result = pos->second;
+
+            if ( result != nullptr )
             {
-                if ( (componentId = static_cast<const ecs_ObjectID*>( objectsMap->Iterate(componentsManager_raw) )) != nullptr )
-                {
-                    result = objectsMap->Get(*componentId);
-                    break;
-                }
+                if ( pRemove )
+                    componentsStorage.mItem.erase(result->mID);
+
+                break;
             }
 
-            if ( pRemove )
-                objectsMap->Erase(result->mID);
+            pos++;
         }
 
         return result;
     }
 
     // ===========================================================
-    // bt::core::IMapIterator
-    // ===========================================================
-
-    const void* ComponentsManager::onIterateMap(const void* pKey, void* pVal) BT_NOEXCEPT
-    {
-        ecs_comp_ptr* value_raw = pVal ? static_cast<ecs_comp_ptr*>(pVal) : nullptr;
-        return ( value_raw && *(value_raw) != nullptr ) ? pKey : nullptr;
-    }
-
-    // ===========================================================
     // METHODS
     // ===========================================================
 
-    void ComponentsManager::addComponent(const ecs_TypeID pType, ecs_comp_ptr pComponent)
+    void ComponentsManager::addComponent(ecs_comp_ptr& pComponent)
     {
-        ecs_sptr<ComponentsManager> componentsManager = getInstance();
-        ecs_comp_objects_map_ptr objectsMap = getComponents(pType, componentsManager, true);
+        auto instance = getInstance();
 
-        objectsMap->Insert( pComponent->mID, pComponent, true );
+        if ( instance == nullptr || pComponent == nullptr )
+            return;
+
+        components_map_storage& componentsStorage = instance->getComponents( pComponent->mTypeID );
+        ecs_SpinLock lock( &componentsStorage.mMutex );
+        componentsStorage.mItem[pComponent->mID] = pComponent;
     }
 
     void ComponentsManager::removeComponentByID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
     {
-        ecs_sptr<ComponentsManager> componentsManager = getInstance();
-        ecs_comp_objects_map_ptr objectsMap = getComponents(pType, componentsManager);
+        auto instance = getInstance();
 
-        if ( objectsMap != nullptr )
-            objectsMap->Erase( pID );
+        if ( instance == nullptr )
+            return;
+
+        components_map_storage& componentsStorage = instance->getComponents( pType );
+        ecs_SpinLock lock( &componentsStorage.mMutex );
+        componentsStorage.mItem.erase( pID );
     }
 
-    void ComponentsManager::removeComponent(const ecs_TypeID pType, ecs_comp_ptr& pComponent) ECS_NOEXCEPT
+    void ComponentsManager::removeComponent(ecs_comp_ptr& pComponent) ECS_NOEXCEPT
     {
-        ecs_sptr<ComponentsManager> componentsManager = getInstance();
-        ecs_comp_objects_map_ptr objectsMap = getComponents(pType, componentsManager);
+        auto instance = getInstance();
 
-        if ( objectsMap != nullptr )
-            objectsMap->Erase(pComponent->mID);
+        if ( instance == nullptr || pComponent == nullptr )
+            return;
+
+        components_map_storage& componentsStorage = instance->getComponents( pComponent->mTypeID );
+        ecs_SpinLock lock( &componentsStorage.mMutex );
+        componentsStorage.mItem.erase( pComponent->mID );
     }
 
     ecs_ObjectID ComponentsManager::generateComponentID(const ecs_TypeID pType) ECS_NOEXCEPT
     {
         ecs_sptr<ComponentsManager> componentsManager = getInstance();
-        return componentsManager != nullptr ? componentsManager->mIDStorage.getAvailableID(pType) : ECS_INVALID_OBJECT_ID;
+
+        if ( componentsManager != nullptr )
+        {
+            ecs_SpinLock lock( &componentsManager->mIDMutex );
+            return componentsManager->mIDStorage.getAvailableID(pType);
+        }
+
+        return ECS_INVALID_OBJECT_ID;
     }
 
     void ComponentsManager::releaseComponentID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
@@ -196,24 +196,20 @@ namespace ecs
         ecs_sptr<ComponentsManager> componentsManager = getInstance();
 
         if ( componentsManager != nullptr )
+        {
+            ecs_SpinLock lock( &componentsManager->mIDMutex );
             componentsManager->mIDStorage.releaseID(pType, pID);
+        }
     }
 
     void ComponentsManager::Initialize()
     {
-        if ( mInstance != nullptr )
-            return;
-
-        mInstance = ecs_new<ComponentsManager>();
+        if ( mInstance == nullptr )
+            mInstance = ecs_new<ComponentsManager>();
     }
 
     void ComponentsManager::Terminate()
-    {
-        if ( mInstance == nullptr )
-            return;
-
-        mInstance = nullptr;
-    }
+    { mInstance = nullptr; }
 
     // -----------------------------------------------------------
 

@@ -44,6 +44,16 @@
 #include "ISystem.hxx"
 #endif // !ECS_I_SYSTEM_HXX
 
+// Include ecs::IEventListener
+#ifndef ECS_I_EVENT_LISTENER_HXX
+#include "../event/IEventListener.hxx"
+#endif // !ECS_I_EVENT_LISTENER_HXX
+
+// Include ecs::IEventInvoker
+#ifndef BT_CORE_I_EVENT_INVOKER_HXX
+#include "../event/IEventInvoker.hxx"
+#endif // !BT_CORE_I_EVENT_INVOKER_HXX
+
 // Include ecs::atomic
 #ifndef ECS_ATOMIC_HPP
 #include "../types/ecs_atomic.hpp"
@@ -69,7 +79,7 @@ namespace ecs
      *
      * @version 0.1
     **/
-    class ECS_API System : public ecs_ISystem
+    class ECS_API System : public ecs_ISystem, public ecs_IEventListener, public ecs_IEventInvoker
     {
 
         // -----------------------------------------------------------
@@ -293,6 +303,66 @@ namespace ecs
          * @throws - no exceptions.
         **/
         virtual void Stop() final;
+
+        // ===========================================================
+        // ecs::IEventListener
+        // ===========================================================
+
+        /**
+         * @brief
+         * Called on Event.
+         *
+         * @thread_safety - depends on implementation.
+         * @param pEvent - Event to handle.
+         * @param pAsync - 'true' if called in Async-mode.
+         * @param pThread - Thread-Type.
+         * @return - 0 to continue, 1 if handled to stop, -1 if error.
+         * @throws - can throw exception. Exceptions collected & reported.
+        **/
+        virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const bool pAsync, const unsigned char pThread ) override;
+
+        /**
+         * @brief
+         * Called on Event Error.
+         *
+         * @thread_safety - depends on implementation.
+         * @param pEvent - Event to handle.
+         * @param pException - Exception.
+         * @param pAsync - 'true' if called in Async-mode.
+         * @param pThread - Thread-Type.
+         * @return - 0 to continue, 1 if handled to stop, -1 if error.
+         * @throws - can throw exception. Exceptions collected & reported.
+        **/
+        virtual void onEventError( ecs_sptr<ecs_IEvent> pEvent, const std::exception& pException, const bool pAsync, const unsigned char pThread ) override;
+
+        // ===========================================================
+        // ecs::IEventInvoker
+        // ===========================================================
+
+        /**
+         * @brief
+         * Called when Event sent.
+         *
+         * @thread_safety - not required.
+         * @param pEvent - Event.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception. Errors collected & reported.
+        **/
+        virtual void onEventSent( ecs_sptr<ecs_IEvent>& pEvent, const bool pAsync, const ecs_uint8_t pThread ) override;
+
+        /**
+         * @brief
+         * Called when Event caught error.
+         *
+         * @thread_safety - not thread-safe.
+         * @param pEvent - Event.
+         * @param pException - Exception.
+         * @param pAsync - 'true' if Async-sending used.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception. Errors collected & reported.
+        **/
+        virtual void onEventSentError( ecs_sptr<ecs_IEvent>& pEvent, const std::exception& pException, const bool pAsync, const ecs_uint8_t pThread ) override;
 
         // -----------------------------------------------------------
 

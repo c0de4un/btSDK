@@ -37,6 +37,10 @@ project ( PROJECT_NAME VERSION ${PROJECT_VERSION} DESCRIPTION PROJECT_DESCRIPTIO
 # =================================================================================
 
 set ( BT_ANDROID_HEADERS
+        # IO
+        "io/AndroidFile.hpp"
+        "io/AndroidInputStream.hpp"
+        "io/AndroidOutputStream.hpp"
         # ASYNC
         "async/AndroidMutex.hpp"
         # GRAPHICS
@@ -49,6 +53,10 @@ set ( BT_ANDROID_HEADERS
 # =================================================================================
 
 set ( BT_ANDROID_SOURCES
+        # IO
+        "../../../private/bt/android/io/AndroidFile.cpp"
+        "../../../private/bt/android/io/AndroidInputStream.cpp"
+        "../../../private/bt/android/io/AndroidOutputStream.cpp"
         # ASYNC
         "../../../private/bt/android/async/AndroidMutex.cpp"
         # GRAPHICS

@@ -30,4 +30,14 @@ if ( BT_OPEN_GL )
 
 endif ( BT_OPEN_GL )
 
+# - - - - - - - - - - - - - - - - - zlib - - - - - - - - - - - - - - - - - - - - - -
 
+if ( NOT ZLIB_DIR )
+    message ( FATAL_ERROR "${PROJECT_NAME} - zlib dir no set !" )
+endif ( NOT ZLIB_DIR )
+
+if ( NOT EXISTS "${ZLIB_INCLUDES_DIR}/zlib.h" )
+    message ( FATAL_ERROR "${PROJECT_NAME} - zlib.h not found !" )
+elseif ( BT_CMAKE_DEBUG )
+    message ( STATUS "${PROJECT_NAME} - zlib found at ${ZLIB_DIR}" )
+endif ( NOT EXISTS "${ZLIB_INCLUDES_DIR}/zlib.h" )

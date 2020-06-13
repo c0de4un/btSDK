@@ -46,6 +46,32 @@
 #include "../../../public/bt/ecs/system/SystemsManager.hpp"
 #endif // !ECS_SYSTEMS_MANAGER_HPP
 
+// Include ecs::IEvent
+#ifndef ECS_I_EVENT_HXX
+#include "../../../public/bt/ecs/event/IEvent.hxx"
+#endif // !ECS_I_EVENT_HXX
+
+// DEBUG
+#if defined( BT_DEBUG ) || defined( DEBUG )
+
+// Include ecs::assert
+#ifndef ECS_ASSERT_HPP
+#include "../../../../public/bt/ecs/types/ecs_assert.hpp"
+#endif // !ECS_ASSERT_HPP
+
+// Include ecs::log
+#ifndef ECS_LOG_HPP
+#include "../../../../public/bt/ecs/types/ecs_log.hpp"
+#endif // !ECS_LOG_HPP
+
+// Include ecs::string
+#ifndef ECS_STRING_HPP
+#include "../../../../public/bt/ecs/types/ecs_string.hpp"
+#endif // !ECS_STRING_HPP
+
+#endif
+// DEBUG
+
 // ===========================================================
 // ecs::System
 // ===========================================================
@@ -63,13 +89,13 @@ namespace ecs
         : mStateMutex(),
         mCurrentState(SYSTEM_STATE_NOT_STARTED),
         mTypeID( pType ),
-        mID( ecs_SystemsManager::generateSystemID(pType) )
+        mID( ecs_Systems::generateSystemID(pType) )
     {
     }
 
     System::~System()
     {
-        ecs_SystemsManager::releaseSystemID( mTypeID, mID );
+        ecs_Systems::releaseSystemID( mTypeID, mID );
     }
 
     // ===========================================================
@@ -170,6 +196,71 @@ namespace ecs
         onStop();
 
         setState(SYSTEM_STATE_STOPPED);
+    }
+
+    // ===========================================================
+    // ecs::IEventListener
+    // ===========================================================
+
+    char System::OnEvent( ecs_sptr<ecs_IEvent> pEvent, const bool pAsync, const unsigned char pThread )
+    {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+        ecs_String logMsg = u8"System::OnEvent: Event Type=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getTypeID() );
+        logMsg += u8"; ID=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getID() );
+        logMsg += u8"Thread-Type=";
+        logMsg += ecs_StringUtil::toString<unsigned char>( pThread );
+        ecs_log::Print( logMsg.c_str(), ecs_log_level::Debug );
+#endif // DEBUG
+        return 0;
+    }
+
+    void System::onEventError( ecs_sptr<ecs_IEvent> pEvent, const std::exception& pException, const bool pAsync, const unsigned char pThread )
+    {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+        ecs_String logMsg = u8"System::onEventError: ERROR=";
+        logMsg += pException.what();
+        logMsg += u8"; Event Type=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getTypeID() );
+        logMsg += u8"; ID=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getID() );
+        logMsg += u8"Thread-Type=";
+        logMsg += ecs_StringUtil::toString<unsigned char>( pThread );
+        ecs_log::Print( logMsg.c_str(), ecs_log_level::Error );
+#endif // DEBUG
+    }
+
+    // ===========================================================
+    // ecs::IEventInvoker
+    // ===========================================================
+
+    void System::onEventSent( ecs_sptr<ecs_IEvent>& pEvent, const bool pAsync, const ecs_uint8_t pThread )
+    {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+        ecs_String logMsg = u8"System::onEventSent: Event Type=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getTypeID() );
+        logMsg += u8"; ID=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getID() );
+        logMsg += u8"Thread-Type=";
+        logMsg += ecs_StringUtil::toString<unsigned char>( pThread );
+        ecs_log::Print( logMsg.c_str(), ecs_log_level::Debug );
+#endif // DEBUG
+    }
+
+    void System::onEventSentError( ecs_sptr<ecs_IEvent>& pEvent, const std::exception& pException, const bool pAsync, const ecs_uint8_t pThread )
+    {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+        ecs_String logMsg = u8"System::onEventSentError: ERROR=";
+        logMsg += pException.what();
+        logMsg += u8"; Event Type=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getTypeID() );
+        logMsg += u8"; ID=";
+        logMsg += ecs_StringUtil::toString<ecs_TypeID>( pEvent->getID() );
+        logMsg += u8"Thread-Type=";
+        logMsg += ecs_StringUtil::toString<unsigned char>( pThread );
+        ecs_log::Print( logMsg.c_str(), ecs_log_level::Error );
+#endif // DEBUG
     }
 
     // -----------------------------------------------------------

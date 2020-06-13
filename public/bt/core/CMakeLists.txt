@@ -69,7 +69,29 @@ set ( BT_CORE_HEADERS
         "containers/AsyncDeque.hpp"
         "containers/AsyncMap.hpp"
         "containers/IMapIterator.hxx"
+        # IO
+        "io/IFile.hxx"
+        "io/IStream.hxx"
+        "io/IReadable.hxx"
+        "io/IWritable.hxx"
+        "io/IReader.hxx"
+        "io/IWriter.hxx"
+        "io/File.hpp"
+        "io/Writer.hpp"
+        "io/Reader.hpp"
+        "io/BufferedReader.hpp"
+        "io/BufferedWriter.hpp"
+        "io/InputStream.hpp"
+        "io/OutputStream.hpp"
+        "io/StreamReader.hpp"
+        "io/StreamWriter.hpp"
+        # ASSETS
+        "assets/IAsset.hxx"
+        "assets/materials/IShader.hxx"
+        "assets/materials/Shader.hpp"
+        "assets/Asset.hpp"
         # ASYNC
+        "async/AsyncStorage.hpp"
         "async/IMutex.hxx"
         "async/Mutex.hpp"
         "async/ILock.hxx"
@@ -98,6 +120,17 @@ set ( BT_CORE_HEADERS
 # =================================================================================
 
 set ( BT_CORE_SOURCES
+        # IO
+        "../../../private/bt/core/io/InputStream.cpp"
+        "../../../private/bt/core/io/OutputStream.cpp"
+        "../../../private/bt/core/io/File.cpp"
+        "../../../private/bt/core/io/BufferedReader.cpp"
+        "../../../private/bt/core/io/BufferedWriter.cpp"
+        "../../../private/bt/core/io/StreamReader.cpp"
+        "../../../private/bt/core/io/StreamWriter.cpp"
+        # ASSETS
+        "../../../private/bt/core/assets/materials/Shader.cpp"
+        "../../../private/bt/core/assets/Asset.cpp"
         # ASYNC
         "../../../private/bt/core/async/Mutex.cpp"
         "../../../private/bt/core/async/Lock.cpp"
