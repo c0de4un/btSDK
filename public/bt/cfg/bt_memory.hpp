@@ -131,8 +131,10 @@ namespace bt
         { return std::weak_ptr<T>( pShared ); }
 
         template <typename T, typename U>
-        static bt_sptr<T> StaticCast( bt_sptr<U>& pSource )
-        { return std::static_pointer_cast<T, U>( pSource ); }
+        static bt_sptr<T> StaticCast( bt_sptr<U> pSource )
+        {
+            return StaticCast<T, U>( pSource );
+        }
 
         template <typename T, typename U>
         static bt_sptr<T> DynamicCast( bt_sptr<U>& pSource )
@@ -148,7 +150,11 @@ namespace bt
 
 using bt_Memory = bt::Memory;
 
-#define New bt_Memory::MakeShared
+#define bt_Shared bt_Memory::MakeShared
+#define bt_Weak bt_Memory::MakeWeak
+#define bt_SharedCast bt_Memory::StaticCast
+#define bt_New new
+#define bt_Delete delete
 
 // -----------------------------------------------------------
 

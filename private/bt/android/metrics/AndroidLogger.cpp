@@ -74,7 +74,7 @@ namespace bt
 
         void AndroidLogger::Print( const char* const pMessage, const unsigned char logLvl ) BT_NOEXCEPT
         {
-            switch( logLvl )
+            switch( static_cast<bt_ELogLevel>( logLvl ) )
             {
                 case bt_ELogLevel::Info:
                     __android_log_print( ANDROID_LOG_INFO,  mTag, "%s", pMessage );

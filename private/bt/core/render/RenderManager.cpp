@@ -68,7 +68,7 @@ namespace bt
         // ===========================================================
 
         RenderManager::RenderManager()
-            : System( bt_SystemTypes::RENDER ),
+            : System( static_cast<const ecs_TypeID>(bt_SystemTypes::RENDER) ),
               mClearColor( 0.39F, 0.6F, 1.0F, 1.0F )
         {
         }

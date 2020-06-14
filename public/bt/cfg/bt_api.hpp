@@ -103,6 +103,10 @@
 // STRUCT
 
 // ENUM
+
+// C++ enum class
+#define BT_ENUM_TYPE enum class
+
 #define BT_ENUM
 // ENUM
 

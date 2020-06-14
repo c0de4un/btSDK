@@ -130,7 +130,10 @@ namespace ecs
         if ( !eventsStorage.mItem.empty() )
         {
             event_ptr result = eventsStorage.mItem.front();
-            eventsStorage.mItem.pop_front();
+
+            if ( result != nullptr && !result->isRepeatable() )
+                eventsStorage.mItem.pop_front();
+
             return result;
         }
 
@@ -173,7 +176,7 @@ namespace ecs
 #if defined( DEBUG ) // DEBUG
                 ecs_String logMsg = u8"EventsManager::handleEvent: ERROR ";
                 logMsg += pException.what();
-                ecs_log::Print( logMsg.c_str(), ecs_log_level::Error );
+                ecs_log::Print( logMsg.c_str(), static_cast<ecs_uint8_t>(ecs_log_level::Error) );
 #endif // DEBUG
                 pEvent->onError( pEvent, pException, pAsync, pThread );
                 result = -1;
@@ -185,7 +188,7 @@ namespace ecs
         return result;
     }
 
-    void EventsManager::Subscribe( const ecs_TypeID eventType, event_listener& pListener )
+    ECS_API void EventsManager::Subscribe( const ecs_TypeID eventType, event_listener& pListener )
     {
 #if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
         ecs_assert( pListener != nullptr && "EventsManager::Subscribe: listener argument is null." );
@@ -210,7 +213,10 @@ namespace ecs
         listeners.mItem.push_back( pListener );
     }
 
-    void EventsManager::Unsubscribe( const ecs_TypeID eventType, event_listener& pListener )
+    ECS_API void EventsManager::SubscribeBatch( const ecs_vec<ecs_TypeID>& pTypes, event_listener& pListener )
+    { for( const ecs_TypeID& eventType : pTypes ) { Subscribe( eventType, pListener ); } }
+
+    ECS_API void EventsManager::Unsubscribe( const ecs_TypeID eventType, event_listener& pListener )
     {
 #if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
         ecs_assert( pListener != nullptr && "EventsManager::Unsubscribe: listener argument is null." );
@@ -228,7 +234,10 @@ namespace ecs
         ecs_VectorUtil<event_listener>::SwapPop( listeners.mItem, pListener );
     }
 
-    char EventsManager::sendEvent( event_ptr& pEvent, const ecs_uint8_t pThread )
+    ECS_API void EventsManager::UnsubscribeBatch( const ecs_vec<ecs_TypeID>& pTypes, event_listener& pListener )
+    { for( const ecs_TypeID& eventType : pTypes ) { Unsubscribe( eventType, pListener ); } }
+
+    ECS_API char EventsManager::sendEvent( event_ptr& pEvent, const ecs_uint8_t pThread )
     {
         auto instance = getInstance();
 
@@ -238,7 +247,7 @@ namespace ecs
         return 0;
     }
 
-    void EventsManager::queueEvent( event_ptr& pEvent, const ecs_uint8_t pThread )
+    ECS_API void EventsManager::queueEvent( event_ptr& pEvent, const ecs_uint8_t pThread )
     {
         auto instance = getInstance();
 
@@ -250,7 +259,80 @@ namespace ecs
         eventsStorage.mItem.push_back( pEvent );
     }
 
-    void EventsManager::Update( const ecs_uint8_t pThread )
+    ECS_API void EventsManager::removeEvents( events_queues_storage& eventsStorage, const ecs_TypeID pType, const ecs_ObjectID pID )
+    {
+        ecs_SpinLock  lock( &eventsStorage.mMutex );
+        ecs_vec<event_ptr> eventsToRemove;
+
+        for( event_ptr& event : eventsStorage.mItem )
+        {
+            if ( event != nullptr && event->getTypeID() == pType )
+            {
+                if ( pID != ECS_INVALID_OBJECT_ID )
+                {
+                    if ( pID == event->getID() )
+                        eventsToRemove.push_back( event );
+                }
+                else
+                    eventsToRemove.push_back( event );
+            }
+        }
+
+        for( event_ptr& event : eventsToRemove )
+        {
+            auto pos = eventsStorage.mItem.begin();
+            auto end = eventsStorage.mItem.cend();
+
+            while( pos != end )
+            {
+                if ( *pos == event )
+                {
+                    eventsStorage.mItem.erase( pos );
+                    break;
+                }
+
+                pos++;
+            }
+        }
+    }
+
+    ECS_API void EventsManager::FlushEvents( const ecs_TypeID pType, const unsigned char pThread )
+    {
+        auto instance = getInstance();
+
+        if ( instance == nullptr )
+            return;
+
+        if ( pThread != 0 )
+        {
+            events_queues_storage& eventsStorage = instance->getEventsQueue( pThread );
+            removeEvents( eventsStorage, pType );
+            return;
+        }
+
+        auto pos = instance->mEventsByThread.begin();
+        auto end = instance->mEventsByThread.cend();
+
+        while( pos != end )
+        {
+            events_queues_storage& eventsStorage = pos->second;
+            removeEvents( eventsStorage, pType );
+            pos++;
+        }
+    }
+
+    ECS_API void EventsManager::RemoveEvent( const ecs_TypeID pType, const ecs_ObjectID pID, const unsigned char pThread )
+    {
+        auto instance = getInstance();
+
+        if ( instance == nullptr )
+            return;
+
+        events_queues_storage& eventsStorage = instance->getEventsQueue( pThread );
+        removeEvents( eventsStorage, pType, pID );
+    }
+
+    ECS_API void EventsManager::Update( const ecs_uint8_t pThread )
     {
         auto instance = getInstance();
 
@@ -264,7 +346,7 @@ namespace ecs
             instance->handleEvent( event, true, pThread );
     }
 
-    ecs_ObjectID EventsManager::generateEventID(const ecs_TypeID pType) ECS_NOEXCEPT
+    ECS_API ecs_ObjectID EventsManager::generateEventID(const ecs_TypeID pType) ECS_NOEXCEPT
     {
         ecs_sptr<EventsManager> instance = getInstance();
 
@@ -277,7 +359,7 @@ namespace ecs
         return ECS_INVALID_OBJECT_ID;
     }
 
-    void EventsManager::releaseEventID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
+    ECS_API void EventsManager::releaseEventID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
     {
         ecs_sptr<EventsManager> instance = getInstance();
 
@@ -291,7 +373,7 @@ namespace ecs
     ECS_API void EventsManager::Initialize()
     {
         if ( mInstance == nullptr )
-            mInstance = ecs_new<EventsManager>();
+            mInstance = ecs_Shared<EventsManager>();
     }
 
     ECS_API void EventsManager::Terminate()

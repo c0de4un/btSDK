@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CFG_EVENTS_HPP
-#define BT_CFG_EVENTS_HPP
+#ifndef BT_CORE_I_DRAWABLE_HXX
+#define BT_CORE_I_DRAWABLE_HXX
 
 // -----------------------------------------------------------
 
@@ -38,10 +38,21 @@
 // INCLUDES
 // ===========================================================
 
-// Include ecs::numeric
-#ifndef ECS_NUMERIC_HPP
-#include "../ecs/types/ecs_numeric.hpp"
-#endif // !ECS_NUMERIC_HPP
+// Include bt::numeric
+#ifndef BT_CFG_NUMERIC_HPP
+#include "../../cfg/bt_numeric.hpp"
+#endif // !BT_CFG_NUMERIC_HPP
+
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+// Forward-Declare RenderManager
+#ifndef BT_CORE_RENDER_MANAGER_DECL
+#define BT_CORE_RENDER_MANAGER_DECL
+namespace bt { namespace core { class RenderManager; } }
+using bt_RenderManager = bt::core::RenderManager;
+#endif // !BT_CORE_RENDER_MANAGER_DECL
 
 // ===========================================================
 // TYPES
@@ -55,7 +66,13 @@ namespace bt
 
         // -----------------------------------------------------------
 
-        BT_ENUM_TYPE EEventTypes : bt_uint8_t
+        /**
+         * @brief
+         * IDrawable - interface for drawable-objects.
+         *
+         * @version 0.1
+        **/
+        class BT_API IDrawable
         {
 
             // -----------------------------------------------------------
@@ -64,33 +81,45 @@ namespace bt
             // META
             // ===========================================================
 
-            BT_ENUM
-
-            // ===========================================================
-            // CONSTANTS
-            // ===========================================================
-
-            /** Min. Value **/
-            MIN = 0,
-
-            /** Rendering Surface is ready, Assets can be loaded/restored. **/
-            AssetsLoading = 1,
-
-            /** Surface-Draw. Called from Render Threads-Type every frame. **/
-            SurfaceDraw = 2,
-
-            /** Logic State Update. **/
-            LogicUpdate = 3,
-
-            /** Physics State Update. **/
-            PhysicsUpdate = 4,
-
-            /** Max. value. User for override (extend). **/
-            MAX = 99
+            BT_INTERFACE
 
             // -----------------------------------------------------------
 
-        };
+        public:
+
+            // -----------------------------------------------------------
+
+            // ===========================================================
+            // DESTRUCTOR
+            // ===========================================================
+
+            /**
+             * @brief
+             * IDrawable destructor.
+             *
+             * @throws - can throw exception.
+            **/
+            virtual ~IDrawable() = default;
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called by Renderer every frame draw.
+             *
+             * @thread_safety - render-thread only (one of them).
+             * @param elapsedSeconds - time in seconds elapsed since previous frame.
+             * 60 FPS is 0.016s. To get nano-seconds or milliseconds, use Render API.
+             * @param renderManager - RenderManager instance.
+             * @throws - can throw exception. Errors collected & reported.
+            **/
+            virtual void Draw( const bt_real_t elapsedSeconds, bt_RenderManager*const renderManager ) = 0;
+
+            // -----------------------------------------------------------
+
+        }; /// bt::core::IDrawable
 
         // -----------------------------------------------------------
 
@@ -98,8 +127,9 @@ namespace bt
 
 } /// bt
 
-using bt_EEventTypes = bt::core::EEventTypes;
+using bt_IDrawable = bt::core::IDrawable;
+#define BT_CORE_I_DRAWABLE_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_EVENTS_HPP
+#endif // !BT_CORE_I_DRAWABLE_HXX

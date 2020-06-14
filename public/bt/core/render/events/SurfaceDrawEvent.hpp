@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CORE_LOAD_EVENT_HPP
-#define BT_CORE_LOAD_EVENT_HPP
+#ifndef BT_CORE_SURFACE_DRAW_EVENT_HPP
+#define BT_CORE_SURFACE_DRAW_EVENT_HPP
 
 // -----------------------------------------------------------
 
@@ -40,7 +40,7 @@
 
 // Include ecs::Event
 #ifndef ECS_COMPONENT_HPP
-#include "../../ecs/event/Event.hpp"
+#include "../../../ecs/event/Event.hpp"
 #endif // !ECS_COMPONENT_HPP
 
 // ===========================================================
@@ -57,12 +57,11 @@ namespace bt
 
         /**
          * @brief
-         * LoadEvent - allows to notify Graphics/Render API users,
-         * that assets (textures, shared, meshes, math) can be loaded & used.
+         * SurfaceDrawEvent - event to send on every frame draw.
          *
          * @version 0.1
         **/
-        class BT_API LoadEvent final : public ecs_Event
+        class BT_API SurfaceDrawEvent final : public ecs_Event
         {
 
             // -----------------------------------------------------------
@@ -83,10 +82,10 @@ namespace bt
             // DELETED
             // ===========================================================
 
-            LoadEvent(const LoadEvent&) = delete;
-            LoadEvent& operator=(const LoadEvent&) = delete;
-            LoadEvent(LoadEvent&&) = delete;
-            LoadEvent& operator=(LoadEvent&&) = delete;
+            SurfaceDrawEvent(const SurfaceDrawEvent&) = delete;
+            SurfaceDrawEvent& operator=(const SurfaceDrawEvent&) = delete;
+            SurfaceDrawEvent(SurfaceDrawEvent&&) = delete;
+            SurfaceDrawEvent& operator=(SurfaceDrawEvent&&) = delete;
 
             // -----------------------------------------------------------
 
@@ -98,8 +97,8 @@ namespace bt
             // CONSTANTS
             // ===========================================================
 
-            /** Reloading flag. Used to detect, that surface restored (lost of context, GC, device orientation change, etc). **/
-            const bool mReload;
+            /** Thread-Type. **/
+            const unsigned char mThreadType;
 
             // ===========================================================
             // CONSTRUCTOR & DESTRUCTOR
@@ -107,25 +106,26 @@ namespace bt
 
             /**
              * @brief
-             * LoadEvent constructor.
+             * SurfaceDrawEvent constructor.
              *
-             * @param pReloading - reloading (restore) flag. 'true', if Rendering Surface restored.
-             * @param pCaller - Event Invoker. Can be null.
-             * @throws - can throw exception.
+             * @param pThread - Thread-Type.
+             * @throws - can throw exception:
+             *           - mutex;
             **/
-            explicit LoadEvent( const bool pReloading, ecs_wptr<ecs_IEventInvoker> pCaller = ecs_sptr<ecs_IEventInvoker>( nullptr ) );
+            explicit SurfaceDrawEvent( const unsigned char pThread );
 
             /**
              * @brief
-             * LoadEvent destructor.
+             * SurfaceDrawEvent destructor.
              *
-             * @throws - can throw exception.
+             * @throws - can throw exception:
+             *           - mutex;
             **/
-            virtual ~LoadEvent();
+            virtual ~SurfaceDrawEvent();
 
             // -----------------------------------------------------------
 
-        }; /// bt::core::LoadEvent
+        };
 
         // -----------------------------------------------------------
 
@@ -133,8 +133,9 @@ namespace bt
 
 } /// bt
 
-using bt_LoadEvent = bt::core::LoadEvent;
+using bt_SurfaceDrawEvent = bt::core::SurfaceDrawEvent;
+#define BT_CORE_SURFACE_DRAW_EVENT_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_CORE_LOAD_EVENT_HPP
+#endif // !BT_CORE_SURFACE_DRAW_EVENT_HPP

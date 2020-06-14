@@ -79,14 +79,27 @@ namespace ecs
     // GETTERS & SETTERS
     // ===========================================================
 
-    ecs_sptr<SystemsManager> SystemsManager::getInstance()
+    ECS_API ecs_sptr<SystemsManager> SystemsManager::getInstance()
     { return mInstance; }
+
+    ECS_API SystemsManager::system_ptr SystemsManager::getSystem( const ecs_TypeID pType )
+    {
+        auto instance = getInstance();
+
+        if ( instance != nullptr )
+        {
+            ecs_SpinLock lock(&instance->mSystemsMutex);
+            return instance->mSystems[pType];
+        }
+
+        return system_ptr( nullptr );
+    }
 
     // ===========================================================
     // METHODS
     // ===========================================================
 
-    ecs_ObjectID SystemsManager::generateSystemID(const ecs_TypeID pType) ECS_NOEXCEPT
+    ECS_API ecs_ObjectID SystemsManager::generateSystemID(const ecs_TypeID pType) ECS_NOEXCEPT
     {
         ecs_sptr<SystemsManager> instance = getInstance();
 
@@ -100,7 +113,7 @@ namespace ecs
         return ECS_INVALID_OBJECT_ID;
     }
 
-    void SystemsManager::releaseSystemID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
+    ECS_API void SystemsManager::releaseSystemID(const ecs_TypeID pType, const ecs_ObjectID pID) ECS_NOEXCEPT
     {
         ecs_sptr<SystemsManager> instance = getInstance();
 
@@ -136,7 +149,7 @@ namespace ecs
     ECS_API void SystemsManager::Initialize()
     {
         if ( mInstance == nullptr )
-            mInstance = ecs_new<SystemsManager>();
+            mInstance = ecs_Shared<SystemsManager>();
     }
 
     ECS_API void SystemsManager::Terminate()

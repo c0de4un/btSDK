@@ -93,6 +93,33 @@ namespace bt
             /** Surface-Ready flag. **/
             bt_atomic<bool> mSurfaceReady;
 
+            /** SurfaceDrawEvent sent. **/
+            bt_atomic<bool> mSurfaceDrawEventSent;
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Queue repeated SurfaceDrawEvent.
+             *
+             * @thread_safety - thread-locks used.
+             * @throws - can throw exceptions:
+             *           - mutex;
+            **/
+            void queueSurfaceDrawEvent();
+
+            /**
+             * @brief
+             * Flush all SurfaceDrawEvents.
+             *
+             * @thread_safety - thread-locks used.
+             * @throws - can throw exceptions:
+             *           - mutex;
+            **/
+            void flushSurfaceDrawEvents();
+
             // -----------------------------------------------------------
 
         protected:
@@ -107,6 +134,46 @@ namespace bt
             GLRenderManager& operator=(const GLRenderManager&) = delete;
             GLRenderManager(GLRenderManager&&) = delete;
             GLRenderManager& operator=(GLRenderManager&&) = delete;
+
+            // ===========================================================
+            // bt::core::RenderManager
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called when RenderManager starting.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual bool onStart() final;
+
+            /**
+             * @brief
+             * Called whe RenderManager resuming from pause.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual bool onResume() final;
+
+            /**
+             * @brief
+             * Called whe RenderManager pausing.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual void onPause() final;
+
+            /**
+             * @brief
+             * Called whe RenderManager stopping.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            virtual void onStop() final;
 
             // -----------------------------------------------------------
 

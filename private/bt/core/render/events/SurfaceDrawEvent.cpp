@@ -29,22 +29,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CFG_EVENTS_HPP
-#define BT_CFG_EVENTS_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include ecs::numeric
-#ifndef ECS_NUMERIC_HPP
-#include "../ecs/types/ecs_numeric.hpp"
-#endif // !ECS_NUMERIC_HPP
+// HEADER
+#ifndef BT_CORE_SURFACE_DRAW_EVENT_HPP
+#include "../../../public/bt/core/render/events/SurfaceDrawEvent.hpp"
+#endif // !BT_CORE_SURFACE_DRAW_EVENT_HPP
+
+// Include bt::events
+#ifndef BT_CFG_EVENTS_HPP
+#include "../../../public/bt/cfg/bt_events.hpp"
+#endif // !BT_CFG_EVENTS_HPP
 
 // ===========================================================
-// TYPES
+// bt::core::SurfaceDrawEvent
 // ===========================================================
 
 namespace bt
@@ -55,42 +57,17 @@ namespace bt
 
         // -----------------------------------------------------------
 
-        BT_ENUM_TYPE EEventTypes : bt_uint8_t
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        SurfaceDrawEvent::SurfaceDrawEvent( const unsigned char pThread )
+            : Event( static_cast<const ecs_TypeID>(bt_EEventTypes::SurfaceDraw ), true ),
+            mThreadType( pThread )
         {
+        }
 
-            // -----------------------------------------------------------
-
-            // ===========================================================
-            // META
-            // ===========================================================
-
-            BT_ENUM
-
-            // ===========================================================
-            // CONSTANTS
-            // ===========================================================
-
-            /** Min. Value **/
-            MIN = 0,
-
-            /** Rendering Surface is ready, Assets can be loaded/restored. **/
-            AssetsLoading = 1,
-
-            /** Surface-Draw. Called from Render Threads-Type every frame. **/
-            SurfaceDraw = 2,
-
-            /** Logic State Update. **/
-            LogicUpdate = 3,
-
-            /** Physics State Update. **/
-            PhysicsUpdate = 4,
-
-            /** Max. value. User for override (extend). **/
-            MAX = 99
-
-            // -----------------------------------------------------------
-
-        };
+        SurfaceDrawEvent::~SurfaceDrawEvent() = default;
 
         // -----------------------------------------------------------
 
@@ -98,8 +75,4 @@ namespace bt
 
 } /// bt
 
-using bt_EEventTypes = bt::core::EEventTypes;
-
 // -----------------------------------------------------------
-
-#endif // !BT_CFG_EVENTS_HPP

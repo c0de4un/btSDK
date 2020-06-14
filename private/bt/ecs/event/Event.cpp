@@ -64,11 +64,12 @@ namespace ecs
     // CONSTRUCTOR & DESTRUCTOR
     // ===========================================================
 
-    Event::Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller )
+    Event::Event( const ecs_TypeID pType, const bool pRepeat, ecs_wptr<ecs_IEventInvoker> pCaller )
         : mTypeID( pType ),
         mID(ecs_Events::generateEventID(pType ) ),
         mInvoker( pCaller ),
-        mHandled( false )
+        mHandled( false ),
+        mRepeatable( pRepeat )
     {
     }
 
@@ -89,6 +90,12 @@ namespace ecs
 
     bool Event::isHandled() const BT_NOEXCEPT
     { return mHandled; }
+
+    bool Event::isRepeatable() const ECS_NOEXCEPT
+    { return mRepeatable; }
+
+    void Event::setRepeat( const bool pRepeat ) ECS_NOEXCEPT
+    { mRepeatable = pRepeat; }
 
     // ===========================================================
     // METHODS

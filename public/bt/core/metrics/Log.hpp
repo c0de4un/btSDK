@@ -70,7 +70,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        enum BT_API ELogLevel : unsigned char
+        BT_ENUM_TYPE BT_API ELogLevel : unsigned char
         {
 
             // -----------------------------------------------------------

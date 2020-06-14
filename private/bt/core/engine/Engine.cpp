@@ -80,7 +80,7 @@ namespace bt
         // ===========================================================
 
         Engine::Engine()
-            : System( bt_SystemTypes::ENGINE )
+            : System( static_cast<const ecs_TypeID>(bt_SystemTypes::ENGINE) )
         {
         }
 

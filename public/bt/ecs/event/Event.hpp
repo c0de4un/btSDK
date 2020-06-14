@@ -123,10 +123,11 @@ namespace ecs
          * Event constructor.
          *
          * @param pType - Event-Type.
+         * @param pRepeat - 'true' if Event repeats.
          * @param pCaller - Event Invoker.
          * @throws - can throw exception.
         **/
-        explicit Event( const ecs_TypeID pType, ecs_wptr<ecs_IEventInvoker> pCaller = ecs_wptr<ecs_IEventInvoker>() );
+        explicit Event( const ecs_TypeID pType, const bool pRepeat = true, ecs_wptr<ecs_IEventInvoker> pCaller = ecs_wptr<ecs_IEventInvoker>() );
 
         // ===========================================================
         // DELETED
@@ -150,6 +151,9 @@ namespace ecs
         /** Handled-flag. **/
         ecs_atomic<bool> mHandled;
 
+        /** Repeat-flag. **/
+        bool mRepeatable;
+
         // ===========================================================
         // DESTRUCTOR
         // ===========================================================
@@ -161,6 +165,21 @@ namespace ecs
          * @throws - can throw exception.
         **/
         virtual ~Event();
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        /**
+         * @brief
+         * Set repeat-flag.
+         *
+         * @thread_safety - not required.
+         * @param pRepeat - 'true' to repeate Event until it's removed,
+         * 'false' to remove after sending.
+         * @throws - no exception.
+        **/
+        void setRepeat( const bool pRepeat ) ECS_NOEXCEPT;
 
         // ===========================================================
         // ecs::IEvent
@@ -191,7 +210,17 @@ namespace ecs
          * @thread_safety - atomics used.
          * @throws - no exceptions.
         **/
-        virtual bool isHandled() const BT_NOEXCEPT final;
+        virtual bool isHandled() const ECS_NOEXCEPT final;
+
+        /**
+         * @brief
+         * Returns 'true' if Event repeats until manually removed.
+         *
+         * (?) Allows to avoid allocating Events
+         *
+         * @thread_safety
+        **/
+        virtual bool isRepeatable() const ECS_NOEXCEPT final;
 
         /**
          * @brief

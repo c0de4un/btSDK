@@ -129,7 +129,17 @@ namespace ecs
          * @thread_safety - atomics used.
          * @throws - no exceptions.
         **/
-        virtual bool isHandled() const BT_NOEXCEPT = 0;
+        virtual bool isHandled() const ECS_NOEXCEPT = 0;
+
+        /**
+         * @brief
+         * Returns 'true' if Event repeats until manually removed.
+         *
+         * (?) Allows to avoid allocating Events
+         *
+         * @thread_safety
+        **/
+        virtual bool isRepeatable() const ECS_NOEXCEPT = 0;
 
         // ===========================================================
         // METHODS

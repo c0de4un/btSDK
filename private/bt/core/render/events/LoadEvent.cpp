@@ -37,12 +37,12 @@
 
 // HEADER
 #ifndef BT_CORE_LOAD_EVENT_HPP
-#include "../../../../public/bt/core/render/LoadEvent.hpp"
+#include "../../../../../public/bt/core/render/events/LoadEvent.hpp"
 #endif // !BT_CORE_LOAD_EVENT_HPP
 
 // Include bt::events
 #ifndef BT_CFG_EVENTS_HPP
-#include "../../../../public/bt/cfg/bt_events.hpp"
+#include "../../../../../public/bt/cfg/bt_events.hpp"
 #endif // !BT_CFG_EVENTS_HPP
 
 // ===========================================================
@@ -58,7 +58,7 @@ namespace bt
         // -----------------------------------------------------------
 
         LoadEvent::LoadEvent( const bool pReloading, ecs_wptr<ecs_IEventInvoker> pCaller )
-            : Event( bt_EEventTypes::AssetsLoading, pCaller ),
+            : Event( static_cast<const ecs_TypeID>(bt_EEventTypes::AssetsLoading), false, pCaller ),
             mReload( pReloading )
         {
         }

@@ -74,7 +74,7 @@ namespace bt
         // ===========================================================
 
         GraphicsManager::GraphicsManager( const GraphicsSettings& pSettings )
-            : System(bt_SystemTypes::GRAPHICS),
+            : System( static_cast<const ecs_TypeID>(bt_SystemTypes::GRAPHICS) ),
             mSettings( pSettings ),
               mGraphicsListeners()
         {

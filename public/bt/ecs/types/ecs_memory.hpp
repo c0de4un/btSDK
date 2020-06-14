@@ -60,7 +60,7 @@ using ecs_wptr = bt_wptr<T>;
 
 using ecs_Memory = bt_Memory;
 
-#define ecs_new New
+#define ecs_Shared bt_Shared
 
 // -----------------------------------------------------------
 

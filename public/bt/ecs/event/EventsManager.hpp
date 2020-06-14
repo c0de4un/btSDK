@@ -254,6 +254,18 @@ namespace ecs
         **/
         char handleEvent( event_ptr& pEvent, const bool pAsync, const ecs_uint8_t pThread );
 
+        /**
+         * @brief
+         * Removes Events from Queue.
+         *
+         * @thread_safety - thread-locks used.
+         * @param eventsStorage - Events queue storage.
+         * @param pType - Event Type-ID.
+         * @param pID - Event ID. Default is #ECS_INVALID_OBJECT_ID to remove all with Type-ID.
+         * @throws - can throw exception (mutex).
+        **/
+        static ECS_API void removeEvents( events_queues_storage& eventsStorage, const ecs_TypeID pType, const ecs_ObjectID pID = ECS_INVALID_OBJECT_ID );
+
         // ===========================================================
         // DELETED
         // ===========================================================
@@ -306,6 +318,17 @@ namespace ecs
 
         /**
          * @brief
+         * Subscribes Event Listener for specific Event-Types.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pTypes - Events Type-ID.
+         * @param pListener - IEventListener implementation.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void SubscribeBatch( const ecs_vec<ecs_TypeID>& pTypes, event_listener& pListener );
+
+        /**
+         * @brief
          * Unsubscribe Event Listener from Event-Type.
          *
          * @thread_safety - thread-locks used.
@@ -314,6 +337,17 @@ namespace ecs
          * @throws - can throw exception.
         **/
         static ECS_API void Unsubscribe( const ecs_TypeID eventType, event_listener& pListener );
+
+        /**
+         * @brief
+         * Unsubscribe Event Listener from Events-Types.
+         *
+         * @thread_safety - thread-locks used.
+         * @param eventType - Events Type-ID.
+         * @param pListener - IEventListener implementation.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void UnsubscribeBatch( const ecs_vec<ecs_TypeID>& pTypes, event_listener& pListener );
 
         /**
          * @brief
@@ -337,6 +371,29 @@ namespace ecs
          * @throws - can throw exception.
         **/
         static ECS_API void queueEvent( event_ptr& pEvent, const ecs_uint8_t pThread = 0 );
+
+        /**
+         * @brief
+         * Removes all Events of the given Type.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Event Type-ID.
+         * @param pThread - Thread-Type, default is 0 to remove from all Threads.
+         * @throws - can throw exception (mutex).
+        **/
+        static ECS_API void FlushEvents( const ecs_TypeID pType, const unsigned char pThread = 0 );
+
+        /**
+         * @brief
+         * Removes specific Event from queue.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - Event Type-ID.
+         * @param pID - Event ID.
+         * @param pThread - Thread-Type.
+         * @throws - can throw exception (mutex).
+        **/
+        static ECS_API void RemoveEvent( const ecs_TypeID pType, const ecs_ObjectID pID, const unsigned char pThread );
 
         /**
          * @brief

@@ -47,13 +47,28 @@
 
 // Include bt::core::LoadEvent
 #ifndef BT_CORE_LOAD_EVENT_HPP
-#include "../../../../public/bt/core/render/LoadEvent.hpp"
+#include "../../../../public/bt/core/render/events/LoadEvent.hpp"
 #endif // !BT_CORE_LOAD_EVENT_HPP
+
+// Include bt::core::SurfaceDrawEvent
+#ifndef BT_CORE_SURFACE_DRAW_EVENT_HPP
+#include "../../../../public/bt/core/render/events/SurfaceDrawEvent.hpp"
+#endif // !BT_CORE_SURFACE_DRAW_EVENT_HPP
 
 // Include bt::core::EThreadTypes
 #ifndef BT_CFG_THREADS_HPP
 #include "../../../../public/bt/cfg/bt_threads.hpp"
 #endif // !BT_CFG_THREADS_HPP
+
+// Include bt::events
+#ifndef BT_CFG_EVENTS_HPP
+#include "../../../../public/bt/cfg/bt_events.hpp"
+#endif // !BT_CFG_EVENTS_HPP
+
+// Include ecs::EventsManager
+#ifndef ECS_EVENTS_MANAGER_HPP
+#include "../../../../public/bt/ecs/event/EventsManager.hpp"
+#endif // !ECS_EVENTS_MANAGER_HPP
 
 // DEBUG
 #if defined( DEBUG ) || defined( BT_DEBUG )
@@ -89,11 +104,20 @@ namespace bt
 
         GLRenderManager::GLRenderManager() BT_NOEXCEPT
             : RenderManager(),
-            mSurfaceReady( false )
+            mSurfaceReady( false ),
+              mSurfaceDrawEventSent( false )
         {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager created", static_cast<unsigned char>(bt_ELogLevel::Info) );
+#endif // DEBUG
         }
 
-        GLRenderManager::~GLRenderManager() BT_NOEXCEPT = default;
+        GLRenderManager::~GLRenderManager() BT_NOEXCEPT
+        {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager destructed", static_cast<unsigned char>(bt_ELogLevel::Info) );
+#endif // DEBUG
+        }
 
         // ===========================================================
         // GETTERS & SETTERS
@@ -111,13 +135,20 @@ namespace bt
 
         bool GLRenderManager::onSurfaceReady()
         {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager::onSurfaceReady", static_cast<unsigned char>(bt_ELogLevel::Info) );
+#endif // DEBUG
+
             // Update Surface-Color.
             glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
 
             // Notify
-            bt_sptr<ecs_IEvent> loadEvent = New<bt_LoadEvent>( mSurfaceReady );
-            if ( ecs_Event::Send( loadEvent, false, bt_EThreadTypes::Render ) < 0 )
+            bt_sptr<ecs_IEvent> loadEvent = bt_Memory::StaticCast<ecs_IEvent, bt_LoadEvent>( bt_Shared<bt_LoadEvent>(mSurfaceReady) );
+            if (ecs_Event::Send(loadEvent, false, static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) ) < 0 )
                 return false;
+
+            // Send SurfaceDrawEvent
+            queueSurfaceDrawEvent();
 
             // Set Surface-Ready flag.
             mSurfaceReady = true;
@@ -130,11 +161,64 @@ namespace bt
         {
             // Clear Surface.
             glClear( GL_COLOR_BUFFER_BIT );
+
+            // Update Render-Thread Events.
+            ecs_Events::Update( static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) );
+        }
+
+        // ===========================================================
+        // bt::core::RenderManager
+        // ===========================================================
+
+        bool GLRenderManager::onStart()
+        {
+            // Send SurfaceDrawEvent
+            queueSurfaceDrawEvent();
+
+            return RenderManager::onStart();
+        }
+
+        bool GLRenderManager::onResume()
+        {
+            // Send SurfaceDrawEvent
+            queueSurfaceDrawEvent();
+
+            return RenderManager::onResume();
+        }
+
+        void GLRenderManager::onPause()
+        {
+            flushSurfaceDrawEvents();
+
+            RenderManager::onPause();
+        }
+
+        void GLRenderManager::onStop()
+        {
+            flushSurfaceDrawEvents();
+
+            RenderManager::onStop();
         }
 
         // ===========================================================
         // METHODS
         // ===========================================================
+
+        void GLRenderManager::queueSurfaceDrawEvent()
+        {
+            if ( !mSurfaceDrawEventSent )
+            {
+                bt_sptr<ecs_IEvent> surfaceDrawEvent = bt_Memory::StaticCast<ecs_IEvent, bt_SurfaceDrawEvent>( bt_Shared<bt_SurfaceDrawEvent>(static_cast<ecs_uint8_t>( bt_EThreadTypes::Render )) );
+                ecs_Events::queueEvent(surfaceDrawEvent, static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) );
+                mSurfaceDrawEventSent = true;
+            }
+        }
+
+        void GLRenderManager::flushSurfaceDrawEvents()
+        {
+            if ( mSurfaceDrawEventSent )
+                ecs_Events::FlushEvents(static_cast<ecs_TypeID>(bt_EEventTypes::SurfaceDraw), static_cast<unsigned char>(bt_EThreadTypes::Render) );
+        }
 
         // -----------------------------------------------------------
 

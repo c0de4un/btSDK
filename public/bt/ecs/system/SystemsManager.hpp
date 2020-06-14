@@ -188,6 +188,16 @@ namespace ecs
         // GETTERS & SETTERS
         // ===========================================================
 
+        /**
+         * @brief
+         * Returns System, or null.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pType - System Type-ID.
+         * @throws - can throw exception.
+        **/
+        static ECS_API system_ptr getSystem( const ecs_TypeID pType );
+
         // ===========================================================
         // METHODS
         // ===========================================================

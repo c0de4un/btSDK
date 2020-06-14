@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CORE_RENDER_MANAGER_HPP
-#define BT_CORE_RENDER_MANAGER_HPP
+#ifndef BT_CORE_GAME_HPP
+#define BT_CORE_GAME_HPP
 
 // -----------------------------------------------------------
 
@@ -43,26 +43,10 @@
 #include "../../ecs/system/System.hpp"
 #endif // !ECS_SYSTEM_HPP
 
-// Include bt::core::IGraphicsListener
-#ifndef BT_CORE_I_GRAPHICS_LISTENER_HXX
-#include "../graphics/IGraphicsListener.hxx"
-#endif // !BT_CORE_I_GRAPHICS_LISTENER_HXX
-
-// Include bt::memory
-#ifndef BT_CFG_MEMORY_HPP
-#include "../../cfg/bt_memory.hpp"
-#endif // !BT_CFG_MEMORY_HPP
-
-// Include bt::core::Color4f
-#ifndef BT_CORE_COLOR_4F_HPP
-#include "../math/Color4f.hpp"
-#endif // !BT_CORE_COLOR_4F_HPP
-
-// ===========================================================
-// FORWARD-DECLARATIONS
-// ===========================================================
-
-
+// Include bt::events
+#ifndef BT_CFG_EVENTS_HPP
+#include "../../cfg/bt_events.hpp"
+#endif // !BT_CFG_EVENTS_HPP
 
 // ===========================================================
 // TYPES
@@ -74,13 +58,15 @@ namespace bt
     namespace core
     {
 
+        // -----------------------------------------------------------
+
         /**
          * @brief
-         * RenderManager - base renderer class.
+         * Game - base Game class.
          *
          * @version 0.1
         **/
-        class BT_API RenderManager : public ecs_System, public bt_IGraphicsListener
+        class BT_API Game : public ecs_System
         {
 
             // -----------------------------------------------------------
@@ -101,11 +87,8 @@ namespace bt
             // FIELDS
             // ===========================================================
 
-            /** Engine instance. **/
-            static bt_sptr<RenderManager> mInstance;
-
-            /** Background Color .**/
-            bt_Color4f mClearColor;
+            /** Game instance. **/
+            static bt_sptr<Game> mInstance;
 
             // ===========================================================
             // CONSTRUCTOR
@@ -113,20 +96,66 @@ namespace bt
 
             /**
              * @brief
-             * RenderManager constructor.
+             * Game constructor.
              *
-             * @throws - no exceptions.
+             * @throws - can throw exception:
+             *           - mutex;
             **/
-            explicit RenderManager() BT_NOEXCEPT;
+            explicit Game();
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Utility-method to Subscribe this Game on Events.
+             *
+             * @thread_safety - thread-locks used.
+             * @param pInstance - System instance.
+             * @param pEvents - Event Type-IDs to subscribe on.
+             * @throws - can throw exception.
+            **/
+            static ECS_API void SubscribeGame( Game* const pInstance, const ecs_vec<bt_EEventTypes>& pEvents );
+
+            /**
+             * @brief
+             * Utility-method to Unsubscribe this Game from Events.
+             *
+             * @thread_safety - thread-locks used.
+             * @param pInstance - System instance.
+             * @param pEvents - Event Type-IDs to subscribe from.
+             * @throws - can throw exception.
+            **/
+            static ECS_API void UnsubscribeGame( Game* const pInstance, const ecs_vec<bt_EEventTypes>& pEvents );
+
+            /**
+             * @brief
+             * Called every frame.
+             *
+             * @thread_safety - called from main Render-Thread.
+             * @throws - can throw exception.
+            **/
+            virtual void onDraw();
+
+            /**
+             * @brief
+             * Called when Render Surface created/changed.
+             *
+             * @thread_safety - main Render-Thread.
+             * @param pRestored - 'true' if surface restored/changed.
+             * @throws - can throw exception.
+            **/
+            virtual bool onLoad( const bool pRestored );
 
             // ===========================================================
             // DELETED
             // ===========================================================
 
-            RenderManager(const RenderManager&) = delete;
-            RenderManager& operator=(const RenderManager&) = delete;
-            RenderManager(RenderManager&&) = delete;
-            RenderManager& operator=(RenderManager&&) = delete;
+            Game(const Game&) = delete;
+            Game& operator=(const Game&) = delete;
+            Game(Game&&) = delete;
+            Game& operator=(Game&&) = delete;
 
             // -----------------------------------------------------------
 
@@ -140,43 +169,39 @@ namespace bt
 
             /**
              * @brief
-             * RenderManager destructor.
+             * Game destructor.
              *
-             * @throws - no exceptions.
+             * @throws - can throw exception:
+             *           - mutex;
             **/
-            virtual ~RenderManager() BT_NOEXCEPT;
+            virtual ~Game();
 
             // ===========================================================
             // GETTERS & SETTERS
             // ===========================================================
 
-            /**
-             * @brief
-             * Returns Engine instance, or null.
-             *
-             * @thread_safety - not thread-safe.
-             * @throws - no exceptions.
-            **/
-            static bt_sptr<RenderManager> getInstance() BT_NOEXCEPT;
+            // ===========================================================
+            // METHODS
+            // ===========================================================
 
             /**
              * @brief
-             * Set Surface clear-color.
+             * Initialize Game.
              *
-             * @thread_safety - render thread-only.
-             * @param pColor - color. Value copied/moved.
-             * @throws - no exceptions.
+             * @thread_safety - main thread only.
+             * @param pInstance - Game instance.
+             * @throws - can throw exception.
             **/
-            virtual void setSurfaceColor( const Color4f& pColor ) BT_NOEXCEPT;
+            static BT_API void Initialize( bt_sptr<Game>& pInstance );
 
             /**
              * @brief
-             * Returns surface clear-color.
+             * Terminate Game.
              *
-             * @thread_safety - render-thread only.
-             * @throws - no exceptions.
+             * @thread_safety - main thread only.
+             * @throws - can throw exception.
             **/
-            Color4f getSurfaceColor() const BT_NOEXCEPT;
+            static BT_API void Terminate();
 
             // ===========================================================
             // ecs::System
@@ -184,7 +209,34 @@ namespace bt
 
             /**
              * @brief
-             * Called when RenderManager starting.
+             * Called on Event.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pEvent - Event to handle.
+             * @param pAsync - 'true' if called in Async-mode.
+             * @param pThread - Thread-Type.
+             * @return - 0 to continue, 1 if handled to stop, -1 if error.
+             * @throws - can throw exception. Exceptions collected & reported.
+            **/
+            virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const bool pAsync, const unsigned char pThread ) override;
+
+            /**
+             * @brief
+             * Called on Event Error.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pEvent - Event to handle.
+             * @param pException - Exception.
+             * @param pAsync - 'true' if called in Async-mode.
+             * @param pThread - Thread-Type.
+             * @return - 0 to continue, 1 if handled to stop, -1 if error.
+             * @throws - can throw exception. Exceptions collected & reported.
+            **/
+            virtual void onEventError( ecs_sptr<ecs_IEvent> pEvent, const std::exception& pException, const bool pAsync, const unsigned char pThread ) override;
+
+            /**
+             * @brief
+             * Called when System starting.
              *
              * @thread_safety - thread-lock used.
              * @throws - can throw exception.
@@ -193,7 +245,7 @@ namespace bt
 
             /**
              * @brief
-             * Called whe RenderManager resuming from pause.
+             * Called whe System resuming from pause.
              *
              * @thread_safety - thread-lock used.
              * @throws - can throw exception.
@@ -202,7 +254,7 @@ namespace bt
 
             /**
              * @brief
-             * Called whe RenderManager pausing.
+             * Called whe System pausing.
              *
              * @thread_safety - thread-lock used.
              * @throws - can throw exception.
@@ -211,47 +263,27 @@ namespace bt
 
             /**
              * @brief
-             * Called whe RenderManager stopping.
+             * Called whe System stopping.
              *
              * @thread_safety - thread-lock used.
              * @throws - can throw exception.
             **/
             virtual void onStop() override;
 
-            // ===========================================================
-            // METHODS
-            // ===========================================================
-
-            /**
-             * @brief
-             * Initialize Render Manager.
-             *
-             * @thread_safety - main thread only.
-             * @param pInstance - isntance to use.
-             * @throws - can throw exceptions
-            **/
-            static void Initialize( bt_sptr<RenderManager> pInstance );
-
-            /**
-             * @brief
-             * Terminate Render Manager.
-             *
-             * @thread_safety - main thread only.
-             * @throws - can throw exception.
-            **/
-            static void Terminate();
-
             // -----------------------------------------------------------
 
-        }; /// bt::core::RenderManager
+        }; /// bt::core::Game
+
+        // -----------------------------------------------------------
 
     } /// bt::core
 
 } /// bt
 
-using bt_RenderManager = bt::core::RenderManager;
-#define BT_CORE_RENDER_MANAGER_DECL
+using bt_Game = bt::core::Game;
+
+#define BT_CORE_GAME_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_CORE_RENDER_MANAGER_HPP
+#endif // !BT_CORE_GAME_HPP

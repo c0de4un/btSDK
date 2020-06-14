@@ -62,7 +62,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        enum BT_API EThreadTypes : bt_uint8_t
+        BT_ENUM_TYPE BT_API EThreadTypes : bt_uint8_t
         {
 
             // -----------------------------------------------------------
@@ -78,12 +78,12 @@ namespace bt
             // ===========================================================
 
             MIN = 0,
-            Main,
-            Render,
-            Update,
+            Main = 1,
+            Render = 2,
+            Update = 3,
             Logic = Update,
-            Physics,
-            Tasks,
+            Physics = 4,
+            Tasks = 5,
             MAX = 99
 
             // -----------------------------------------------------------

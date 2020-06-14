@@ -64,7 +64,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        enum BT_API SystemTypes : ecs_TypeID
+        BT_ENUM_TYPE BT_API SystemTypes : ecs_TypeID
         {
 
             // -----------------------------------------------------------
@@ -78,16 +78,17 @@ namespace bt
             // -----------------------------------------------------------
 
             MIN = 0,
-            ENGINE,
-            GRAPHICS,
-            RENDER,
-            BATCHING,
-            PARTICLES,
-            AI,
-            AUDIO,
-            THREAD,
-            TASKS,
-            INPUT,
+            ENGINE = 1,
+            GRAPHICS = 2,
+            RENDER = 3,
+            BATCHING = 4,
+            PARTICLES = 5,
+            AI = 6,
+            AUDIO = 7,
+            THREAD = 8,
+            TASKS = 9,
+            INPUT = 10,
+            GAME = 11,
             MAX = 99
 
             // -----------------------------------------------------------

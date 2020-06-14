@@ -64,6 +64,11 @@
 #include "../types/ecs_mutex.hpp"
 #endif // !ECS_MUTEX_HPP
 
+// Include ecs::vector
+#ifndef ECS_VECTOR_HPP
+#include "../types/ecs_vector.hpp"
+#endif // !ECS_VECTOR_HPP
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -158,6 +163,39 @@ namespace ecs
         // ===========================================================
         // METHODS
         // ===========================================================
+
+        /**
+         * @brief
+         * Returns shared-pointer for instance, or null.
+         *
+         * @thread_safety - not required.
+         * @param pInstance - System instance.
+         * @throws - can throw exception:
+         *           - mutex;
+        **/
+        static ECS_API ecs_sptr<ecs_ISystem> That( System* const pInstance );
+
+        /**
+         * @brief
+         * Utility-method to Subscribe this System on Events.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pInstance - System instance.
+         * @param pEvents - Event Type-IDs to subscribe on.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void SubscribeSystem( System* const pInstance, const ecs_vec<ecs_TypeID>& pEvents );
+
+        /**
+         * @brief
+         * Utility-method to Unsubscribe this System from Events.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pInstance - System instance.
+         * @param pEvents - Event Type-IDs to subscribe from.
+         * @throws - can throw exception.
+        **/
+        static ECS_API void UnsubscribeSystem( System* const pInstance, const ecs_vec<ecs_TypeID>& pEvents );
 
         /**
          * @brief

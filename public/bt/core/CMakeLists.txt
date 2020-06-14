@@ -109,8 +109,12 @@ set ( BT_CORE_HEADERS
         "graphics/IGraphicsListener.hxx"
         "graphics/GraphicsManager.hpp"
         # RENDER
+        "render/IDrawable.hxx"
         "render/RenderManager.hpp"
-        "render/LoadEvent.hpp"
+        "render/events/LoadEvent.hpp"
+        "render/events/SurfaceDrawEvent.hpp"
+        # GAME
+        "game/Game.hpp"
         # ENGINE
         "engine/ArcadeEngine.hpp"
         "engine/Engine.hpp" )
@@ -143,7 +147,10 @@ set ( BT_CORE_SOURCES
         "../../../private/bt/core/graphics/GraphicsManager.cpp"
         # RENDER
         "../../../private/bt/core/render/RenderManager.cpp"
-        "../../../private/bt/core/render/LoadEvent.cpp"
+        "../../../private/bt/core/render/events/LoadEvent.cpp"
+        "../../../private/bt/core/render/events/SurfaceDrawEvent.cpp"
+        # GAME
+        "../../../private/bt/core/game/Game.cpp"
         # ENGINE
         "../../../private/bt/core/engine/ArcadeEngine.cpp"
         "../../../private/bt/core/engine/Engine.cpp" )

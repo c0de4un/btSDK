@@ -86,7 +86,7 @@ namespace bt
         bool ArcadeEngine::onStart()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print( u8"ArcadeEngine::onStart", bt_ELogLevel::Info );
+            bt_Log::Print(u8"ArcadeEngine::onStart", static_cast<unsigned char>(bt_ELogLevel::Info) );
 #endif // DEBUG
 
             return Engine::onStart();
@@ -95,7 +95,7 @@ namespace bt
         bool ArcadeEngine::onResume()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print( u8"ArcadeEngine::onResume", bt_ELogLevel::Info );
+            bt_Log::Print(u8"ArcadeEngine::onResume", static_cast<unsigned char>(bt_ELogLevel::Info) );
 #endif // DEBUG
 
             return Engine::onResume();
@@ -104,7 +104,7 @@ namespace bt
         void ArcadeEngine::onPause()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print( u8"ArcadeEngine::onPause", bt_ELogLevel::Info );
+            bt_Log::Print(u8"ArcadeEngine::onPause", static_cast<unsigned char>(bt_ELogLevel::Info) );
 #endif // DEBUG
 
             Engine::onPause();
@@ -113,7 +113,7 @@ namespace bt
         void ArcadeEngine::onStop()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print( u8"ArcadeEngine::onStop", bt_ELogLevel::Info );
+            bt_Log::Print(u8"ArcadeEngine::onStop", static_cast<unsigned char>(bt_ELogLevel::Info) );
 #endif // DEBUG
 
             Engine::onStop();

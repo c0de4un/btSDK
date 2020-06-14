@@ -190,7 +190,7 @@ namespace ecs
     void EntitiesManager::Initialize()
     {
         if ( mInstance == nullptr )
-            mInstance = ecs_new<ecs_Entities>();
+            mInstance = ecs_Shared<ecs_Entities>();
     }
 
     void EntitiesManager::Terminate()

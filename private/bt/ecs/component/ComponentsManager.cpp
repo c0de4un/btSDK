@@ -205,7 +205,7 @@ namespace ecs
     void ComponentsManager::Initialize()
     {
         if ( mInstance == nullptr )
-            mInstance = ecs_new<ComponentsManager>();
+            mInstance = ecs_Shared<ComponentsManager>();
     }
 
     void ComponentsManager::Terminate()
