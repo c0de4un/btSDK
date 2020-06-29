@@ -95,9 +95,9 @@ namespace bt
              * @brief
              * AsyncStorage constructor.
              *
-             * @throws - can throw exception.
+             * @throws - no exception.
             **/
-            explicit AsyncStorage( )
+            explicit AsyncStorage( ) noexcept
                 : mItem(),
                 mMutex()
             {
@@ -107,9 +107,39 @@ namespace bt
              * @brief
              * AsyncStorage destructor.
              *
-             * @throws - can throw exception.
+             * @throws - no exception.
             **/
-            ~AsyncStorage() = default;
+            ~AsyncStorage() noexcept = default;
+
+            // ===========================================================
+            // METHODS & OPERATORS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Returns stored item, or null.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception (mutex).
+            **/
+            T getItem()
+            {
+                bt_SpinLock lock( &mMutex );
+                return mItem;
+            }
+
+            /**
+             * @brief
+             * Sets Item to store.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception (mutex).
+            **/
+            void setItem( T pItem )
+            {
+                bt_SpinLock lock( &mMutex );
+                mItem = pItem;
+            }
 
             // -----------------------------------------------------------
 

@@ -62,7 +62,7 @@
 
 // Include bt::core::LoadEvent
 #ifndef BT_CORE_LOAD_EVENT_HPP
-#include "../../../public/bt/core/render/events/LoadEvent.hpp"
+#include "../../../public/bt/core/assets/LoadEvent.hpp"
 #endif // !BT_CORE_LOAD_EVENT_HPP
 
 // Include bt::core::GraphicsManager
@@ -75,6 +75,16 @@
 #include "../../../public/bt/ecs/system/SystemsManager.hpp"
 #endif // !ECS_SYSTEMS_MANAGER_HPP
 
+// Include bt::string
+#ifndef BT_STRING_HPP
+#include "../../../public/bt/cfg/bt_string.hpp"
+#endif
+
+// Get Application
+#ifndef BT_CORE_APPLICATION_HPP
+#include "../../../public/bt/core/app/Application.hpp"
+#endif // !BT_CORE_APPLICATION_HPP
+
 #if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
 
 // Include bt::log
@@ -82,10 +92,10 @@
 #include "../../../public/bt/cfg/bt_log.hpp"
 #endif // !BT_CFG_LOG_HPP
 
-// Include bt::string
-#ifndef BT_STRING_HPP
-#include "../../../public/bt/cfg/bt_string.hpp"
-#endif
+// Include bt::assert
+#ifndef BT_CFG_ASSERT_HPP
+#include "../../../public/bt/cfg/bt_assert.hpp"
+#endif // !BT_CFG_ASSERT_HPP
 
 #endif // DEBUG
 
@@ -105,7 +115,7 @@ namespace bt
         // FIELDS
         // ===========================================================
 
-        bt_sptr<Game> Game::mInstance(nullptr);
+        bt_AsyncStorage<bt_sptr<Game>> Game::mInstanceHolder;
 
         // ===========================================================
         // CONSTRUCTOR & DESTRUCTOR
@@ -122,59 +132,38 @@ namespace bt
         // GETTERS & SETTERS
         // ===========================================================
 
+        BT_API bt_sptr<Game> Game::getInstance() noexcept
+        { return mInstanceHolder.getItem(); }
+
         // ===========================================================
         // METHODS
         // ===========================================================
 
-        ECS_API void Game::SubscribeGame( Game* const pInstance, const ecs_vec<bt_EEventTypes>& pEvents )
-        {
-            bt_vector<ecs_TypeID> types;
-            types.reserve( pEvents.size() );
-
-            for( const bt_EEventTypes& eventType : pEvents )
-            { types.push_back( static_cast<ecs_TypeID>(eventType) ); }
-
-            ecs_System::SubscribeSystem( static_cast<ecs_System*>(pInstance), types );
-        }
-
-        ECS_API void Game::UnsubscribeGame( Game* const pInstance, const ecs_vec<bt_EEventTypes>& pEvents )
-        {
-            bt_vector<ecs_TypeID> types;
-            types.reserve( pEvents.size() );
-
-            for( const bt_EEventTypes& eventType : pEvents )
-            { types.push_back( static_cast<ecs_TypeID>(eventType) ); }
-
-            ecs_System::UnsubscribeSystem( static_cast<ecs_System*>(pInstance), types );
-        }
-
         BT_API void Game::Initialize( bt_sptr<Game>& pInstance )
         {
-            if ( mInstance == nullptr )
+            if ( getInstance() == nullptr )
             {
-                mInstance = pInstance;
-                bt_sptr<ecs_ISystem> system = bt_Memory::StaticCast<ecs_ISystem, bt_Game>( mInstance );
+                mInstanceHolder.setItem( pInstance );
+                bt_sptr<ecs_ISystem> system = bt_Memory::StaticCast<ecs_ISystem, bt_Game>( pInstance );
                 ecs_Systems::registerSystem( system );
             }
         }
 
         BT_API void Game::Terminate()
         {
-            if ( mInstance != nullptr )
+            bt_sptr<bt_Game> gameInstance( getInstance() );
+            if ( gameInstance != nullptr )
             {
-                ecs_Systems::unregisterSystem( mInstance->getTypeID() );
-                mInstance = nullptr;
+                gameInstance->Stop();
+                ecs_Systems::unregisterSystem( gameInstance->getTypeID() );
+                mInstanceHolder.setItem( bt_sptr<bt_Game>(nullptr) );
             }
-        }
-
-        void Game::onDraw()
-        {
         }
 
         bool Game::onLoad( const bool pRestored )
         {
 #if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
-            bt_Log::Print( u8"Game::onLoad", static_cast<unsigned char>( bt_ELogLevel::Info ) );
+            bt_Log::Print( u8"Game::onLoad", bt_ELogLevel::Info );
 #endif // DEBUG
 
             return true;
@@ -195,10 +184,6 @@ namespace bt
                 case bt_EEventTypes::AssetsLoading:
                     return onLoad( bt_Memory::StaticCast<bt_LoadEvent, ecs_IEvent>( pEvent )->mReload ) ? 1 : 0;
 
-                case bt_EEventTypes::SurfaceDraw:
-                    onDraw();
-                    break;
-
                 default:
                     break;
             }
@@ -218,36 +203,54 @@ namespace bt
             bt_Log::Print( logMsg.c_str(), static_cast<unsigned char>( bt_ELogLevel::Error ) );
 #endif // DEBUG
 
-            // Stop
-            bt_Graphics::Terminate();
+            // Notify Application
+            bt_sptr<bt_App> gameApp( bt_App::getInstance() );
+            if ( gameApp != nullptr )
+                gameApp->onEventError( pEvent, pException, pAsync, pThread );
         }
 
         bool Game::onStart()
         {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"Game::onStart", bt_ELogLevel::Info );
+#endif // DEBUG
+
             // Subscribe
-            SubscribeGame( this, { bt_EEventTypes::AssetsLoading, bt_EEventTypes::SurfaceDraw, bt_EEventTypes::LogicUpdate } );
+            Subscribe<bt_EEventTypes>( this, { bt_EEventTypes::AssetsLoading } );
 
             return true;
         }
 
         bool Game::onResume()
         {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"Game::onResume", bt_ELogLevel::Info );
+#endif // DEBUG
+
             // Subscribe
-            SubscribeGame( this, { bt_EEventTypes::AssetsLoading, bt_EEventTypes::SurfaceDraw, bt_EEventTypes::LogicUpdate } );
+            Subscribe<bt_EEventTypes>( this, { bt_EEventTypes::AssetsLoading } );
 
             return true;
         }
 
         void Game::onPause()
         {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"Game::onPause", bt_ELogLevel::Info );
+#endif // DEBUG
+
             // Unsubscribe
-            UnsubscribeGame( this, { bt_EEventTypes::AssetsLoading, bt_EEventTypes::SurfaceDraw, bt_EEventTypes::LogicUpdate } );
+            Unsubscribe<bt_EEventTypes>( this, { bt_EEventTypes::AssetsLoading } );
         }
 
         void Game::onStop()
         {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"Game::onStop", bt_ELogLevel::Info );
+#endif // DEBUG
+
             // Unsubscribe
-            UnsubscribeGame( this, { bt_EEventTypes::AssetsLoading, bt_EEventTypes::SurfaceDraw, bt_EEventTypes::LogicUpdate } );
+            Unsubscribe<bt_EEventTypes>( this, { bt_EEventTypes::AssetsLoading } );
         }
 
         // -----------------------------------------------------------

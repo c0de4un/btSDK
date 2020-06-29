@@ -85,7 +85,7 @@ namespace ecs
     // FIELDS
     // ===========================================================
 
-    ecs_sptr<EventsManager> EventsManager::mInstance(nullptr);
+    ecs_AsyncStorage<ecs_sptr<EventsManager>> EventsManager::mInstanceHolder;
 
     // ===========================================================
     // CONSTRUCTOR & DESTRUCTOR
@@ -109,7 +109,7 @@ namespace ecs
     // ===========================================================
 
     ecs_sptr<EventsManager> EventsManager::getInstance()
-    { return mInstance; }
+    { return mInstanceHolder.getItem(); }
 
     EventsManager::events_queues_storage& EventsManager::getEventsQueue( const unsigned char pThread )
     {
@@ -372,16 +372,19 @@ namespace ecs
 
     ECS_API void EventsManager::Initialize()
     {
-        if ( mInstance == nullptr )
-            mInstance = ecs_Shared<EventsManager>();
+        if ( mInstanceHolder.getItem() == nullptr )
+            mInstanceHolder.setItem( ecs_Shared<EventsManager>() );
     }
 
     ECS_API void EventsManager::Terminate()
     {
-        if ( mInstance != nullptr )
-            mInstance->mEnabled = false;
-
-        mInstance = nullptr;
+        ecs_sptr<ecs_Events> eventsManager = getInstance();
+        
+        if ( eventsManager != nullptr )
+        {
+            eventsManager->mEnabled = false;
+            mInstanceHolder.setItem( ecs_sptr<ecs_Events>( nullptr ) );
+        }
     }
 
     // -----------------------------------------------------------

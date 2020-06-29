@@ -59,7 +59,7 @@ namespace ecs
     // FIELDS
     // ===========================================================
 
-    ecs_sptr<EntitiesManager> EntitiesManager::mInstance( nullptr );
+    ecs_AsyncStorage<ecs_sptr<EntitiesManager>> EntitiesManager::mInstanceHolder;
 
     // ===========================================================
     // CONSTRUCTOR & DESTRUCTOR
@@ -80,7 +80,7 @@ namespace ecs
     // ===========================================================
 
     ecs_sptr<EntitiesManager> EntitiesManager::getInstance()
-    { return mInstance; }
+    { return mInstanceHolder.getItem(); }
 
     EntitiesManager::ecs_entities_map_storage& EntitiesManager::getEntities( const ecs_TypeID pType )
     {
@@ -189,12 +189,12 @@ namespace ecs
 
     void EntitiesManager::Initialize()
     {
-        if ( mInstance == nullptr )
-            mInstance = ecs_Shared<ecs_Entities>();
+        if ( getInstance() == nullptr )
+            mInstanceHolder.setItem( ecs_Shared<ecs_Entities>() );
     }
 
     void EntitiesManager::Terminate()
-    { mInstance = nullptr; }
+    { mInstanceHolder.setItem( bt_sptr<ecs_Entities>( nullptr ) ); }
 
     // -----------------------------------------------------------
 

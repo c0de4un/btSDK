@@ -86,7 +86,7 @@ namespace bt
             // ===========================================================
 
             /** Engine instance. **/
-            static bt_sptr<Engine> mInstance;
+            static bt_AsyncStorage<bt_sptr<Engine>> mInstanceHolder;
 
             // ===========================================================
             // CONSTRUCTOR
@@ -99,6 +99,30 @@ namespace bt
              * @throws - can throw exception.
             **/
             explicit Engine();
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called to load Assets.
+             *
+             * @thread_safety - render-thread only.
+             * @param pReloading - 'true' if Assets should be reloaded.
+             * @return 'true' if loaded, 'false' if failed to Stop App.
+             * @throws - can throw exception.
+            **/
+            virtual bool onLoadAssets( const bool pReloading );
+
+            /**
+             * @brief
+             * Called to Draw.
+             *
+             * @thread_safety - render-thread only.
+             * @throws - can throw exception.
+            **/
+            virtual void onDraw();
 
             // ===========================================================
             // DELETED
@@ -139,6 +163,37 @@ namespace bt
              * @throws - no exceptions.
             **/
             static bt_sptr<Engine> getInstance() BT_NOEXCEPT;
+
+            // ===========================================================
+            // IEventListener
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called on Event.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pEvent - Event to handle.
+             * @param pAsync - 'true' if called in Async-mode.
+             * @param pThread - Thread-Type.
+             * @return - 0 to continue, 1 if handled to stop, -1 if error.
+             * @throws - can throw exception. Exceptions collected & reported.
+            **/
+            virtual char OnEvent( ecs_sptr<ecs_IEvent> pEvent, const bool pAsync, const unsigned char pThread ) override;
+
+            /**
+             * @brief
+             * Called on Event Error.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pEvent - Event to handle.
+             * @param pException - Exception.
+             * @param pAsync - 'true' if called in Async-mode.
+             * @param pThread - Thread-Type.
+             * @return - 0 to continue, 1 if handled to stop, -1 if error.
+             * @throws - can throw exception. Exceptions collected & reported.
+            **/
+            virtual void onEventError( ecs_sptr<ecs_IEvent> pEvent, const std::exception& pException, const bool pAsync, const unsigned char pThread ) override;
 
             // ===========================================================
             // ecs::System

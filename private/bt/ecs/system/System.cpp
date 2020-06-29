@@ -140,20 +140,53 @@ namespace ecs
     // METHODS
     // ===========================================================
 
-    ECS_API ecs_sptr<ecs_ISystem> System::That( System* const pInstance )
-    { return ecs_Systems::getSystem( pInstance->mTypeID ); }
+    template <typename T>
+    ECS_API ecs_sptr<T> System::That( System* const pInstance )
+    { return ecs_Memory::StaticCast<T, ecs_ISystem>( ecs_Systems::getSystem( pInstance->mTypeID ) ); }
+
+    template <typename T>
+    ECS_API void System::Subscribe( System* const pInstance, const ecs_vec<T>& pEvents )
+    {
+        ecs_vec<ecs_TypeID> types;
+        types.reserve( pEvents.size() );
+
+        for( const T& eventData : pEvents )
+        {
+            types.push_back( static_cast<ecs_TypeID>(eventData) );
+        }
+
+        ecs_sptr<ecs_System> system = That<ecs_System>( pInstance );
+        ecs_sptr<ecs_IEventListener> listener( ecs_Memory::StaticCast<ecs_IEventListener, ecs_System>(system) );
+        ecs_Events::SubscribeBatch( types, listener );
+    }
+
+    template <typename T>
+    ECS_API void System::Unsubscribe( System* const pInstance, const ecs_vec<T>& pEvents )
+    {
+        ecs_vec<ecs_TypeID> types;
+        types.reserve( pEvents.size() );
+
+        for( const T& eventData : pEvents )
+        {
+            types.push_back( static_cast<ecs_TypeID>(eventData) );
+        }
+
+        ecs_sptr<ecs_System> system = That<ecs_System>( pInstance );
+        ecs_sptr<ecs_IEventListener> listener( ecs_Memory::StaticCast<ecs_IEventListener, ecs_System>(system) );
+        ecs_Events::UnsubscribeBatch( types, listener );
+    }
 
     ECS_API void System::SubscribeSystem( System* const pInstance, const ecs_vec<ecs_TypeID>& pEvents )
     {
-        ecs_sptr<ecs_ISystem> system = That(pInstance);
-        ecs_sptr<ecs_IEventListener> listener = ecs_Memory::StaticCast<ecs_IEventListener, ecs_ISystem>( system );
+        ecs_sptr<ecs_System> system = That<ecs_System>( pInstance );
+        ecs_sptr<ecs_IEventListener> listener( ecs_Memory::StaticCast<ecs_IEventListener, ecs_System>(system) );
         ecs_Events::SubscribeBatch( pEvents, listener );
     }
 
     ECS_API void System::UnsubscribeSystem( System* const pInstance, const ecs_vec<ecs_TypeID>& pEvents )
     {
-        ecs_sptr<ecs_ISystem> system = That(pInstance);
-        ecs_sptr<ecs_IEventListener> listener = ecs_Memory::StaticCast<ecs_IEventListener, ecs_ISystem>( system );
+        ecs_sptr<ecs_System> system = That<ecs_System>( pInstance );
+        ecs_sptr<ecs_IEventListener> listener( ecs_Memory::StaticCast<ecs_IEventListener, ecs_System>(system) );
         ecs_Events::UnsubscribeBatch( pEvents, listener );
     }
 

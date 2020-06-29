@@ -54,21 +54,9 @@
 #include "../../cfg/bt_memory.hpp"
 #endif // !BT_CFG_MEMORY_HPP
 
-// Include bt::core::AsyncVector
-#ifndef BT_CORE_ASYNC_VECTOR_HPP
-#include "../containers/AsyncVector.hpp"
-#endif // !BT_CORE_ASYNC_VECTOR_HPP
-
 // ===========================================================
 // FORWARD-DECLARATIONS
 // ===========================================================
-
-// Forward-Declare bt::core::IGraphicsListener
-#ifndef BT_CORE_I_GRAPHICS_LISTENER_DECL
-#define BT_CORE_I_GRAPHICS_LISTENER_DECL
-namespace bt { namespace core { class IGraphicsListener; } }
-using bt_IGraphicsListener = bt::core::IGraphicsListener;
-#endif // !BT_CORE_I_GRAPHICS_LISTENER_DECL
 
 // ===========================================================
 // TYPES
@@ -145,23 +133,14 @@ namespace bt
             // -----------------------------------------------------------
 
             // ===========================================================
-            // TYPES
-            // ===========================================================
-
-            using graphics_listener = bt_sptr<bt_IGraphicsListener>;
-
-            // ===========================================================
             // FIELDS
             // ===========================================================
 
             /** GraphicsManager instance. **/
-            static bt_sptr<GraphicsManager> mInstance;
+            static AsyncStorage<bt_sptr<GraphicsManager>> mInstanceStorage;
 
             /** Current Graphics Settings. **/
             GraphicsSettings mSettings;
-
-            /** Graphics Listeners. **/
-            bt_AsyncVector<graphics_listener> mGraphicsListeners;
 
             // ===========================================================
             // CONSTRUCTOR
@@ -182,23 +161,12 @@ namespace bt
 
             /**
              * @brief
-             * Called by Graphics Manager implementation, when Render Surface
-             * is ready.
+             * Called when GraphicsManager instance is being terminating.
              *
-             * @thread_safety - render-thread.
-             * @return - 'true' if OK
-            **/
-            virtual bool onSurfaceReady();
-
-            /**
-             * @brief
-             * Called on every frame Draw.
-             *
-             * @thread_safety - render-thread only.
-             * @param elapsedTime - milliseconds, elapsed since previous draw-call.
+             * @thread_safety - thread-lock used.
              * @throws - can throw exception.
             **/
-            virtual void onSurfaceDraw( const bt_real_t elapsedTime );
+            virtual void onTerminate();
 
             // ===========================================================
             // DELETED
@@ -251,68 +219,8 @@ namespace bt
             static bt_sptr<GraphicsManager> getInstance() BT_NOEXCEPT;
 
             // ===========================================================
-            // ecs::System
-            // ===========================================================
-
-            /**
-             * @brief
-             * Called when System starting.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual bool onStart() override;
-
-            /**
-             * @brief
-             * Called whe System resuming from pause.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual bool onResume() override;
-
-            /**
-             * @brief
-             * Called whe System pausing.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual void onPause() override;
-
-            /**
-             * @brief
-             * Called whe System stopping.
-             *
-             * @thread_safety - thread-lock used.
-             * @throws - can throw exception.
-            **/
-            virtual void onStop() override;
-
-            // ===========================================================
             // METHODS
             // ===========================================================
-
-            /**
-             * @brief
-             * Adds Graphics listener.
-             *
-             * @thread_safety - thread-lock used.
-             * @param pListener - IGraphicsListener implementation.
-             * @throws - can throw exception.
-            **/
-            void registerGraphicsListener( graphics_listener pListener );
-
-            /**
-             * @brief
-             * Removes Graphics listener.
-             *
-             * @thread_safety - thread-lock used.
-             * @param pListener - IGraphicsListener.
-             * @throws - can throw exception.
-            **/
-            void unregisterGraphicsListener( graphics_listener& pListener );
 
             /**
              * @brief
@@ -345,7 +253,7 @@ namespace bt
 
 using bt_Graphics = bt::core::GraphicsManager;
 using bt_GraphicsSettings = bt::core::GraphicsSettings;
-
+#define BT_CORE_GRAPHICS_SETTINGS_DECL
 #define BT_CORE_GRAPHICS_MANAGER_DECL
 
 // -----------------------------------------------------------

@@ -89,6 +89,12 @@ namespace ecs
 
     // -----------------------------------------------------------
 
+    /**
+     * @brief
+     * EntitiesManager - manages Entities & their IDs.
+     *
+     * @version 0.1
+    **/
     class ECS_API EntitiesManager final
     {
 
@@ -133,7 +139,7 @@ namespace ecs
         // ===========================================================
 
         /** ComponentsManager instance. **/
-        static ecs_sptr<EntitiesManager> mInstance;
+        static ecs_AsyncStorage<ecs_sptr<EntitiesManager>> mInstanceHolder;
 
         /** IDStorage **/
         ecs_IDMap<ecs_TypeID, ecs_ObjectID> mIDStorage;

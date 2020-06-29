@@ -89,6 +89,36 @@ namespace bt
 
             // -----------------------------------------------------------
 
+        protected:
+
+            // -----------------------------------------------------------
+
+            // ===========================================================
+            // bt::core::Engine
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called to load Assets.
+             *
+             * @thread_safety - render-thread only.
+             * @param pReloading - 'true' if Assets should be reloaded.
+             * @return 'true' if loaded, 'false' if failed to Stop App.
+             * @throws - can throw exception.
+            **/
+            virtual bool onLoadAssets( const bool pReloading ) final;
+
+            /**
+             * @brief
+             * Called to Draw.
+             *
+             * @thread_safety - render-thread only.
+             * @throws - can throw exception.
+            **/
+            virtual void onDraw() final;
+
+            // -----------------------------------------------------------
+
         public:
 
             // -----------------------------------------------------------

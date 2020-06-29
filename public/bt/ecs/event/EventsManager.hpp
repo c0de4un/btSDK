@@ -162,7 +162,7 @@ namespace ecs
         // ===========================================================
 
         /** EventsManager instance. **/
-        static ecs_sptr<EventsManager> mInstance;
+        static ecs_AsyncStorage<ecs_sptr<EventsManager>> mInstanceHolder;
 
         /** Enabled flag. **/
         ecs_atomic<bool> mEnabled;

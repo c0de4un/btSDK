@@ -46,10 +46,39 @@
 #include "../../../../public/bt/cfg/bt_systems.hpp"
 #endif // !BT_CFG_SYSTEMS_HPP
 
+// Include ecs::SystemsManager
+#ifndef ECS_SYSTEMS_MANAGER_HPP
+#include "../../../../public/bt/ecs/system/SystemsManager.hpp"
+#endif // !ECS_SYSTEMS_MANAGER_HPP
+
 // Include bt::core::IGraphicsListener
 #ifndef BT_CORE_I_GRAPHICS_LISTENER_HXX
 #include "../../../../public/bt/core/graphics/IGraphicsListener.hxx"
 #endif // !BT_CORE_I_GRAPHICS_LISTENER_HXX
+
+// Include bt::string
+#ifndef BT_STRING_HPP
+#include "../../../public/bt/cfg/bt_string.hpp"
+#endif
+
+// Include bt::core::RenderManager
+#ifndef BT_CORE_RENDER_MANAGER_HPP
+#include "../../../public/bt/core/render/RenderManager.hpp"
+#endif // !BT_CORE_RENDER_MANAGER_HPP
+
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+
+// Include bt::log
+#ifndef BT_CFG_LOG_HPP
+#include "../../../public/bt/cfg/bt_log.hpp"
+#endif // !BT_CFG_LOG_HPP
+
+// Include bt::assert
+#ifndef BT_CFG_ASSERT_HPP
+#include "../../../public/bt/cfg/bt_assert.hpp"
+#endif // !BT_CFG_ASSERT_HPP
+
+#endif // DEBUG
 
 // ===========================================================
 // bt::core::GraphicsManager
@@ -67,7 +96,7 @@ namespace bt
         // FIELDS
         // ===========================================================
 
-        bt_sptr<GraphicsManager> GraphicsManager::mInstance(nullptr);
+        AsyncStorage<bt_sptr<GraphicsManager>> GraphicsManager::mInstanceStorage;
 
         // ===========================================================
         // CONSTRUCTOR & DESTRUCTOR
@@ -75,14 +104,18 @@ namespace bt
 
         GraphicsManager::GraphicsManager( const GraphicsSettings& pSettings )
             : System( static_cast<const ecs_TypeID>(bt_SystemTypes::GRAPHICS) ),
-            mSettings( pSettings ),
-              mGraphicsListeners()
+            mSettings( pSettings )
         {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"GraphicsManager constructor", bt_ELogLevel::Info );
+#endif // DEBUG
         }
 
         GraphicsManager::~GraphicsManager()
         {
-            this->Stop();
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"GraphicsManager destructor", bt_ELogLevel::Info );
+#endif // DEBUG
         }
 
         // ===========================================================
@@ -93,84 +126,46 @@ namespace bt
         { return mSettings; }
 
         bt_sptr<GraphicsManager> GraphicsManager::getInstance() BT_NOEXCEPT
-        { return mInstance; }
-
-
-
-        // ===========================================================
-        // ecs::System
-        // ===========================================================
-
-        bool GraphicsManager::onStart()
-        {
-            return System::onStart();
-        }
-
-        bool GraphicsManager::onResume()
-        {
-            return System::onResume();
-        }
-
-        void GraphicsManager::onPause()
-        {
-            System::onPause();
-        }
-
-        void GraphicsManager::onStop()
-        {
-            System::onStop();
-        }
+        { return mInstanceStorage.getItem(); }
 
         // ===========================================================
         // METHODS
         // ===========================================================
 
-        bool GraphicsManager::onSurfaceReady()
+        void GraphicsManager::onTerminate()
         {
-            bt_size_t listenersCount = mGraphicsListeners.Count();
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"GraphicsManager::onTerminate", bt_ELogLevel::Info );
+#endif // DEBUG
 
-            for( bt_size_t i = 0; i < listenersCount; i++)
-            {
-                if ( mGraphicsListeners.Count() < i || !mGraphicsListeners[i]->onSurfaceReady() )
-                    return false;
-            }
-
-            return true;
+            // Terminate RenderManager
+            bt_RenderManager::Terminate();
         }
-
-        void GraphicsManager::onSurfaceDraw( const bt_real_t elapsedTime )
-        {
-            bt_size_t listenersCount = mGraphicsListeners.Count();
-
-            for( bt_size_t i = 0; i < listenersCount; i++)
-            {
-                if ( mGraphicsListeners.Count() < i )
-                    break;
-
-                mGraphicsListeners[i]->onSurfaceDraw( elapsedTime );
-            }
-        }
-
-        void GraphicsManager::registerGraphicsListener( graphics_listener pListener )
-        {
-            if ( !mGraphicsListeners.Find(pListener, nullptr) )
-                mGraphicsListeners.Push( pListener );
-        }
-
-        void GraphicsManager::unregisterGraphicsListener( graphics_listener& pListener )
-        { mGraphicsListeners.Erase( pListener, true ); }
 
         void GraphicsManager::Initialize( bt_sptr<GraphicsManager> pInstance )
         {
-            if ( mInstance != nullptr )
-                return;
-
-            mInstance = bt_Memory::MoveShared(pInstance); //std::move(pInstance);
+            if ( mInstanceStorage.getItem() == nullptr )
+            {
+                // Create & Register Graphics-System
+                bt_sptr<bt_Graphics> graphicsInstance = bt_Memory::MoveShared(pInstance);
+                bt_sptr<ecs_ISystem> system( bt_SharedCast<ecs_ISystem, bt_Graphics>( graphicsInstance ) );
+                ecs_Systems::registerSystem( system );
+                mInstanceStorage.setItem( graphicsInstance );
+            }
         }
 
         void GraphicsManager::Terminate()
         {
-            mInstance = nullptr;
+            bt_sptr<bt_Graphics> graphicsInstance( getInstance() );
+            if ( graphicsInstance != nullptr )
+            {
+                // Notify
+                graphicsInstance->onTerminate();
+
+                // Release instance.
+                ecs_Systems::unregisterSystem( graphicsInstance->getTypeID() );
+                mInstanceStorage.setItem( bt_sptr<bt_Graphics>(nullptr) );
+            }
         }
 
         // -----------------------------------------------------------

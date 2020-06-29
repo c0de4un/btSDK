@@ -88,7 +88,7 @@ namespace bt
             // ===========================================================
 
             /** Game instance. **/
-            static bt_sptr<Game> mInstance;
+            static bt_AsyncStorage<bt_sptr<Game>> mInstanceHolder;
 
             // ===========================================================
             // CONSTRUCTOR
@@ -106,37 +106,6 @@ namespace bt
             // ===========================================================
             // METHODS
             // ===========================================================
-
-            /**
-             * @brief
-             * Utility-method to Subscribe this Game on Events.
-             *
-             * @thread_safety - thread-locks used.
-             * @param pInstance - System instance.
-             * @param pEvents - Event Type-IDs to subscribe on.
-             * @throws - can throw exception.
-            **/
-            static ECS_API void SubscribeGame( Game* const pInstance, const ecs_vec<bt_EEventTypes>& pEvents );
-
-            /**
-             * @brief
-             * Utility-method to Unsubscribe this Game from Events.
-             *
-             * @thread_safety - thread-locks used.
-             * @param pInstance - System instance.
-             * @param pEvents - Event Type-IDs to subscribe from.
-             * @throws - can throw exception.
-            **/
-            static ECS_API void UnsubscribeGame( Game* const pInstance, const ecs_vec<bt_EEventTypes>& pEvents );
-
-            /**
-             * @brief
-             * Called every frame.
-             *
-             * @thread_safety - called from main Render-Thread.
-             * @throws - can throw exception.
-            **/
-            virtual void onDraw();
 
             /**
              * @brief
@@ -179,6 +148,15 @@ namespace bt
             // ===========================================================
             // GETTERS & SETTERS
             // ===========================================================
+
+            /**
+             * @brief
+             * Returns Game instance.
+             *
+             * @thread_safety - atomics used.
+             * @throws - no exceptions.
+            **/
+            static BT_API bt_sptr<Game> getInstance() noexcept;
 
             // ===========================================================
             // METHODS

@@ -36,38 +36,66 @@
 // ===========================================================
 
 // HEADER
-#ifndef BT_CORE_LOAD_EVENT_HPP
-#include "../../../../../public/bt/core/render/events/LoadEvent.hpp"
-#endif // !BT_CORE_LOAD_EVENT_HPP
+#ifndef BT_JAVA_JNI_CACHE_HPP
+#include "../../../public/bt/java/jni/JNICache.hpp"
+#endif // !BT_JAVA_JNI_CACHE_HPP
 
-// Include bt::events
-#ifndef BT_CFG_EVENTS_HPP
-#include "../../../../../public/bt/cfg/bt_events.hpp"
-#endif // !BT_CFG_EVENTS_HPP
+// Include bt::java::IJNICache
 
 // ===========================================================
-// bt::core::LoadEvent
+// bt::java::JNICache
 // ===========================================================
 
 namespace bt
 {
 
-    namespace core
+    namespace java
     {
 
         // -----------------------------------------------------------
 
-        LoadEvent::LoadEvent( const bool pReloading, ecs_wptr<ecs_IEventInvoker> pCaller )
-            : Event( static_cast<const ecs_TypeID>(bt_EEventTypes::AssetsLoading), false, pCaller ),
-            mReload( pReloading )
+        // ===========================================================
+        // FIELDS
+        // ===========================================================
+
+        bt_AsyncStorage<bt_sptr<bt_IJNICache>> JNICache::mInstanceHolder;
+
+        // ===========================================================
+        // CONSTRUCTOR & DESTRUCTOR
+        // ===========================================================
+
+        JNICache::JNICache() noexcept = default;
+
+        JNICache::~JNICache() noexcept = default;
+
+        // ===========================================================
+        // GETTERS & SETTERS
+        // ===========================================================
+
+        BT_API bt_sptr<bt_IJNICache> JNICache::getInstance()
+        { return mInstanceHolder.getItem(); }
+
+        BT_API bool JNICache::isInitialized() BT_NOEXCEPT
+        { return getInstance() != nullptr; }
+
+        // ===========================================================
+        // METHODS
+        // ===========================================================
+
+        BT_API void JNICache::Initialize( bt_sptr<bt_IJNICache>& pInstance )
         {
+            bt_sptr<bt_IJNICache> instance = mInstanceHolder.getItem();
+
+            if ( instance == nullptr )
+                mInstanceHolder.setItem( pInstance );
         }
 
-        LoadEvent::~LoadEvent() = default;
+        BT_API void JNICache::Terminate()
+        { mInstanceHolder.setItem( bt_sptr<bt_IJNICache>(nullptr) ); }
 
         // -----------------------------------------------------------
 
-    } /// bt::core
+    } /// bt::java
 
 } /// bt
 

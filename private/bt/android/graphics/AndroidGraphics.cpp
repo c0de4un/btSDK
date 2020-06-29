@@ -41,6 +41,11 @@
 #include "../../../../public/bt/android/graphics/AndroidGraphics.hpp"
 #endif // !BT_ANDROID_GRAPHICS_HPP
 
+// Include bt::gl::GLRenderManager
+#ifndef BT_GL_RENDER_MANAGER_HPP
+#include "../../../../public/bt/gl/render/GLRendererManager.hpp"
+#endif // !BT_GL_RENDER_MANAGER_HPP
+
 // DEBUG
 #if defined( DEBUG ) || defined( BT_DEBUG )
 
@@ -53,6 +58,11 @@
 #ifndef BT_CFG_LOG_HPP
 #include "../../../../public/bt/cfg/bt_log.hpp"
 #endif // !BT_CFG_LOG_HPP
+
+// Include bt::string
+#ifndef BT_STRING_HPP
+#include "../../../../public/bt/cfg/bt_string.hpp"
+#endif // !BT_STRING_HPP
 
 #endif
 // DEBUG
@@ -74,11 +84,50 @@ namespace bt
         // ===========================================================
 
         AndroidGraphics::AndroidGraphics( const bt_GraphicsSettings& pSettings )
-            : GraphicsManager( pSettings )
+            : GraphicsManager( pSettings ),
+              mGLRenderer( nullptr )
         {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print( u8"AndroidGraphics created", bt_ELogLevel::Info );
+#endif // DEBUG
         }
 
-        AndroidGraphics::~AndroidGraphics() = default;
+        AndroidGraphics::~AndroidGraphics()
+        {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print( u8"AndroidGraphics destroyed", bt_ELogLevel::Info );
+#endif // DEBUG
+        }
+
+        // ===========================================================
+        // IGLSurfaceListener
+        // ===========================================================
+
+        bool AndroidGraphics::onGLSurfaceReady( const bt_GraphicsSettings* const pSettings )
+        {
+            // Update Settings.
+            mSettings = *pSettings;
+
+            // Get GLRenderManager
+            mGLRenderer = bt_SharedCast<bt_GLRenderManager, bt_RenderManager>( bt_RenderManager::getInstance() );
+
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_assert( mGLRenderer != nullptr && "AndroidGraphics::onGLSurfaceReady - GLRenderManager not set." );
+#endif // DEBUG
+
+            // Notify GLRenderManager
+            return mGLRenderer->onGLSurfaceReady(pSettings);
+        }
+
+        void AndroidGraphics::onGLSurfaceDraw()
+        {
+            // Cancel if not Started or Paused.
+            if ( !isStarted() || isPaused() || mGLRenderer == nullptr )
+                return;
+
+            // Notify GLRenderManager
+            mGLRenderer->onGLSurfaceDraw();
+        }
 
         // ===========================================================
         // bt::core::GraphicsManager
@@ -86,22 +135,131 @@ namespace bt
 
         bool AndroidGraphics::onStart()
         {
-            return GraphicsManager::onStart();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print( u8"AndroidGraphics::onStart", static_cast<bt_uint8_t>( bt_ELogLevel::Info ) );
+#endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+                // Start GLRenderManager
+                mGLRenderer = bt_SharedCast<bt_GLRenderManager, bt_RenderManager>( bt_RenderManager::getInstance() );
+                if ( mGLRenderer != nullptr && !mGLRenderer->Start() )
+                {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                    bt_Log::Print( u8"AndroidGraphics::onStart - failed to Start GLRenderManager", bt_ELogLevel::Error );
+#endif // DEBUG
+
+                    return false;
+                }
+
+                return GraphicsManager::onStart();
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                bt_String logMsg = u8"AndroidGraphics::onStart - ERROR: ";
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+            }
+
+            return false;
         }
 
         bool AndroidGraphics::onResume()
         {
-            return GraphicsManager::onResume();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print( u8"AndroidGraphics::onResume", bt_ELogLevel::Info );
+#endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+                // Resume GLRenderManager
+                mGLRenderer = bt_SharedCast<bt_GLRenderManager, bt_RenderManager>( bt_RenderManager::getInstance() );
+                if ( mGLRenderer != nullptr && !mGLRenderer->Start() )
+                {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                    bt_Log::Print( u8"AndroidGraphics::onStart - failed to Resume GLRenderManager", bt_ELogLevel::Error );
+#endif // DEBUG
+
+                    return false;
+                }
+
+                // Get GLRenderManager
+                mGLRenderer = bt_SharedCast<bt_GLRenderManager, bt_RenderManager>( bt_RenderManager::getInstance() );
+
+                return GraphicsManager::onResume();
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                bt_String logMsg = u8"AndroidGraphics::onResume - ERROR: ";
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+            }
+
+            return false;
         }
 
         void AndroidGraphics::onPause()
         {
-            GraphicsManager::onPause();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print( u8"AndroidGraphics::onPause", bt_ELogLevel::Info );
+#endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+                // Pause GLRenderManager
+                mGLRenderer = bt_SharedCast<bt_GLRenderManager, bt_RenderManager>( bt_RenderManager::getInstance() );
+                if ( mGLRenderer != nullptr )
+                    mGLRenderer->Pause();
+
+                // Release GLRenderManager
+                mGLRenderer = nullptr;
+
+                GraphicsManager::onPause();
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                bt_String logMsg = u8"AndroidGraphics::onPause - ERROR: ";
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+            }
         }
 
         void AndroidGraphics::onStop()
         {
-            GraphicsManager::onStop();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print( u8"AndroidGraphics::onStop", bt_ELogLevel::Info );
+#endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+                // Stop GLRenderManager
+                mGLRenderer = bt_SharedCast<bt_GLRenderManager, bt_RenderManager>( bt_RenderManager::getInstance() );
+                if ( mGLRenderer != nullptr )
+                    mGLRenderer->Stop();
+
+                // Release GLRenderManager
+                mGLRenderer = nullptr;
+
+                GraphicsManager::onStop();
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                bt_String logMsg = u8"AndroidGraphics::onStop - ERROR: ";
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+            }
         }
 
         // -----------------------------------------------------------

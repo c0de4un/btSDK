@@ -60,6 +60,17 @@
 #include "../../../public/bt/ecs/system/SystemsManager.hpp"
 #endif // !ECS_SYSTEMS_MANAGER_HPP
 
+// DEBUG
+#if defined( ECS_DEBUG )
+
+// Include ecs::log
+#ifndef ECS_LOG_HPP
+#include "../../../public/bt/ecs/types/ecs_log.hpp"
+#endif // !ECS_LOG_HPP
+
+#endif
+// DEBUG
+
 // ===========================================================
 // ecs::ECSEngine
 // ===========================================================
@@ -83,6 +94,10 @@ namespace ecs
 
     void ECSEngine::Initialize()
     {
+#if defined( ECS_DEBUG ) // DEBUG
+        ecs_log::Print( u8"ECS::Initialize", ecs_log_level::Info );
+#endif // DEBUG
+
         ecs_Components::Initialize();
         ecs_Events::Initialize();
         ecs_Entities::Initialize();
@@ -91,6 +106,10 @@ namespace ecs
 
     void ECSEngine::Terminate()
     {
+#if defined( ECS_DEBUG ) // DEBUG
+        ecs_log::Print( u8"ECS::Terminate", ecs_log_level::Info );
+#endif // DEBUG
+
         ecs_Components::Terminate();
         ecs_Events::Terminate();
         ecs_Entities::Terminate();

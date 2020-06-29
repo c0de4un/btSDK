@@ -67,13 +67,9 @@ namespace bt
         // CONSTRUCTOR && DESTRUCTOR
         // ===========================================================
 
-        Log::Log() BT_NOEXCEPT
-        {
-        }
+        Log::Log() BT_NOEXCEPT = default;
 
-        Log::~Log() BT_NOEXCEPT
-        {
-        }
+        Log::~Log() BT_NOEXCEPT = default;
 
         // ===========================================================
         // GETTERS & SETTERS
@@ -104,6 +100,18 @@ namespace bt
         {
             if ( mLogger )
                 mLogger->Print_W( pMessage, logLvl );
+        }
+
+        void Log::Print( const char* const pMessage, const ELogLevel pLevel ) BT_NOEXCEPT
+        {
+            if ( mLogger )
+                mLogger->Print( pMessage, static_cast<unsigned char>(pLevel) );
+        }
+
+        void Log::Print_W( const wchar_t* const pMessage, const ELogLevel pLevel ) BT_NOEXCEPT
+        {
+            if ( mLogger )
+                mLogger->Print_W( pMessage, static_cast<unsigned char>(pLevel) );
         }
 
         void Log::Terminate() BT_NOEXCEPT

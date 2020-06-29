@@ -173,7 +173,32 @@ namespace ecs
          * @throws - can throw exception:
          *           - mutex;
         **/
-        static ECS_API ecs_sptr<ecs_ISystem> That( System* const pInstance );
+        template <typename T = ecs_ISystem>
+        static ECS_API ecs_sptr<T> That( System* const pInstance );
+
+        /**
+         * @brief
+         * Utility-method to Subscribe this System on Events.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pInstance - System instance.
+         * @param pEvents - Event Type-IDs to subscribe on.
+         * @throws - can throw exception.
+        **/
+        template <typename T>
+        static ECS_API void Subscribe( System* const pInstance, const ecs_vec<T>& pEvents );
+
+        /**
+         * @brief
+         * Utility-method to Unsubscribe this System from Events.
+         *
+         * @thread_safety - thread-locks used.
+         * @param pInstance - System instance.
+         * @param pEvents - Event Type-IDs to subscribe from.
+         * @throws - can throw exception.
+        **/
+        template <typename T>
+        static ECS_API void Unsubscribe( System* const pInstance, const ecs_vec<T>& pEvents );
 
         /**
          * @brief

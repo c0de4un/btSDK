@@ -40,8 +40,43 @@
 #include "../../../../public/bt/core/engine/ArcadeEngine.hpp"
 #endif // !BT_CORE_ARCADE_ENGINE_HPP
 
+// Include bt::core::Exception
+#ifndef BT_CORE_EXCEPTION_HPP
+#include "../../../../public/bt/core/metrics/Exception.hpp"
+#endif // !BT_CORE_EXCEPTION_HPP
+
+// Include bt::string
+#ifndef BT_STRING_HPP
+#include "../../../../public/bt/cfg/bt_string.hpp"
+#endif // !BT_STRING_HPP
+
+// Include ecs::IEvent
+#ifndef ECS_I_EVENT_HXX
+#include "../../../../public/bt/ecs/event/IEvent.hxx"
+#endif // !ECS_I_EVENT_HXX
+
+// Include bt::core::LoadEvent
+#ifndef BT_CORE_LOAD_EVENT_HPP
+#include "../../../../public/bt/core/assets/LoadEvent.hpp"
+#endif // !BT_CORE_LOAD_EVENT_HPP
+
+// Include bt::threads
+#ifndef BT_CFG_THREADS_HPP
+#include "../../../../public/bt/cfg/bt_threads.hpp"
+#endif // !BT_CFG_THREADS_HPP
+
+// Include bt::core::AssetsManager
+
+// Include bt::core::InputManager
+
+// Include bt::core::TasksManager
+
+// Include bt::core::ExtensionsManager
+
+// Include bt::core::AudioManager
+
 // DEBUG
-#if defined( DEBUG ) || defined(BT_DEBUG)
+#if defined( BT_DEBUG ) || defined( DEBUG )
 
 // Include bt::log
 #ifndef BT_CFG_LOG_HPP
@@ -75,13 +110,73 @@ namespace bt
         ArcadeEngine::ArcadeEngine()
             : Engine()
         {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"ArcadeEngine construct", bt_ELogLevel::Info );
+#endif // DEBUG
         }
 
-        ArcadeEngine::~ArcadeEngine() = default;
+        ArcadeEngine::~ArcadeEngine()
+        {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+            bt_Log::Print( u8"ArcadeEngine destruct", bt_ELogLevel::Info );
+#endif // DEBUG
+        }
 
         // ===========================================================
         // bt::core::Engine
         // ===========================================================
+
+        bool ArcadeEngine::onLoadAssets( const bool pReloading )
+        {
+#if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
+            bt_Log::Print(u8"ArcadeEngine::onLoadAssets", static_cast<unsigned char>(bt_ELogLevel::Info) );
+#endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+                // Send LoadEvent for all Assets
+                bt_sptr<ecs_IEvent> event( bt_SharedCast<ecs_IEvent, bt_LoadEvent>(bt_Shared<bt_LoadEvent>( pReloading )) );
+                if ( ecs_Event::Send(event, false, static_cast<ecs_TypeID>( bt_EThreadTypes::Render )) < 0 )
+                    return false;
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+                bt_String logMsg( u8"ArcadeEngine::onLoadAssets - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                // Re-throw.
+                throw;
+            }
+
+            return Engine::onLoadAssets();
+        }
+
+        void ArcadeEngine::onDraw()
+        {
+            // Guarded-Block
+            try
+            {
+                // @TODO Update Render-Thread Events
+                // @TODO Update Render-Thread Tasks
+                // @TODO Send Draw3D Event
+                // @TODO Send Draw2D Event
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+                bt_String logMsg( u8"ArcadeEngine::onDraw - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                // Re-throw.
+                throw;
+            }
+        }
 
         bool ArcadeEngine::onStart()
         {
@@ -89,14 +184,48 @@ namespace bt
             bt_Log::Print(u8"ArcadeEngine::onStart", static_cast<unsigned char>(bt_ELogLevel::Info) );
 #endif // DEBUG
 
+            // Guarded-Block
+            try
+            {
+
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+                bt_String logMsg( u8"ArcadeEngine::onStart - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                // Re-throw.
+                throw;
+            }
+
             return Engine::onStart();
         }
 
         bool ArcadeEngine::onResume()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print(u8"ArcadeEngine::onResume", static_cast<unsigned char>(bt_ELogLevel::Info) );
+            bt_Log::Print(u8"ArcadeEngine::onResume", bt_ELogLevel::Info );
 #endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+                bt_String logMsg( u8"ArcadeEngine::onResume - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                // Re-throw.
+                throw;
+            }
 
             return Engine::onResume();
         }
@@ -104,8 +233,25 @@ namespace bt
         void ArcadeEngine::onPause()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print(u8"ArcadeEngine::onPause", static_cast<unsigned char>(bt_ELogLevel::Info) );
+            bt_Log::Print(u8"ArcadeEngine::onPause", bt_ELogLevel::Info );
 #endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+                bt_String logMsg( u8"ArcadeEngine::onPause - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                // Re-throw.
+                throw;
+            }
 
             Engine::onPause();
         }
@@ -113,8 +259,25 @@ namespace bt
         void ArcadeEngine::onStop()
         {
 #if defined( DEBUG ) || defined(BT_DEBUG) // DEBUG
-            bt_Log::Print(u8"ArcadeEngine::onStop", static_cast<unsigned char>(bt_ELogLevel::Info) );
+            bt_Log::Print(u8"ArcadeEngine::onStop", bt_ELogLevel::Info );
 #endif // DEBUG
+
+            // Guarded-Block
+            try
+            {
+
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( BT_DEBUG ) || defined( DEBUG ) // DEBUG
+                bt_String logMsg( u8"ArcadeEngine::onStop - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                // Re-throw.
+                throw;
+            }
 
             Engine::onStop();
         }

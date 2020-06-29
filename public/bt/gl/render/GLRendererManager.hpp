@@ -53,6 +53,16 @@
 #include "../../ecs/event/IEventListener.hxx"
 #endif // !ECS_I_EVENT_LISTENER_HXX
 
+// Include bt::gl::IGLSurfaceListener
+#ifndef BT_GL_I_SURFACE_LISTENER_HXX
+#include "../../gl/render/IGLSurfaceListener.hxx"
+#endif // !BT_GL_I_SURFACE_LISTENER_HXX
+
+// Include bt::gl::GLSurfaceDrawEvent
+#ifndef BT_GL_SURFACE_DRAW_EVENT_HPP
+#include "events/GLSurfaceDrawEvent.hpp"
+#endif // !BT_GL_SURFACE_DRAW_EVENT_HPP
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -69,7 +79,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API GLRenderManager final : public bt_RenderManager
+        class BT_API GLRenderManager final : public bt_RenderManager, public bt_IGLSurfaceListener
         {
 
             // -----------------------------------------------------------
@@ -93,32 +103,8 @@ namespace bt
             /** Surface-Ready flag. **/
             bt_atomic<bool> mSurfaceReady;
 
-            /** SurfaceDrawEvent sent. **/
-            bt_atomic<bool> mSurfaceDrawEventSent;
-
-            // ===========================================================
-            // METHODS
-            // ===========================================================
-
-            /**
-             * @brief
-             * Queue repeated SurfaceDrawEvent.
-             *
-             * @thread_safety - thread-locks used.
-             * @throws - can throw exceptions:
-             *           - mutex;
-            **/
-            void queueSurfaceDrawEvent();
-
-            /**
-             * @brief
-             * Flush all SurfaceDrawEvents.
-             *
-             * @thread_safety - thread-locks used.
-             * @throws - can throw exceptions:
-             *           - mutex;
-            **/
-            void flushSurfaceDrawEvents();
+            /** OpenGL Draw-Event. **/
+            bt_sptr<ecs_IEvent> mGLSurfaceDrawEvent;
 
             // -----------------------------------------------------------
 
@@ -216,34 +202,28 @@ namespace bt
             virtual void setSurfaceColor( const bt_Color4f& pColor ) BT_NOEXCEPT final;
 
             // ===========================================================
-            // bt::core::IGraphicsListener
-            // ===========================================================
-
-            /**
-             * @brief
-             * Called when Graphics prepared rendering surface.
-             *
-             * @thread_safety - render-thread only.
-             * @return - 'true' if OK, 'false' to stop engine.
-             * @throws - can throw exception.
-            **/
-            virtual bool onSurfaceReady() final;
-
-            /**
-             * @brief
-             * Called on every frame Draw.
-             *
-             * @thread_safety - render-thread only.
-             * @param elapsedTime - milliseconds, elapsed since previous draw-call.
-             * @throws - can throw exception.
-            **/
-            virtual void onSurfaceDraw( const bt_real_t elapsedTime ) final;
-
-            // ===========================================================
             // METHODS
             // ===========================================================
 
+            /**
+             * @brief
+             * Called when OpenGL Surface is ready (created/changed || restored).
+             *
+             * @thread_safety - render-thread only.
+             * @param pSettings - OpenGL Surface params (width-height, color-depth, stencil, etc).
+             * @return - 'true' to continue, 'false' if error.
+             * @throws - can throw exception.
+            **/
+            virtual bool onGLSurfaceReady( const bt_GraphicsSettings* const pSettings ) final;
 
+            /**
+             * @brief
+             * Called every time OpenGL Surface frame is drawn.
+             *
+             * @thread_safety - render-thread only.
+             * @throws - can throw exception.
+            **/
+            virtual void onGLSurfaceDraw() final;
 
             // -----------------------------------------------------------
 

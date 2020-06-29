@@ -91,7 +91,7 @@ namespace ecs
 
     /**
      * @brief
-     * ComponentsManager - handles Components managment.
+     * ComponentsManager - stores Components  & their IDs.
      *
      * @version 0.1
     **/
@@ -139,7 +139,7 @@ namespace ecs
         // ===========================================================
 
         /** ComponentsManager instance. **/
-        static ecs_sptr<ComponentsManager> mInstance;
+        static ecs_AsyncStorage<ecs_sptr<ComponentsManager>> mInstanceStorage;
 
         /** Components map. **/
         components_types_map mTypedComponents;

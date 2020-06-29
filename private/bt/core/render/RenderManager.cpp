@@ -61,7 +61,7 @@ namespace bt
         // FIELDS
         // ===========================================================
 
-        bt_sptr<RenderManager> RenderManager::mInstance(nullptr);
+        bt_AsyncStorage<bt_sptr<RenderManager>> RenderManager::mInstanceHolder;
 
         // ===========================================================
         // CONSTRUCTOR & DESTRUCTOR
@@ -83,7 +83,7 @@ namespace bt
         // ===========================================================
 
         bt_sptr<RenderManager> RenderManager::getInstance() BT_NOEXCEPT
-        { return mInstance; }
+        { return mInstanceHolder.getItem(); }
 
         void RenderManager::setSurfaceColor( const Color4f& pColor ) BT_NOEXCEPT
         { mClearColor = pColor; }
@@ -117,16 +117,15 @@ namespace bt
 
         void RenderManager::Initialize( bt_sptr<RenderManager> pInstance )
         {
-            if ( mInstance != nullptr )
-                return;
+            bt_sptr<bt_RenderManager> instance = getInstance();
 
-            mInstance = bt_Memory::MoveShared(pInstance); //std::move(pInstance);
+            if ( instance == nullptr )
+                mInstanceHolder.setItem( bt_Memory::MoveShared(pInstance) ); //std::move(pInstance)
         }
 
         void RenderManager::Terminate()
-        {
-            mInstance = nullptr;
-        }
+        { mInstanceHolder.setItem( bt_sptr<bt_RenderManager>(nullptr) ); }
+
         // -----------------------------------------------------------
 
     } /// bt::core

@@ -45,15 +45,15 @@
 #include "../../../../public/bt/cfg/bt_open_gl.hpp"
 #endif // !BT_CFG_OPEN_GL_HPP
 
-// Include bt::core::LoadEvent
-#ifndef BT_CORE_LOAD_EVENT_HPP
-#include "../../../../public/bt/core/render/events/LoadEvent.hpp"
-#endif // !BT_CORE_LOAD_EVENT_HPP
+// Include bt::gl::GLSurfaceDrawEvent
+#ifndef BT_GL_SURFACE_DRAW_EVENT_HPP
+#include "../../../../public/bt/gl/render/events/GLSurfaceDrawEvent.hpp"
+#endif // !BT_GL_SURFACE_DRAW_EVENT_HPP
 
-// Include bt::core::SurfaceDrawEvent
-#ifndef BT_CORE_SURFACE_DRAW_EVENT_HPP
-#include "../../../../public/bt/core/render/events/SurfaceDrawEvent.hpp"
-#endif // !BT_CORE_SURFACE_DRAW_EVENT_HPP
+// Include bt::gl::GLSurfaceReadyEvent
+#ifndef BT_GL_SURFACE_READY_EVENT_HPP
+#include "../../../../public/bt/gl/render/events/GLSurfaceReadyEvent.hpp"
+#endif // !BT_GL_SURFACE_READY_EVENT_HPP
 
 // Include bt::core::EThreadTypes
 #ifndef BT_CFG_THREADS_HPP
@@ -69,6 +69,11 @@
 #ifndef ECS_EVENTS_MANAGER_HPP
 #include "../../../../public/bt/ecs/event/EventsManager.hpp"
 #endif // !ECS_EVENTS_MANAGER_HPP
+
+// Include bt::string
+#ifndef BT_STRING_HPP
+#include "../../../../public/bt/cfg/bt_string.hpp"
+#endif // !BT_STRING_HPP
 
 // DEBUG
 #if defined( DEBUG ) || defined( BT_DEBUG )
@@ -105,17 +110,17 @@ namespace bt
         GLRenderManager::GLRenderManager() BT_NOEXCEPT
             : RenderManager(),
             mSurfaceReady( false ),
-              mSurfaceDrawEventSent( false )
+              mGLSurfaceDrawEvent(nullptr)
         {
 #if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
-            bt_Log::Print(u8"GLRenderManager created", static_cast<unsigned char>(bt_ELogLevel::Info) );
+            bt_Log::Print(u8"GLRenderManager created", bt_ELogLevel::Info );
 #endif // DEBUG
         }
 
         GLRenderManager::~GLRenderManager() BT_NOEXCEPT
         {
 #if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
-            bt_Log::Print(u8"GLRenderManager destructed", static_cast<unsigned char>(bt_ELogLevel::Info) );
+            bt_Log::Print(u8"GLRenderManager destructed", bt_ELogLevel::Info );
 #endif // DEBUG
         }
 
@@ -133,22 +138,42 @@ namespace bt
         // bt::core::IGraphicsListener
         // ===========================================================
 
-        bool GLRenderManager::onSurfaceReady()
+        bool GLRenderManager::onGLSurfaceReady(const bt_GraphicsSettings* const pSettings)
         {
 #if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
-            bt_Log::Print(u8"GLRenderManager::onSurfaceReady", static_cast<unsigned char>(bt_ELogLevel::Info) );
+            bt_Log::Print(u8"GLRenderManager::onSurfaceReady", bt_ELogLevel::Info );
 #endif // DEBUG
 
             // Update Surface-Color.
             glClearColor( mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a );
 
-            // Notify
-            bt_sptr<ecs_IEvent> loadEvent = bt_Memory::StaticCast<ecs_IEvent, bt_LoadEvent>( bt_Shared<bt_LoadEvent>(mSurfaceReady) );
-            if (ecs_Event::Send(loadEvent, false, static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) ) < 0 )
-                return false;
+            // Guarded-Block
+            try
+            {
+                // Send GLSurfaceReadyEvent
+                bt_sptr<ecs_IEvent> surfaceReadyEvent = bt_SharedCast<ecs_IEvent, bt_GLSurfaceReadyEvent>( bt_Shared<bt_GLSurfaceReadyEvent>(mSurfaceReady) );
+                if ( ecs_Event::Send( surfaceReadyEvent, false, static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) ) < 0 )
+                {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                    bt_Log::Print(u8"GLRenderManager::onSurfaceReady - Failed to send Event.", bt_ELogLevel::Warning );
+#endif // DEBUG
 
-            // Send SurfaceDrawEvent
-            queueSurfaceDrawEvent();
+                    return false;
+                }
+
+                // Create GLSurfaceDrawEvent
+                mGLSurfaceDrawEvent = bt_SharedCast<ecs_IEvent, bt_GLSurfaceDrawEvent>( bt_Shared<bt_GLSurfaceDrawEvent>(0) );
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                bt_String logMsg( u8"GLRenderManager::onSurfaceReady - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+
+                return false;
+            }
 
             // Set Surface-Ready flag.
             mSurfaceReady = true;
@@ -157,13 +182,31 @@ namespace bt
             return true;
         }
 
-        void GLRenderManager::onSurfaceDraw( const bt_real_t elapsedTime )
+        void GLRenderManager::onGLSurfaceDraw()
         {
+            // Cancel if not Started || Paused.
+            if ( !isStarted() || isPaused() )
+                return;
+
             // Clear Surface.
             glClear( GL_COLOR_BUFFER_BIT );
 
-            // Update Render-Thread Events.
-            ecs_Events::Update( static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) );
+            // Guarded-Block
+            try
+            {
+                // Send GLSurfaceDrawEvent
+                ecs_Event::Send( mGLSurfaceDrawEvent, false, static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) );
+            }
+            catch( const std::exception& pException )
+            {
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+                bt_String logMsg( u8"GLRenderManager::onSurfaceReady - ERROR: " );
+                logMsg += pException.what();
+                bt_Log::Print( logMsg.c_str(), bt_ELogLevel::Error );
+#endif // DEBUG
+                // Re-throw
+                throw;
+            }
         }
 
         // ===========================================================
@@ -172,52 +215,41 @@ namespace bt
 
         bool GLRenderManager::onStart()
         {
-            // Send SurfaceDrawEvent
-            queueSurfaceDrawEvent();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager::onStart", bt_ELogLevel::Info );
+#endif // DEBUG
 
             return RenderManager::onStart();
         }
 
         bool GLRenderManager::onResume()
         {
-            // Send SurfaceDrawEvent
-            queueSurfaceDrawEvent();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager::onResume", bt_ELogLevel::Info );
+#endif // DEBUG
 
             return RenderManager::onResume();
         }
 
         void GLRenderManager::onPause()
         {
-            flushSurfaceDrawEvents();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager::onPause", bt_ELogLevel::Info );
+#endif // DEBUG
 
             RenderManager::onPause();
         }
 
         void GLRenderManager::onStop()
         {
-            flushSurfaceDrawEvents();
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+            bt_Log::Print(u8"GLRenderManager::onStop", bt_ELogLevel::Info );
+#endif // DEBUG
+
+            // Release GLSurfaceDrawEvent
+            mGLSurfaceDrawEvent = nullptr;
 
             RenderManager::onStop();
-        }
-
-        // ===========================================================
-        // METHODS
-        // ===========================================================
-
-        void GLRenderManager::queueSurfaceDrawEvent()
-        {
-            if ( !mSurfaceDrawEventSent )
-            {
-                bt_sptr<ecs_IEvent> surfaceDrawEvent = bt_Memory::StaticCast<ecs_IEvent, bt_SurfaceDrawEvent>( bt_Shared<bt_SurfaceDrawEvent>(static_cast<ecs_uint8_t>( bt_EThreadTypes::Render )) );
-                ecs_Events::queueEvent(surfaceDrawEvent, static_cast<ecs_uint8_t>(bt_EThreadTypes::Render) );
-                mSurfaceDrawEventSent = true;
-            }
-        }
-
-        void GLRenderManager::flushSurfaceDrawEvents()
-        {
-            if ( mSurfaceDrawEventSent )
-                ecs_Events::FlushEvents(static_cast<ecs_TypeID>(bt_EEventTypes::SurfaceDraw), static_cast<unsigned char>(bt_EThreadTypes::Render) );
         }
 
         // -----------------------------------------------------------

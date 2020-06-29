@@ -43,6 +43,10 @@
 #include "../../cfg/bt_api.hpp"
 #endif // !BT_CFG_API_HPP
 
+#if defined( DEBUG ) || defined( BT_DEBUG ) // DEBUG
+#define ECS_DEBUG
+#endif // DEBUG
+
 #define ECS_API BT_API
 #define ECS_STRUCT BT_STRUCT
 #define ECS_CLASS BT_CLASS

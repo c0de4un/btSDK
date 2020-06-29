@@ -30,8 +30,10 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef ECS_COMPONENT_HPP
-#define ECS_COMPONENT_HPP
+#pragma once
+
+#ifndef ECS_EVENT_HPP
+#define ECS_EVENT_HPP
 
 // -----------------------------------------------------------
 
@@ -269,8 +271,8 @@ namespace ecs
 } /// ecs
 
 using ecs_Event = ecs::Event;
-#define ECS_COMPONENT_DECL
+#define ECS_EVENT_DECL
 
 // -----------------------------------------------------------
 
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_EVENT_HPP

@@ -59,7 +59,7 @@ namespace ecs
     // FIELDS
     // ===========================================================
 
-    ecs_sptr<ComponentsManager> ComponentsManager::mInstance(nullptr);
+    ecs_AsyncStorage<ecs_sptr<ComponentsManager>> ComponentsManager::mInstanceStorage;
 
     // ===========================================================
     // CONSTRUCTOR & DESTRUCTOR
@@ -80,7 +80,7 @@ namespace ecs
     // ===========================================================
 
     ecs_sptr<ComponentsManager> ComponentsManager::getInstance()
-    { return mInstance; }
+    { return mInstanceStorage.getItem(); }
 
     ComponentsManager::components_map_storage& ComponentsManager::getComponents(const ecs_TypeID pType)
     {
@@ -204,12 +204,12 @@ namespace ecs
 
     void ComponentsManager::Initialize()
     {
-        if ( mInstance == nullptr )
-            mInstance = ecs_Shared<ComponentsManager>();
+        if ( mInstanceStorage.getItem() == nullptr )
+            mInstanceStorage.setItem( ecs_Shared<ComponentsManager>() );
     }
 
     void ComponentsManager::Terminate()
-    { mInstance = nullptr; }
+    { mInstanceStorage.setItem( ecs_sptr<ecs_Components>(nullptr) ); }
 
     // -----------------------------------------------------------
 

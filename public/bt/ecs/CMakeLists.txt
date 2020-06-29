@@ -131,12 +131,6 @@ if ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
     include_directories ( "../core" )
     target_link_libraries ( btEngine_ECS btEngine_Core )
 
-    # Android
-    if ( ANDROID )
-        include_directories ( "../android" )
-        target_link_libraries ( btEngine_ECS btEngine_Android )
-    endif ( ANDROID )
-
 endif ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
 
 # =================================================================================

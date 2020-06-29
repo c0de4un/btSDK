@@ -133,7 +133,7 @@ namespace bt
         template <typename T, typename U>
         static bt_sptr<T> StaticCast( bt_sptr<U> pSource )
         {
-            return StaticCast<T, U>( pSource );
+            return std::static_pointer_cast<T, U>( pSource );
         }
 
         template <typename T, typename U>

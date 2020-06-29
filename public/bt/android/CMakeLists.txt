@@ -41,10 +41,21 @@ set ( BT_ANDROID_HEADERS
         "io/AndroidFile.hpp"
         "io/AndroidInputStream.hpp"
         "io/AndroidOutputStream.hpp"
+        # JNI
+        "../java/jni/IJNIAdapter.hxx"
+        "../java/jni/IJNICache.hxx"
+        "../java/jni/JNICache.hpp"
+        "../java/jni/JNIAdapter.hpp"
+        "jni/AndroidJNIParams.hpp"
+        "jni/AndroidJNIAdapter.hpp"
+        "jni/AndroidJNICache.hpp"
+        "jni/IAndroidNative.hxx"
         # ASYNC
         "async/AndroidMutex.hpp"
         # GRAPHICS
         "graphics/AndroidGraphics.hpp"
+        # APPLICATION
+        "app/AndroidApp.hpp"
         # METRICS
         "metrics/AndroidLogger.hpp" )
 
@@ -57,10 +68,17 @@ set ( BT_ANDROID_SOURCES
         "../../../private/bt/android/io/AndroidFile.cpp"
         "../../../private/bt/android/io/AndroidInputStream.cpp"
         "../../../private/bt/android/io/AndroidOutputStream.cpp"
+        # JNI
+        "../../../private/bt/java/jni/JNIAdapter.cpp"
+        "../../../private/bt/java/jni/JNICache.cpp"
+        "../../../private/bt/android/jni/AndroidJNICache.cpp"
+        "../../../private/bt/android/jni/AndroidJNIAdapter.cpp"
         # ASYNC
         "../../../private/bt/android/async/AndroidMutex.cpp"
         # GRAPHICS
         "../../../private/bt/android/graphics/AndroidGraphics.cpp"
+        # APPLICATION
+        "../../../private/bt/android/app/AndroidApp.cpp"
         # METRICS
         "../../../private/bt/android/metrics/AndroidLogger.cpp" )
 
@@ -108,10 +126,14 @@ endif ( BT_BUILD_SHARED )
 # Include & Link
 if ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
     # Include btEngine.Core
+    include_directories ( "../cfg" )
     include_directories ( "../core" )
 
+    # Include btEnigne.GL
+    include_directories ( "../gl" )
+
     # Link
-    target_link_libraries ( btEngine_Android btEngine_Core ${log-lib} )
+    target_link_libraries ( btEngine_Android btEngine_Core btEngine_GL ${log-lib} ${android_lib} )
 endif ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
 
 # =================================================================================

@@ -35,6 +35,9 @@ set ( BT_GL_HEADERS
         "../cfg/bt_open_gl.hpp"
         # ASSETS
         # RENDER
+        "render/IGLSurfaceListener.hxx"
+        "render/events/GLSurfaceDrawEvent.hpp"
+        "render/events/GLSurfaceReadyEvent.hpp"
         "render/GLRendererManager.hpp" )
 
 # =================================================================================
@@ -44,6 +47,8 @@ set ( BT_GL_HEADERS
 set ( BT_GL_SOURCES
         # ASSETS
         # RENDER
+        "../../../private/bt/gl/render/events/GLSurfaceDrawEvent.cpp"
+        "../../../private/bt/gl/render/events/GLSurfaceReadyEvent.cpp"
         "../../../private/bt/gl/render/GLRenderManager.cpp" )
 
 # =================================================================================
@@ -90,11 +95,21 @@ endif ( BT_BUILD_SHARED )
 # Link
 if ( BT_BUILD_SHARED OR BT_BUILD_STATIC )
 
+    # Include btEngine.Core
+    include_directories ( "../cfg" )
+    include_directories ( "../core" )
+
+    # Include ECS
+    include_directories ( "../ecs" )
+
+    # Link btEngine
+    target_link_libraries ( btEngine_GL btEngine_Core btEngine_ECS )
+
     if ( BT_OPEN_GL_ES ) # Mobile
         if ( ANDROID ) # Android
             target_link_libraries ( btEngine_GL ${OpenGL} )
         else ( ANDROID )
-            message ( FATAL_ERROR "${PROJECT_NAME} - Mobile configuration required." )
+            message ( FATAL_ERROR "${PROJECT_NAME} - configuration required." )
         endif ( ANDROID )
     else ( BT_OPEN_GL_ES ) # Desktop
         message ( FATAL_ERROR "${PROJECT_NAME} - Desktop configuration required." )

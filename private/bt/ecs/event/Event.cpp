@@ -37,9 +37,9 @@
 // ===========================================================
 
 // HEADER
-#ifndef ECS_COMPONENT_HPP
+#ifndef ECS_EVENT_HPP
 #include "../../../../public/bt/ecs/event/Event.hpp"
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_EVENT_HPP
 
 // Include ecs::EventsManager
 #ifndef ECS_EVENTS_MANAGER_HPP
@@ -66,7 +66,7 @@ namespace ecs
 
     Event::Event( const ecs_TypeID pType, const bool pRepeat, ecs_wptr<ecs_IEventInvoker> pCaller )
         : mTypeID( pType ),
-        mID(ecs_Events::generateEventID(pType ) ),
+        mID(ecs_Events::generateEventID(pType) ),
         mInvoker( pCaller ),
         mHandled( false ),
         mRepeatable( pRepeat )

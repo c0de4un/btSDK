@@ -216,6 +216,28 @@ namespace bt
 
             /**
              * @brief
+             * Print log-message.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pMessage - c-string (UTF-8 or ANSI), value copied.
+             * @param pLevel - Log-Level (Info, Debug, Warning, Error).
+             * @throws - no exceptions.
+            **/
+            static void Print( const char* const pMessage, const ELogLevel pLevel ) BT_NOEXCEPT;
+
+            /**
+             * @brief
+             * Print log-message in Unicode.
+             *
+             * @thread_safety - depends on implementation.
+             * @param pMessage - wchar_t c-string (Unicode), value copied.
+             * @param pLevel - Log-Level (Info, Debug, Warning, Error).
+             * @throws - no exceptions.
+            **/
+            static void Print_W( const wchar_t* const pMessage, const ELogLevel pLevel ) BT_NOEXCEPT;
+
+            /**
+             * @brief
              * Terminate (release) Log.
              *
              * @thread_safety - main thread only.

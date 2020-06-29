@@ -39,9 +39,9 @@
 // ===========================================================
 
 // Include ecs::Event
-#ifndef ECS_COMPONENT_HPP
+#ifndef ECS_EVENT_HPP
 #include "../../../ecs/event/Event.hpp"
-#endif // !ECS_COMPONENT_HPP
+#endif // !ECS_EVENT_HPP
 
 // ===========================================================
 // TYPES
@@ -61,7 +61,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API SurfaceDrawEvent final : public ecs_Event
+        class BT_API SurfaceDrawEvent : public ecs_Event
         {
 
             // -----------------------------------------------------------
@@ -74,7 +74,7 @@ namespace bt
 
             // -----------------------------------------------------------
 
-        private:
+        protected:
 
             // -----------------------------------------------------------
 

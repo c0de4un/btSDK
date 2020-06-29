@@ -43,11 +43,6 @@
 #include "../../ecs/system/System.hpp"
 #endif // !ECS_SYSTEM_HPP
 
-// Include bt::core::IGraphicsListener
-#ifndef BT_CORE_I_GRAPHICS_LISTENER_HXX
-#include "../graphics/IGraphicsListener.hxx"
-#endif // !BT_CORE_I_GRAPHICS_LISTENER_HXX
-
 // Include bt::memory
 #ifndef BT_CFG_MEMORY_HPP
 #include "../../cfg/bt_memory.hpp"
@@ -57,12 +52,6 @@
 #ifndef BT_CORE_COLOR_4F_HPP
 #include "../math/Color4f.hpp"
 #endif // !BT_CORE_COLOR_4F_HPP
-
-// ===========================================================
-// FORWARD-DECLARATIONS
-// ===========================================================
-
-
 
 // ===========================================================
 // TYPES
@@ -80,7 +69,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API RenderManager : public ecs_System, public bt_IGraphicsListener
+        class BT_API RenderManager : public ecs_System
         {
 
             // -----------------------------------------------------------
@@ -102,7 +91,7 @@ namespace bt
             // ===========================================================
 
             /** Engine instance. **/
-            static bt_sptr<RenderManager> mInstance;
+            static bt_AsyncStorage<bt_sptr<RenderManager>> mInstanceHolder;
 
             /** Background Color .**/
             bt_Color4f mClearColor;

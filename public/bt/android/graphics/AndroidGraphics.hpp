@@ -44,6 +44,22 @@
 #include "../../core/graphics/GraphicsManager.hpp"
 #endif // !BT_CORE_GRAPHICS_MANAGER_HPP
 
+// Include bt::gl::IGLSurfaceListener
+#ifndef BT_GL_I_SURFACE_LISTENER_HXX
+#include "../../gl/render/IGLSurfaceListener.hxx"
+#endif // !BT_GL_I_SURFACE_LISTENER_HXX
+
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+// Forward-Declare bt::gl::GLRenderManager
+#ifndef BT_GL_RENDER_MANAGER_DECL
+#define BT_GL_RENDER_MANAGER_DECL
+namespace bt { namespace gl { class GLRenderManager; } }
+using bt_GLRenderManager = bt::gl::GLRenderManager;
+#endif // !BT_GL_RENDER_MANAGER_DECL
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -63,7 +79,7 @@ namespace bt
          *
          * @version 0.1
         **/
-        class BT_API AndroidGraphics final : public bt_Graphics
+        class BT_API AndroidGraphics final : public bt_Graphics, public bt_IGLSurfaceListener
         {
 
             // -----------------------------------------------------------
@@ -79,6 +95,13 @@ namespace bt
         private:
 
             // -----------------------------------------------------------
+
+            // ===========================================================
+            // FIELDS
+            // ===========================================================
+
+            /** GLRenderManager **/
+            bt_sptr<bt_GLRenderManager> mGLRenderer;
 
             // ===========================================================
             // DELETED
@@ -115,6 +138,30 @@ namespace bt
              * @throws - can throw exception.
             **/
             virtual ~AndroidGraphics();
+
+            // ===========================================================
+            // IGLSurfaceListener
+            // ===========================================================
+
+            /**
+             * @brief
+             * Called when OpenGL Surface is ready (created/changed || restored).
+             *
+             * @thread_safety - render-thread only.
+             * @param pSettings - OpenGL Surface params (width-height, color-depth, stencil, etc).
+             * @return - 'true' to continue, 'false' if error.
+             * @throws - can throw exception.
+            **/
+            virtual bool onGLSurfaceReady( const bt_GraphicsSettings* const pSettings ) final;
+
+            /**
+             * @brief
+             * Called every time OpenGL Surface frame is drawn.
+             *
+             * @thread_safety - render-thread only.
+             * @throws - can throw exception.
+            **/
+            virtual void onGLSurfaceDraw() final;
 
             // ===========================================================
             // bt::core::GraphicsManager

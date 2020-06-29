@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BT_CORE_LOAD_EVENT_HPP
-#define BT_CORE_LOAD_EVENT_HPP
+#ifndef BT_JAVA_JNI_CACHE_HPP
+#define BT_JAVA_JNI_CACHE_HPP
 
 // -----------------------------------------------------------
 
@@ -38,10 +38,26 @@
 // INCLUDES
 // ===========================================================
 
-// Include ecs::Event
-#ifndef ECS_COMPONENT_HPP
-#include "../../../ecs/event/Event.hpp"
-#endif // !ECS_COMPONENT_HPP
+// Include bt::core::AsyncStorage
+#ifndef BT_CORE_ASYNC_STORAGE_HPP
+#include "../../core/async/AsyncStorage.hpp"
+#endif // !BT_CORE_ASYNC_STORAGE_HPP
+
+// Include bt::memory
+#ifndef BT_CFG_MEMORY_HPP
+#include "../../cfg/bt_memory.hpp"
+#endif // !BT_CFG_MEMORY_HPP
+
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+// Forward-Declare bt::java::IJNICache
+#ifndef BT_JAVA_I_JNI_CACHE_DECL
+namespace bt { namespace java { class IJNICache; } }
+using bt_IJNICache = bt::java::IJNICache;
+#define BT_JAVA_I_JNI_CACHE_DECL
+#endif // !BT_JAVA_I_JNI_CACHE_DECL
 
 // ===========================================================
 // TYPES
@@ -50,19 +66,19 @@
 namespace bt
 {
 
-    namespace core
+    namespace java
     {
 
         // -----------------------------------------------------------
 
         /**
          * @brief
-         * LoadEvent - allows to notify Graphics/Render API users,
-         * that assets (textures, shared, meshes, math) can be loaded & used.
+         * JNICache - factory & facade class-type.
+         * Used to separate IJNICache implementation from user.
          *
          * @version 0.1
         **/
-        class BT_API LoadEvent final : public ecs_Event
+        class BT_API JNICache final
         {
 
             // -----------------------------------------------------------
@@ -80,13 +96,32 @@ namespace bt
             // -----------------------------------------------------------
 
             // ===========================================================
+            // FIELDS
+            // ===========================================================
+
+            /** IJNICache instance. **/
+            static bt_AsyncStorage<bt_sptr<bt_IJNICache>> mInstanceHolder;
+
+            // ===========================================================
+            // CONSTRUCTOR
+            // ===========================================================
+
+            /**
+             * @brief
+             * JNICache constructor.
+             *
+             * @throws - no exceptions.
+            **/
+            explicit JNICache() noexcept;
+
+            // ===========================================================
             // DELETED
             // ===========================================================
 
-            LoadEvent(const LoadEvent&) = delete;
-            LoadEvent& operator=(const LoadEvent&) = delete;
-            LoadEvent(LoadEvent&&) = delete;
-            LoadEvent& operator=(LoadEvent&&) = delete;
+            JNICache(const JNICache&) = delete;
+            JNICache& operator=(const JNICache&) = delete;
+            JNICache(JNICache&&) = delete;
+            JNICache& operator=(JNICache&&) = delete;
 
             // -----------------------------------------------------------
 
@@ -95,46 +130,74 @@ namespace bt
             // -----------------------------------------------------------
 
             // ===========================================================
-            // CONSTANTS
-            // ===========================================================
-
-            /** Reloading flag. Used to detect, that surface restored (lost of context, GC, device orientation change, etc). **/
-            const bool mReload;
-
-            // ===========================================================
-            // CONSTRUCTOR & DESTRUCTOR
+            // DESTRUCTOR
             // ===========================================================
 
             /**
              * @brief
-             * LoadEvent constructor.
+             * JNICache destructor.
              *
-             * @param pReloading - reloading (restore) flag. 'true', if Rendering Surface restored.
-             * @param pCaller - Event Invoker. Can be null.
-             * @throws - can throw exception.
-            **/
-            explicit LoadEvent( const bool pReloading, ecs_wptr<ecs_IEventInvoker> pCaller = ecs_sptr<ecs_IEventInvoker>( nullptr ) );
+             * @throws - no exceptions.
+             **/
+            ~JNICache() noexcept;
+
+            // ===========================================================
+            // GETTERS & SETTERS
+            // ===========================================================
 
             /**
              * @brief
-             * LoadEvent destructor.
+             * Returns IJNICache instance, or null.
              *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception:
+             *           - mutex;
+            **/
+            static BT_API bt_sptr<bt_IJNICache> getInstance();
+
+            /**
+             * @brief
+             * Returns 'true' if JNICache instance already set.
+             *
+             * @thread_safety - thread-locks used.
+             * @throws - no exceptions.
+            **/
+            static BT_API bool isInitialized() BT_NOEXCEPT;
+
+            // ===========================================================
+            // METHODS
+            // ===========================================================
+
+            /**
+             * @brief
+             * Initialize IJNICache instance.
+             *
+             * @thread_safety - thread-lock used.
              * @throws - can throw exception.
             **/
-            virtual ~LoadEvent();
+            static BT_API void Initialize( bt_sptr<bt_IJNICache>& pInstance );
+
+            /**
+             * @brief
+             * Terminate IJNICache instance.
+             *
+             * @thread_safety - thread-lock used.
+             * @throws - can throw exception.
+            **/
+            static BT_API void Terminate();
 
             // -----------------------------------------------------------
 
-        }; /// bt::core::LoadEvent
+        }; /// bt::java::JNICache
 
         // -----------------------------------------------------------
 
-    } /// bt::core
+    } /// bt::java
 
 } /// bt
 
-using bt_LoadEvent = bt::core::LoadEvent;
+using bt_JNICache = bt::java::JNICache;
 
 // -----------------------------------------------------------
 
-#endif // !BT_CORE_LOAD_EVENT_HPP
+#endif // !BT_JAVA_JNI_CACHE_HPP

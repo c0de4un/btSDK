@@ -86,6 +86,7 @@ set ( BT_CORE_HEADERS
         "io/StreamReader.hpp"
         "io/StreamWriter.hpp"
         # ASSETS
+        "assets/LoadEvent.hpp"
         "assets/IAsset.hxx"
         "assets/materials/IShader.hxx"
         "assets/materials/Shader.hpp"
@@ -103,6 +104,7 @@ set ( BT_CORE_HEADERS
         "memory/IDMap.hpp"
         "memory/IDVector.hpp"
         # METRICS
+        "metrics/Exception.hpp"
         "metrics/ILogger.hxx"
         "metrics/Log.hpp"
         # GRAPHICS
@@ -111,8 +113,11 @@ set ( BT_CORE_HEADERS
         # RENDER
         "render/IDrawable.hxx"
         "render/RenderManager.hpp"
-        "render/events/LoadEvent.hpp"
         "render/events/SurfaceDrawEvent.hpp"
+        "render/events/SurfaceReadyEvent.hpp"
+        # APPLICATION
+        "app/AppParams.hpp"
+        "app/Application.hpp"
         # GAME
         "game/Game.hpp"
         # ENGINE
@@ -133,6 +138,7 @@ set ( BT_CORE_SOURCES
         "../../../private/bt/core/io/StreamReader.cpp"
         "../../../private/bt/core/io/StreamWriter.cpp"
         # ASSETS
+        "../../../private/bt/core/assets/LoadEvent.cpp"
         "../../../private/bt/core/assets/materials/Shader.cpp"
         "../../../private/bt/core/assets/Asset.cpp"
         # ASYNC
@@ -142,13 +148,16 @@ set ( BT_CORE_SOURCES
         # MATH
         "../../../private/bt/core/math/Color4f.cpp"
         # METRICS
+        "../../../private/bt/core/metrics/Exception.cpp"
         "../../../private/bt/core/metrics/Log.cpp"
         # GRAPHICS
         "../../../private/bt/core/graphics/GraphicsManager.cpp"
         # RENDER
         "../../../private/bt/core/render/RenderManager.cpp"
-        "../../../private/bt/core/render/events/LoadEvent.cpp"
         "../../../private/bt/core/render/events/SurfaceDrawEvent.cpp"
+        "../../../private/bt/core/render/events/SurfaceReadyEvent.cpp"
+        # APPLICATION
+        "../../../private/bt/core/app/Application.cpp"
         # GAME
         "../../../private/bt/core/game/Game.cpp"
         # ENGINE

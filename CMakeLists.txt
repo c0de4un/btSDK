@@ -55,11 +55,11 @@ set ( BT_SOURCES "${BT_PRIVATE_DIR}bt/bt.cpp" )
 # MODULES
 # =================================================================================
 
-# CORE
-add_subdirectory ( "${BT_PUBLIC_DIR}bt/core" )
-
 # ECS
 add_subdirectory ( "${BT_PUBLIC_DIR}/bt/ecs" )
+
+# CORE
+add_subdirectory ( "${BT_PUBLIC_DIR}bt/core" )
 
 # OpenGL
 if ( BT_OPEN_GL )
@@ -116,6 +116,7 @@ if ( BT_BUILD_STATIC OR BT_BUILD_SHARED )
 
     # OpenGL
     if ( BT_OPEN_GL )
+        include_directories ( "gl" )
         target_link_libraries ( btEngine btEngine_GL )
     endif ( BT_OPEN_GL )
 

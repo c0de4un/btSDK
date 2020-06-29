@@ -79,11 +79,14 @@ namespace bt
             /** Surface-Draw. Called from Render Threads-Type every frame. **/
             SurfaceDraw = 2,
 
+            /** Surface-Ready. Called from Render-Thread when Surface created/changed/restored. **/
+            SurfaceReady = 3,
+
             /** Logic State Update. **/
-            LogicUpdate = 3,
+            LogicUpdate = 4,
 
             /** Physics State Update. **/
-            PhysicsUpdate = 4,
+            PhysicsUpdate = 5,
 
             /** Max. value. User for override (extend). **/
             MAX = 99
